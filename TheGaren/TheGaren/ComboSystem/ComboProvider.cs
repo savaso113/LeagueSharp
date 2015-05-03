@@ -47,6 +47,7 @@ namespace TheGaren.ComboSystem
         /// <param name="context"></param>
         public virtual void Update(IMainContext context)
         {
+
             _context = context;
             _orbwalker = context.GetOrbwalker();
             if (_totalControl)

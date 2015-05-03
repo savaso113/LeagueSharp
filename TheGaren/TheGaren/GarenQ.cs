@@ -64,6 +64,7 @@ namespace TheGaren
                     }
                 }
             }
+
         }
 
         public override void Harass(IMainContext context, ComboProvider combo)
@@ -83,8 +84,9 @@ namespace TheGaren
 
         public override bool NeedsControl()
         {
-            return Spell.Instance.State == SpellState.Ready || IsInSafeCast("GarenQ") || ObjectManager.Player.Buffs.Any(buff => buff.Name == "GarenQ") || _isDoingWindingUpProcess;
+            return Spell.Instance.State == SpellState.Ready || IsInSafeCast("GarenQ") || ObjectManager.Player.Buffs.Any(buff => buff.Name == "GarenQ");// || _isDoingWindingUpProcess;
         }
+
 
         public override int GetPriority()
         {

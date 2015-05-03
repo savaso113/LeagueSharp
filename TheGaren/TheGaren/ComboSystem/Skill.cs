@@ -31,8 +31,9 @@ namespace TheGaren.ComboSystem
         {
             if (string.IsNullOrEmpty(name))
                 name = Spell.Instance.Name;
-            if (HasBeenSafeCast(name))
+            if (HasBeenSafeCast())
                 return;
+
             _castTime = Game.Time;
             _castName = name;
             _castSpell = Spell;
@@ -47,8 +48,9 @@ namespace TheGaren.ComboSystem
         {
             if (string.IsNullOrEmpty(name))
                 name = spell.Instance.Name;
-            if (HasBeenSafeCast(name))
+            if (HasBeenSafeCast())
                 return;
+
             _castTime = Game.Time;
             _castName = name;
             _castSpell = spell;
@@ -154,7 +156,12 @@ namespace TheGaren.ComboSystem
         /// <returns></returns>
         protected bool HasBeenSafeCast(string name)
         {
-            return (_castName == name && Game.Time - _castTime < SafeCastMaxTime) || (_castSpell != null && Spell.Instance.State == SpellState.Cooldown) || (_castSpell != null && Spell.Instance.Name != _castName);
+            return (_castName == name && Game.Time - _castTime < SafeCastMaxTime) || (_castSpell != null && Spell.Instance.State != SpellState.Ready) || (_castSpell != null && Spell.Instance.Name != _castName);
+        }
+
+        protected bool HasBeenSafeCast()
+        {
+            return (Game.Time - _castTime < SafeCastMaxTime) || (_castSpell != null && Spell.Instance.State != SpellState.Ready) || (_castSpell != null && Spell.Instance.Name != _castName);
         }
 
         /// <summary>
@@ -165,7 +172,7 @@ namespace TheGaren.ComboSystem
         /// <returns></returns>
         protected bool IsInSafeCast(string name, float castTime = SafeCastMaxTime)
         {
-            return (!string.IsNullOrEmpty(_castName) && _castName != name) || Game.Time - _castTime < castTime;
+            return ((!string.IsNullOrEmpty(_castName)) && _castName == name) && Game.Time - _castTime < castTime;
         }
     }
 }
