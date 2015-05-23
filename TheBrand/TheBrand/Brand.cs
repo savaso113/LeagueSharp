@@ -28,7 +28,7 @@ namespace TheBrand
 
                 var notification = new Notification("The Brand loaded", 3) { TextColor = new SharpDX.ColorBGRA(255, 0, 0, 255), BorderColor = new SharpDX.ColorBGRA(139, 100, 0, 255) };
                 Notifications.AddNotification(notification);
-                var y = Color.OrangeRed;
+
                 _comboProvider = new BrandCombo(new Skill[] { new BrandQ(new Spell(SpellSlot.Q)), new BrandW(new Spell(SpellSlot.W)), new BrandE(new Spell(SpellSlot.E)), new BrandR(new Spell(SpellSlot.R)) }.ToList(), 1050);
 
                 _mainMenu = CreateMenu("The Brand", true);
@@ -47,11 +47,11 @@ namespace TheBrand
                 _orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
                 TargetSelector.AddToMenu(targetSelectorMenu);
 
-
                 comboMenu.AddMItem("Use Q", true, (sender, args) => _comboProvider.SetEnabled<BrandQ>(Orbwalking.OrbwalkingMode.Combo, args.GetNewValue<bool>()));
                 comboMenu.AddMItem("Use W", true, (sender, args) => _comboProvider.SetEnabled<BrandW>(Orbwalking.OrbwalkingMode.Combo, args.GetNewValue<bool>()));
                 comboMenu.AddMItem("Use E", true, (sender, args) => _comboProvider.SetEnabled<BrandE>(Orbwalking.OrbwalkingMode.Combo, args.GetNewValue<bool>()));
                 comboMenu.AddMItem("Use R", true, (sender, args) => _comboProvider.SetEnabled<BrandR>(Orbwalking.OrbwalkingMode.Combo, args.GetNewValue<bool>()));
+                comboMenu.AddMItem("Min Hitchance", new StringList(new[] { "Low", "Medium", "High", "VeryHigh" }));
                 comboMenu.ProcStoredValueChanged<bool>();
 
                 var rOptions = CreateMenu("Ult Options", comboMenu);
@@ -83,6 +83,7 @@ namespace TheBrand
                 miscMenu.AddMItem("E on fire-minion", true, (sender, args) => _comboProvider.GetSkill<BrandE>().UseMinions = args.GetNewValue<bool>());
                 miscMenu.AddMItem("E farm assist", true, (sender, args) => _comboProvider.GetSkill<BrandE>().FarmAssist = args.GetNewValue<bool>());
                 miscMenu.AddMItem("E Killsteal", true, (sender, args) => _comboProvider.GetSkill<BrandE>().Killsteal = args.GetNewValue<bool>());
+                miscMenu.ProcStoredValueChanged<bool>();
                 miscMenu.AddMItem("Force AA in combo", false);
 
                 var gapcloserSpells = CreateMenu("Enemies");
@@ -97,7 +98,7 @@ namespace TheBrand
                 _comboProvider.AddInterruptablesToMenu(spellMenu);
                 interrupter.AddSubMenu(spellMenu);
 
-                drawingMenu.AddMItem("Damage indicator3", new Circle(true, Color.Yellow), (sender, args) =>
+                drawingMenu.AddMItem("Damage indicator", new Circle(true, Color.Yellow), (sender, args) =>
                 {
                     DamageIndicator.Enabled = args.GetNewValue<Circle>().Active;
                     DamageIndicator.Fill = true;

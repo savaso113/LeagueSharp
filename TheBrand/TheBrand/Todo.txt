@@ -12,3 +12,10 @@ Movement predicition in R logic, so the bounces work better
 ###############
 
 Targetselector effective health
+
+
+####
+
+before going live:
+hitchance in combo
+check lasthit harass

@@ -14,6 +14,7 @@ namespace TheBrand.Commons
 
         private static MenuItem _igniteUsage, _igniteKillsteal, _igniteSituation, _igniteMaxAutoattacks, _igniteOnlyCombo, _igniteSpellsCooldown, _igniteCloseFight, _igniteCloseFightHealth;
         private static SpellDataInst _ignite;
+        private static Spell _igniteSpell;
 
         /// <summary>
         /// Adds to the menu and stuffs
@@ -22,6 +23,7 @@ namespace TheBrand.Commons
         {
             _ignite = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "summonerdot");
             if (_ignite == null) return;
+            _igniteSpell = new Spell(_ignite.Slot);
             var igniteMenu = new Menu(menuName, menuName);
             rootMenu.AddSubMenu(igniteMenu);
             _igniteUsage = igniteMenu.AddMItem("Use Ignite", true);
@@ -128,7 +130,12 @@ namespace TheBrand.Commons
         {
             //Console.WriteLine("usiong ingote");
             if (_ignite == null || _ignite.State != SpellState.Ready) return;
-            new Spell(_ignite.Slot).Cast(target);
+            _igniteSpell.Cast(target);
+        }
+
+        public static bool CanBeUsed()
+        {
+            return _igniteSpell != null && _igniteSpell.Instance.State == SpellState.Ready;
         }
 
     }

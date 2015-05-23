@@ -16,9 +16,9 @@ namespace TheBrand
         static ManaManager()
         {
             ManaSettings.Add(Orbwalking.OrbwalkingMode.Combo, 0);
-            ManaSettings.Add(Orbwalking.OrbwalkingMode.LaneClear, 80);
+            ManaSettings.Add(Orbwalking.OrbwalkingMode.LaneClear, 90);
             ManaSettings.Add(Orbwalking.OrbwalkingMode.LastHit, 60);
-            ManaSettings.Add(Orbwalking.OrbwalkingMode.Mixed, 70);
+            ManaSettings.Add(Orbwalking.OrbwalkingMode.Mixed, 75);
             ManaSettings.Add(Orbwalking.OrbwalkingMode.None, 0);
         }
 
@@ -46,7 +46,7 @@ namespace TheBrand
         public static bool CanUseMana(Orbwalking.OrbwalkingMode mode)
         {
          //  Console.WriteLine(mode + " " + ObjectManager.Player.ManaPercent + " > " + ManaSettings[mode]);
-            return ObjectManager.Player.ManaPercent > ManaSettings[mode] || !EnableLimitations;
+            return ObjectManager.Player.ManaPercent >= ManaSettings[mode] || !EnableLimitations;
         }
 
     }

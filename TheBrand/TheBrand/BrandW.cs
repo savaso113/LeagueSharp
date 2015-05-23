@@ -14,7 +14,7 @@ namespace TheBrand
     {
         private BrandE _brandE;
         private BrandQ _brandQ;
-        private MenuItem _wInterrupt, _eInterrupt, _wPrediction, _waveClearTargets, _harassHitchance;
+        private MenuItem _wInterrupt, _eInterrupt, _wPrediction, _waveClearTargets, _harassHitchance, _comboHitchance;
 
         public BrandW(Spell spell)
             : base(spell)
@@ -31,6 +31,7 @@ namespace TheBrand
             _wPrediction = context.GetRootMenu().GetMenuItem("Drawing.WPrediction");
             _waveClearTargets = context.GetRootMenu().GetMenuItem("Laneclear.MinWtargets");
             _harassHitchance = context.GetRootMenu().GetMenuItem("Harass.Hitchance");
+            _comboHitchance = context.GetRootMenu().GetMenuItem("Combo.MinHitchance");
             Drawing.OnDraw += Draw;
             base.Initialize(context, combo);
         }
@@ -39,11 +40,15 @@ namespace TheBrand
         {
             var drawingOption = _wPrediction.GetValue<Circle>();
             if (!drawingOption.Active) return;
-            var target = Provider.GetTarget();
-            if (Context.GetOrbwalker().ActiveMode == Orbwalking.OrbwalkingMode.Combo || target == null) return;
-            var prediction = Spell.GetPrediction(target, true);
-            if(prediction.CastPosition.Distance(ObjectManager.Player.Position) < 900)
-            Render.Circle.DrawCircle(prediction.CastPosition, 240f, drawingOption.Color);
+            try
+            {
+                var target = Provider.GetTarget();
+                if (Context.GetOrbwalker().ActiveMode == Orbwalking.OrbwalkingMode.Combo || target == null) return;
+                var prediction = Spell.GetPrediction(target, true);
+                if (prediction.CastPosition.Distance(ObjectManager.Player.Position) < 900)
+                    Render.Circle.DrawCircle(prediction.CastPosition, 240f, drawingOption.Color);
+            }
+            catch { }
         }
 
         public override void Cast(Obj_AI_Hero target, bool force = false, HitChance minChance = HitChance.Low)
@@ -65,8 +70,12 @@ namespace TheBrand
 
         public override void Harass(IMainContext context, ComboProvider combo, Obj_AI_Hero target)
         {
-
             Cast(target, false, (HitChance)Enum.Parse(typeof(HitChance), _harassHitchance.GetValue<StringList>().SelectedValue, true));
+        }
+
+        public override void Combo(IMainContext context, ComboProvider combo, Obj_AI_Hero target)
+        {
+            Cast(target, false, (HitChance)Enum.Parse(typeof(HitChance), _comboHitchance.GetValue<StringList>().SelectedValue, true));
         }
 
         public override float GetDamage(Obj_AI_Hero enemy)

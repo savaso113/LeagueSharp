@@ -5,6 +5,7 @@ using System.Text;
 using LeagueSharp;
 using LeagueSharp.Common;
 using TheBrand.ComboSystem;
+using TheBrand.Commons;
 
 namespace TheBrand
 {
@@ -54,6 +55,12 @@ namespace TheBrand
                 {
                     if (HealthPrediction.GetHealthPrediction(target, 1) > 0)
                         SafeCast(() => Spell.Cast(target));
+                }
+                else if (ObjectManager.Player.HealthPercent < target.HealthPercent && IgniteManager.CanBeUsed() && IgniteManager.GetDamage() + dmgPerBounce > target.Health)
+                {
+                    if (target.Distance(ObjectManager.Player) < 600)
+                        IgniteManager.UseIgnite(target);
+                    SafeCast(() => Spell.Cast(target));
                 }
             }
 
