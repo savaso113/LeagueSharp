@@ -1,0 +1,14 @@
+﻿r logic: random rng ult before death if maximum hits could kill
+harass toggleable  -- dunno dont like it
+optimal range/target for each skill, should it even switch targets? -- seems okay now, could still do better tho
+fix damage indicator -- done, could use more logic at ult (two object bounce -> more dmg) but that would be perf intense and pretty unnesecary
+fix skills sometimes not casting (after cc?)  -- couldnt fully reconstruct ## its always in a situation where W is down and QE up, dunno
+Un-target passive dead ppl
+Ignite heal ppl (low health adc?)
+
+Hitchance in combo
+Movement predicition in R logic, so the bounces work better
+
+###############
+
+Targetselector effective health
