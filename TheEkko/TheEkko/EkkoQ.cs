@@ -15,8 +15,8 @@ namespace TheEkko
             : base(spell)
         {
             spell.SetSkillshot(0.5f, 60, 1200, false, SkillshotType.SkillshotLine);
-            Console.WriteLine(spell.Instance.SData.LineWidth + " lw");
-            Console.WriteLine(spell.Instance.SData.MissileSpeed + " cast");
+            //Console.WriteLine(spell.Instance.SData.LineWidth + " lw");
+            //Console.WriteLine(spell.Instance.SData.MissileSpeed + " cast");
         }
 
 
