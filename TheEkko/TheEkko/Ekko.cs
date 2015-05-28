@@ -27,6 +27,8 @@ namespace TheEkko
             var targetSelectorMenu = CreateMenu("Target Selector", _mainMenu);
             var comboMenu = CreateMenu("Combo", _mainMenu);
             var harassMenu = CreateMenu("Harass", _mainMenu);
+            //var laneClear = CreateMenu("Laneclear", _mainMenu);
+            var antiGapcloser = CreateMenu("Anti Gapcloser", _mainMenu);
             ManaManager.Initialize(_mainMenu, "Manamanager", true, false, false);
             IgniteManager.Initialize(_mainMenu);
             var drawingMenu = CreateMenu("Drawing", _mainMenu);
@@ -46,10 +48,32 @@ namespace TheEkko
             harassMenu.AddMItem("Use Q", true, (sender, args) => _comboProvider.SetEnabled<EkkoQ>(Orbwalking.OrbwalkingMode.Mixed, args.GetNewValue<bool>()));
             harassMenu.ProcStoredValueChanged<bool>();
 
+            //laneClear.AddMItem("Use Q", true, (sender, args) => _comboProvider.SetEnabled<EkkoQ>(Orbwalking.OrbwalkingMode.LaneClear, args.GetNewValue<bool>()));
+            //laneClear.ProcStoredValueChanged<bool>();
+            ////laneClear.AddMItem("Min Q Farm", new Slider(4, 1, 10), (sender,args) => _comboProvider.GetSkill<EkkoQ>().MinFarm = args.GetNewValue<Slider>().Value);
+
+
+            var gapcloserSpells = CreateMenu("Enemies");
+            _comboProvider.AddGapclosersToMenu(gapcloserSpells);
+            antiGapcloser.AddSubMenu(gapcloserSpells);
+            antiGapcloser.AddMItem("W on Gapcloser", true, (sender, args) => _comboProvider.GetSkill<EkkoW>().AntiGapcloser = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
+
+
             _drawQ = drawingMenu.AddMItem("Draw Q", new Circle(true, Color.OrangeRed));
             _drawQEx = drawingMenu.AddMItem("Draw Q Ex", new Circle(false, Color.Yellow));
             _drawR = drawingMenu.AddMItem("Draw R", new Circle(true, Color.Red));
+
+            drawingMenu.AddMItem("Damage indicator", new Circle(true, Color.Yellow), (sender, args) =>
+            {
+                DamageIndicator.Enabled = args.GetNewValue<Circle>().Active;
+                DamageIndicator.Fill = true;
+                DamageIndicator.FillColor = Color.FromArgb(100, args.GetNewValue<Circle>().Color);
+                DamageIndicator.Color = Color.FromArgb(200, DamageIndicator.FillColor);
+                DamageIndicator.DamageToUnit = _comboProvider.GetComboDamage;
+            }).ProcStoredValueChanged<Circle>();
+
             _mainMenu.AddToMainMenu();
+
 
             Game.OnUpdate += Update;
             Drawing.OnDraw += Draw;

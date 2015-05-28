@@ -11,6 +11,8 @@ namespace TheEkko
 {
     class EkkoW : Skill
     {
+        public bool AntiGapcloser;
+
         public EkkoW(Spell spell)
             : base(spell)
         {
@@ -24,6 +26,13 @@ namespace TheEkko
             if (prediction.Hitchance < minChance) return;
             SafeCast(() => Spell.Cast(prediction.CastPosition));
 
+        }
+
+        public override void Gapcloser(IMainContext context, ComboProvider combo, ActiveGapcloser gapcloser)
+        {
+            if (AntiGapcloser)
+                SafeCast(() => Spell.Cast(ObjectManager.Player.Position));
+            base.Gapcloser(context, combo, gapcloser);
         }
 
         public override int GetPriority()
