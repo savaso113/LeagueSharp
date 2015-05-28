@@ -32,6 +32,7 @@ namespace TheEkko
             ManaManager.Initialize(_mainMenu, "Manamanager", true, false, false);
             IgniteManager.Initialize(_mainMenu);
             var drawingMenu = CreateMenu("Drawing", _mainMenu);
+            var miscMenu = CreateMenu("Misc", _mainMenu);
 
             _orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
             TargetSelector.AddToMenu(targetSelectorMenu);
@@ -71,6 +72,8 @@ namespace TheEkko
                 DamageIndicator.Color = Color.FromArgb(200, DamageIndicator.FillColor);
                 DamageIndicator.DamageToUnit = _comboProvider.GetComboDamage;
             }).ProcStoredValueChanged<Circle>();
+
+            miscMenu.AddMItem("When clearing harass if enemy near", true, (sender, args) => _comboProvider.GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));
 
             _mainMenu.AddToMainMenu();
 
