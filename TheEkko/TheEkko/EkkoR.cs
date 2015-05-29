@@ -35,7 +35,7 @@ namespace TheEkko
             if (HasBeenSafeCast()) return;
             var ekko = ObjectManager.Get<GameObject>().FirstOrDefault(item => item.Name == "Ekko_Base_R_TrailEnd.troy");
             if (ekko == null) return;
-            var enemyCount = HeroManager.Enemies.Count(enemy => enemy.Distance(ekko.Position) < 400);
+            var enemyCount = HeroManager.Enemies.Count(enemy => enemy.Distance(ekko.Position) < 400 && enemy.IsValidTarget());
             if (enemyCount >= _ultMin.GetValue<Slider>().Value && ObjectManager.Player.HealthPercent >= _ultMinHealth.GetValue<Slider>().Value)
             {
                 SafeCast(() => Spell.Cast());

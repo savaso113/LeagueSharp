@@ -8,5 +8,6 @@ C:\Users\Nino\Documents\LeagueSharp\TheEkko\TheEkko\bin\Release\SharpDX.Direct3D
 C:\Users\Nino\Documents\LeagueSharp\TheEkko\TheEkko\bin\Release\clipper_library.dll
 C:\Users\Nino\Documents\LeagueSharp\TheEkko\TheEkko\bin\Release\LeagueSharp.Sandbox.dll
 C:\Users\Nino\Documents\LeagueSharp\TheEkko\TheEkko\bin\Release\LeagueSharp.xml
+C:\Users\Nino\Documents\LeagueSharp\TheEkko\TheEkko\obj\Debug\TheEkko.csprojResolveAssemblyReference.cache
 C:\Users\Nino\Documents\LeagueSharp\TheEkko\TheEkko\obj\Debug\TheEkko.exe
 C:\Users\Nino\Documents\LeagueSharp\TheEkko\TheEkko\obj\Debug\TheEkko.pdb
