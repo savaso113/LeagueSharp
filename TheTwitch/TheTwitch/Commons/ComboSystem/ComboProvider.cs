@@ -132,7 +132,7 @@ namespace TheTwitch.Commons.ComboSystem
             {
                 Skill currentSkill = skill;
                 if (forbiddenSlots.Contains(currentSkill.Spell.Slot)) continue;
-                comboMenu.AddMItem("Use " + skill.Spell.Slot, true, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.Combo, args.GetNewValue<bool>()));
+                comboMenu.AddMItem("Use " + skill.Spell.Slot, skill.ComboEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.Combo, args.GetNewValue<bool>()));
                 if (skill.Spell.IsSkillshot)
                     comboMenu.AddMItem(skill.Spell.Slot + " Hitchance", new StringList(new[] { "Low", "Medium", "High", "VeryHigh" }), (sender, args) => currentSkill.SetMinComboHitchance(args.GetNewValue<StringList>().SelectedValue));
             }
@@ -146,7 +146,7 @@ namespace TheTwitch.Commons.ComboSystem
             {
                 Skill currentSkill = skill;
                 if (forbiddenSlots.Contains(currentSkill.Spell.Slot) || currentSkill.Spell.Slot == SpellSlot.R) continue;
-                harassMenu.AddMItem("Use " + skill.Spell.Slot, true, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.Mixed, args.GetNewValue<bool>()));
+                harassMenu.AddMItem("Use " + skill.Spell.Slot, skill.HarassEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.Mixed, args.GetNewValue<bool>()));
                 if (skill.Spell.IsSkillshot)
                     harassMenu.AddMItem(skill.Spell.Slot + " Hitchance", new StringList(new[] { "Low", "Medium", "High", "VeryHigh" }) { SelectedIndex = 3 }, (sender, args) => currentSkill.SetMinHarassHitchance(args.GetNewValue<StringList>().SelectedValue));
             }
@@ -160,7 +160,7 @@ namespace TheTwitch.Commons.ComboSystem
             {
                 Skill currentSkill = skill;
                 if (forbiddenSlots.Contains(currentSkill.Spell.Slot) || currentSkill.Spell.Slot == SpellSlot.R) continue;
-                laneclearMenu.AddMItem("Use " + skill.Spell.Slot, true, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.LaneClear, args.GetNewValue<bool>()));
+                laneclearMenu.AddMItem("Use " + skill.Spell.Slot, skill.LaneclearEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.LaneClear, args.GetNewValue<bool>()));
             }
             if (harassSwitch) laneclearMenu.AddMItem("Harass instead if enemy near", false, (sender, args) => GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));
 

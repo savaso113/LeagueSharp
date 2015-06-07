@@ -19,6 +19,7 @@ namespace TheTwitch
             : base(spell)
         {
             OnlyUpdateIfTargetValid = false;
+            HarassEnabled = false;
         }
 
         public override void Cast(Obj_AI_Hero target, bool force = false)
