@@ -162,7 +162,7 @@ namespace TheTwitch.Commons.ComboSystem
                 if (forbiddenSlots.Contains(currentSkill.Spell.Slot) || currentSkill.Spell.Slot == SpellSlot.R) continue;
                 laneclearMenu.AddMItem("Use " + skill.Spell.Slot, true, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.LaneClear, args.GetNewValue<bool>()));
             }
-            if (harassSwitch) laneclearMenu.AddMItem("Harass instead if enemy near", true, (sender, args) => GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));
+            if (harassSwitch) laneclearMenu.AddMItem("Harass instead if enemy near", false, (sender, args) => GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));
 
             laneclearMenu.ProcStoredValueChanged<bool>();
         }

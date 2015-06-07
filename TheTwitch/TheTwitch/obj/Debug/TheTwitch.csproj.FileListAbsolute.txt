@@ -10,3 +10,6 @@ C:\Users\Nino\Desktop\SHIRO SVN\TheTwitch\TheTwitch\bin\Release\LeagueSharp.Sand
 C:\Users\Nino\Desktop\SHIRO SVN\TheTwitch\TheTwitch\bin\Release\LeagueSharp.xml
 C:\Users\Nino\Desktop\SHIRO SVN\TheTwitch\TheTwitch\obj\Debug\TheTwitch.exe
 C:\Users\Nino\Desktop\SHIRO SVN\TheTwitch\TheTwitch\obj\Debug\TheTwitch.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\TheTwitch.exe.config
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\obj\Debug\TheTwitch.exe
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\obj\Debug\TheTwitch.pdb
