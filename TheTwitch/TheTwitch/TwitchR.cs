@@ -17,6 +17,7 @@ namespace TheTwitch
         public TwitchR(Spell spell)
             : base(spell)
         {
+            HarassEnabled = false;
         }
 
         public override void Cast(Obj_AI_Hero target, bool force = false)
