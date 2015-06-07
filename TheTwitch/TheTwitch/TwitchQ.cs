@@ -14,12 +14,25 @@ namespace TheTwitch
     class TwitchQ : Skill
     {
         public Circle DrawRange;
+        public bool StealthRecall;
+        private float _stealthRecallTime;
 
         public TwitchQ(Spell spell)
             : base(spell)
         {
             OnlyUpdateIfTargetValid = false;
             HarassEnabled = false;
+        }
+
+        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
+        {
+            if (StealthRecall && ObjectManager.Player.IsRecalling() && Game.Time - _stealthRecallTime > 10 && CanBeCast())
+            {
+                _stealthRecallTime = Game.Time;
+                Spell.Cast();
+                ObjectManager.Player.Spellbook.CastSpell(ObjectManager.Player.Spellbook.Spells.First(spell => spell.Name == "recall").Slot);
+            }
+            base.Update(mode, combo, target);
         }
 
         public override void Cast(Obj_AI_Hero target, bool force = false)
@@ -29,6 +42,7 @@ namespace TheTwitch
 
         public override void Draw()
         {
+
             if (!DrawRange.Active) return;
             var stealthTime = GetRemainingTime();
             if (stealthTime > 0)
