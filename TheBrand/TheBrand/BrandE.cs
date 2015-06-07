@@ -11,24 +11,25 @@ namespace TheBrand
     class BrandE : Skill
     {
         private BrandQ _brandQ;
-        private MenuItem _eInterrupt;
         private Obj_AI_Base _recentFarmTarget;
         public bool UseMinions;
         public bool FarmAssist;
         public bool Killsteal;
+        public bool KillstealCombo;
+        public bool InterruptE;
 
         public BrandE(Spell spell)
             : base(spell)
         {
         }
 
-        public override void Initialize(IMainContext context, ComboProvider combo)
+
+        public override void Initialize(ComboProvider combo)
         {
             _brandQ = combo.GetSkill<BrandQ>();
-            _eInterrupt = context.GetRootMenu().GetMenuItem("Interrupter.EUsage");
             Orbwalking.OnNonKillableMinion += OnMinionUnkillable;
             Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
-            base.Initialize(context, combo);
+            base.Initialize(combo);
         }
 
         void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
@@ -36,44 +37,42 @@ namespace TheBrand
             _recentFarmTarget = args.Target.Type == GameObjectType.obj_AI_Base ? (Obj_AI_Base)args.Target : _recentFarmTarget;
         }
 
-        public override void Update(Orbwalking.OrbwalkingMode mode, IMainContext context, ComboProvider combo, Obj_AI_Hero target)
+        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
         {
-            if (Killsteal)
+            if (Killsteal && (mode == Orbwalking.OrbwalkingMode.Combo || !KillstealCombo))
                 foreach (var enemy in HeroManager.Enemies)
                 {
-                    if (enemy.Distance(ObjectManager.Player) > 650 || ObjectManager.Player.GetSpellDamage(enemy, SpellSlot.E) < enemy.Health + enemy.MagicShield) continue;
+                    if (enemy.Distance(ObjectManager.Player) > 650 || ObjectManager.Player.GetSpellDamage(enemy, SpellSlot.E) < enemy.Health + enemy.MagicShield + enemy.AttackShield) continue;
                     Obj_AI_Hero currentEnemy = enemy;
-                    SafeCast(() => Spell.Cast(currentEnemy));
+                    SafeCast(currentEnemy);
                 }
-            base.Update(mode, context, combo, target);
+            base.Update(mode, combo, target);
         }
 
-        public override void Cast(Obj_AI_Hero target, bool force = false, HitChance minChance = HitChance.Low)
+        public override void Cast(Obj_AI_Hero target, bool force = false)
         {
-            if (HasBeenSafeCast()) return;
-            if (target == null) return;
-            var distance = target.Distance(ObjectManager.Player);
+            var distance = target.Distance(ObjectManager.Player); //Todo: make him use fireminions even in range, just for showoff and potential AOE. Check if hes on fire too though
             if (distance < 950 && distance > 650 && UseMinions)
             {
                 var fireMinion = MinionManager.GetMinions(650, MinionTypes.All, MinionTeam.Enemy, MinionOrderTypes.None).Where(minion => minion.HasBuff("brandablaze") && minion.Distance(target) < 300).MinOrDefault(minion => minion.Distance(target));
                 if (fireMinion != null)
-                    SafeCast(() =>
-                    {
-                        Spell.Cast(fireMinion);
-                        _brandQ.Cast(target);
-                    });
+                {
+                    Console.WriteLine("e cast 123");
+                    SafeCast(fireMinion);
+                    _brandQ.Cast(target, true);
+                }
             }
             if (distance < 650)
-                SafeCast(() =>
-                {
-                    Spell.Cast(target);
-                    //_brandQ.Cast(target);
-                });
+            {
+                Console.WriteLine("e cast 123");
+                SafeCast(target);
+                _brandQ.Cast(target, true);
+            }
         }
 
 
 
-        public override void LaneClear(IMainContext context, ComboProvider combo, Obj_AI_Hero target)
+        public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
         {
             if (HasBeenSafeCast()) return;
             var minions = MinionManager.GetMinions(650);
@@ -87,32 +86,32 @@ namespace TheBrand
                 bestMinion = minion;
                 neighbours = currentNeighbours;
             }
-            SafeCast(() => Spell.Cast(bestMinion));
+            SafeCast(bestMinion);
 
-            base.LaneClear(context, combo, target);
+            base.LaneClear(combo, target);
         }
 
         void OnMinionUnkillable(AttackableUnit minion)
         {
             if (!FarmAssist) return;
-            if (Context.GetOrbwalker().ActiveMode != Orbwalking.OrbwalkingMode.Combo && minion.Position.Distance(ObjectManager.Player.Position) < 650 && ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LastHit) && (_recentFarmTarget == null || minion.NetworkId != _recentFarmTarget.NetworkId))
+            if (Provider.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo && minion.Position.Distance(ObjectManager.Player.Position) < 650 && ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LastHit) && (_recentFarmTarget == null || minion.NetworkId != _recentFarmTarget.NetworkId))
             {
-                SafeCast(() => Spell.Cast(minion as Obj_AI_Base));
+               
+                SafeCast(minion as Obj_AI_Base);
             }
         }
 
-        public override void Gapcloser(IMainContext context, ComboProvider combo, ActiveGapcloser gapcloser)
+        public override void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser)
         {
             if (_brandQ.HasBeenSafeCast()) return;
-            Cast(gapcloser.Sender);
-            _brandQ.Cast(gapcloser.Sender);
-
+            Cast(gapcloser.Sender, true);
+            _brandQ.Cast(gapcloser.Sender, true);
         }
 
-        public override void Interruptable(IMainContext context, ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell)
+        public override void Interruptable(ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell)
         {
-            if (!_eInterrupt.GetValue<bool>() || _brandQ.HasBeenSafeCast() || HasBeenSafeCast() || sender.Distance(ObjectManager.Player) > 650) return;
-            Cast(sender);
+            if (!InterruptE || _brandQ.HasBeenSafeCast() || HasBeenSafeCast() || sender.Distance(ObjectManager.Player) > 650) return;
+            Cast(sender, true);
             _brandQ.Cast(sender, true);
         }
 

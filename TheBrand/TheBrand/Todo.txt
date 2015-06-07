@@ -6,16 +6,16 @@ fix skills sometimes not casting (after cc?)  -- couldnt fully reconstruct ## it
 Un-target passive dead ppl
 Ignite heal ppl (low health adc?)
 
-Hitchance in combo
 Movement predicition in R logic, so the bounces work better
 
-###############
-
-Targetselector effective health
-
-
-####
+#######################################
 
 before going live:
-hitchance in combo
-check lasthit harass
+customizeable target selection range
+
+w prediction off
+r bounce check ults near minions (kinda max range) (maybe add virtual range on ult bounce)
+e sometimes not casting!?!??!
+
+
+http://share.gifyoutube.com/yX8bY7.gif

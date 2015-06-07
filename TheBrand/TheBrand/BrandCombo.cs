@@ -12,39 +12,46 @@ namespace TheBrand
 {
     class BrandCombo : ComboProvider
     {
-        private MenuItem _forceAA;
+        // ReSharper disable once InconsistentNaming
+        public bool ForceAutoAttacks;
 
-        public BrandCombo(List<Skill> skills, float range)
-            : base(skills, range)
-        {
-        }
+        public BrandCombo(IEnumerable<Skill> skills, Orbwalking.Orbwalker orbwalker, float range)
+            : base(range, skills, orbwalker) { }
 
-        public override void Initialize(IMainContext context)
-        {
-            _forceAA = context.GetRootMenu().GetMenuItem("Misc.ForceAAincombo");
-            base.Initialize(context);
-        }
+        public BrandCombo(float range, Orbwalking.Orbwalker orbwalker, params Skill[] skills)
+            : base(range, orbwalker, skills) { }
 
-        public override void Update(IMainContext context)
+        public override void Update()
         {
-            if (!(_forceAA.GetValue<bool>() && ObjectManager.Player.IsWindingUp))
-                base.Update(context);
+            if (!(ForceAutoAttacks && ObjectManager.Player.IsWindingUp))
+                base.Update();
 
 
             var passiveBuff = ObjectManager.Player.GetBuff("brandablaze");
             var target = TargetSelector.GetTarget(600, TargetSelector.DamageType.True);
 
             if (passiveBuff != null)
-                IgniteManager.Update(context, target, GetRemainingPassiveDamage(target, passiveBuff), (int)(passiveBuff.EndTime - Game.Time) + 1); // maybe should use GetTarget!?
+                IgniteManager.Update(this, GetRemainingPassiveDamage(target, passiveBuff), (int)(passiveBuff.EndTime - Game.Time) + 1); // maybe should use GetTarget!?
             else
-                IgniteManager.Update(context, target); // maybe should use GetTarget!?
+                IgniteManager.Update(this); // maybe should use GetTarget!?
 
+        }
+
+        public override bool ShouldBeDead(Obj_AI_Hero target, float additionalSpellDamage = 0f)
+        {
+            var passive = target.GetBuff("brandablaze");
+            return base.ShouldBeDead(target, passive != null ? GetRemainingPassiveDamage(target, passive) : 0f);
         }
 
 
         private float GetRemainingPassiveDamage(Obj_AI_Base target, BuffInstance passive)
         {
             return (float)ObjectManager.Player.CalcDamage(target, Damage.DamageType.Magical, ((int)(passive.EndTime - Game.Time) + 1) * target.MaxHealth * 0.02f);
+        }
+
+        public static float GetPassiveDamage(Obj_AI_Hero target)
+        {
+            return (float)ObjectManager.Player.CalcDamage(target, Damage.DamageType.Magical, target.MaxHealth * 0.08);
         }
     }
 }

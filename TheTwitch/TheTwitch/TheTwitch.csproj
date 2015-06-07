@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FF62FCD5-DC07-487D-ABB0-A9140539396F}</ProjectGuid>
+    <ProjectGuid>{82CF2337-F3FC-47EB-AF25-322F9B8D3323}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TheBrand</RootNamespace>
-    <AssemblyName>TheBrand</AssemblyName>
+    <RootNamespace>TheTwitch</RootNamespace>
+    <AssemblyName>TheTwitch</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
     <PreBuildEvent />
     <PostBuildEvent />
     <OutputPath>bin\Release</OutputPath>
@@ -25,7 +24,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -35,11 +33,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LeagueSharp, Version=1.0.0.25, Culture=neutral, PublicKeyToken=a41ba14f653257a6, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="LeagueSharp">
       <HintPath>F:\Lol\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
@@ -59,28 +55,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Brand.cs" />
-    <Compile Include="BrandCombo.cs" />
-    <Compile Include="BrandE.cs" />
-    <Compile Include="BrandQ.cs" />
-    <Compile Include="BrandR.cs" />
-    <Compile Include="BrandW.cs" />
     <Compile Include="Commons\ComboSystem\ComboProvider.cs" />
     <Compile Include="Commons\ComboSystem\Skill.cs" />
-    <Compile Include="Commons\Extensions.cs" />
-    <Compile Include="Commons\MenuExtensions.cs" />
     <Compile Include="Commons\DamageIndicator.cs" />
-    <Compile Include="Commons\ManaManager.cs" />
+    <Compile Include="Commons\Extensions.cs" />
+    <Compile Include="Commons\Items\BilgewaterCutlass.cs" />
+    <Compile Include="Commons\Items\Botrk.cs" />
+    <Compile Include="Commons\Items\YoumusBlade.cs" />
+    <Compile Include="Commons\IActivateableItem.cs" />
     <Compile Include="Commons\IgniteManager.cs" />
+    <Compile Include="Commons\ManaManager.cs" />
+    <Compile Include="Commons\MenuExtensions.cs" />
+    <Compile Include="Commons\ItemManager.cs" />
+    <Compile Include="Commons\HealManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Twitch.cs" />
+    <Compile Include="TwitchE.cs" />
+    <Compile Include="TwitchQ.cs" />
+    <Compile Include="TwitchR.cs" />
+    <Compile Include="TwitchW.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Commons\ComboSystem\Combo System Tutorial.txt" />
-    <Content Include="Todo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

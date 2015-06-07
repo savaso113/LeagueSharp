@@ -2,9 +2,8 @@
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using TheBrand.Commons;
 
-namespace TheBrand.ComboSystem
+namespace TheTwitch.Commons.ComboSystem
 {
     public abstract class Skill : IComparable<Skill>
     {
@@ -18,7 +17,8 @@ namespace TheBrand.ComboSystem
         protected ComboProvider Provider { get; private set; }
         protected bool UseManaManager = true;
         public bool SwitchClearToHarassOnTarget = true;
-        protected bool OnlyUpdateIfTargetValid = true, OnlyUpdateIfCastable = true, IsAreaOfEffect;
+        protected bool OnlyUpdateIfTargetValid = true, OnlyUpdateIfCastable = true;
+        public bool IsAreaOfEffect;
 
         protected Skill(Spell spell)
         {
@@ -162,9 +162,15 @@ namespace TheBrand.ComboSystem
         public virtual void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
         {
             if (IsSafeCasting()) //Todo: check if it will instant double-toggle toggleable spells like garenE
-                _castAction();
+            {
+                try
+                {
+                    _castAction();
+                }
+                catch { }
+            }
 
-            if (OnlyUpdateIfTargetValid && !target.IsValidTarget()) return;
+            if (OnlyUpdateIfTargetValid && !target.IsValidTarget() && (mode == Orbwalking.OrbwalkingMode.Combo || mode == Orbwalking.OrbwalkingMode.Mixed)) return;
             if (OnlyUpdateIfCastable && (!CanBeCast() || IsSafeCasting())) return;
 
             if (mode == Orbwalking.OrbwalkingMode.None) return;
@@ -203,6 +209,7 @@ namespace TheBrand.ComboSystem
         }
         public virtual void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser) { }
         public virtual void Interruptable(ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell) { }
+        public virtual void Draw() { }
 
         public virtual float GetDamage(Obj_AI_Hero enemy)
         {

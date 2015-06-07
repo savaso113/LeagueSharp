@@ -10,9 +10,8 @@ namespace TheBrand
 {
     class BrandQ : Skill
     {
-        private BrandE _brandE;
+        // ReSharper disable once InconsistentNaming
         private Skill[] _brandQWE;
-        private MenuItem _harassHitchance, _comboHitchance;
 
         public BrandQ(Spell spell)
             : base(spell)
@@ -20,46 +19,33 @@ namespace TheBrand
             spell.SetSkillshot(0.625f, 50f, 1600f, true, SkillshotType.SkillshotLine);
         }
 
-        public override void Initialize(IMainContext context, ComboProvider combo)
+        public override void Initialize(ComboProvider combo)
         {
-            _brandE = combo.GetSkill<BrandE>();
             var skills = combo.GetSkills().ToList();
             skills.Remove(skills.First(skill => skill is BrandQ));
             _brandQWE = skills.ToArray();
-            _harassHitchance = context.GetRootMenu().GetMenuItem("Harass.Hitchance");
-            _comboHitchance = context.GetRootMenu().GetMenuItem("Combo.MinHitchance");
-            base.Initialize(context, combo);
+            base.Initialize(combo);
         }
 
 
-        public override void Cast(Obj_AI_Hero target, bool force = false, HitChance minChance = HitChance.Low)
+        public override void Cast(Obj_AI_Hero target, bool force = false)
         {
-            if (target == null ||
-                HasBeenSafeCast(Spell.Instance.Name) ||
-                (!target.HasBuff("brandablaze") && (!(ObjectManager.Player.GetSpellDamage(target, Spell.Instance.Slot) + ObjectManager.Player.GetAutoAttackDamage(target, true) > target.Health))) && !force && _brandQWE.Any(spell => spell.Spell.Instance.State == SpellState.Ready || spell.Spell.Instance.CooldownExpires > Game.Time && spell.Spell.Instance.CooldownExpires - Game.Time < spell.Spell.Instance.Cooldown / 2f)) return;
+            if ((!target.HasBuff("brandablaze") && (!(ObjectManager.Player.GetSpellDamage(target, Spell.Instance.Slot) + ObjectManager.Player.GetAutoAttackDamage(target, true) > target.Health))) && !force && _brandQWE.Any(spell => spell.Spell.Instance.State == SpellState.Ready || spell.Spell.Instance.CooldownExpires > Game.Time && spell.Spell.Instance.CooldownExpires - Game.Time < spell.Spell.Instance.Cooldown / 2f)) return;
             // wenn any skill ready || half cooldown 
+            var targetBurn = target.GetBuff("brandablaze");
+            if (targetBurn != null && !force && targetBurn.EndTime - Game.Time < 0.75f) return;
 
-            var prediction = Spell.GetPrediction(target);
-            if (prediction.Hitchance < minChance) return;
-
-            SafeCast(() => Spell.Cast(prediction.CastPosition));
+            Console.WriteLine("q Cast 123 "+force+" "+target.HasBuff("brandablaze"));
+            SafeCast(target);
         }
 
-        public override void Combo(IMainContext context, ComboProvider combo, Obj_AI_Hero target)
-        {
-            Cast(target, false, (HitChance)Enum.Parse(typeof(HitChance), _comboHitchance.GetValue<StringList>().SelectedValue, true));
-        }
 
-        public override void Harass(IMainContext context, ComboProvider combo, Obj_AI_Hero target)
-        {
-            Cast(target, false, (HitChance)Enum.Parse(typeof(HitChance), _harassHitchance.GetValue<StringList>().SelectedValue, true));
-        }
 
-        public override void Interruptable(IMainContext context, ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell)
+        public override void Interruptable(ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell)
         {
-            if (sender.Distance(ObjectManager.Player) < 1050 && sender.HasBuff("brandablaze") && !HasBeenSafeCast())
-                Cast(sender);
-            base.Interruptable(context, combo, sender, interruptableSpell);
+            if (sender.Distance(ObjectManager.Player) < 1050 && sender.HasBuff("brandablaze"))
+                Cast(sender, true);
+            base.Interruptable(combo, sender, interruptableSpell);
         }
 
 

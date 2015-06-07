@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheBrand.Commons;
 
-namespace TheBrand.ComboSystem
+namespace TheTwitch.Commons.ComboSystem
 {
     public class ComboProvider
     {
@@ -61,12 +59,20 @@ namespace TheBrand.ComboSystem
             LeagueSharp.Common.AntiGapcloser.OnEnemyGapcloser += OnGapcloser;
             InitInterruptable();
             Interrupter2.OnInterruptableTarget += OnInterrupter;
+            Game.OnUpdate += _ => Update();
+            Drawing.OnDraw += _ =>
+            {
+                foreach (var skill in Skills)
+                {
+                    skill.Draw();
+                }
+            };
         }
 
         public ComboProvider(float targetSelectorRange, Orbwalking.Orbwalker orbwalker, params Skill[] skills)
             : this(targetSelectorRange, skills.ToList(), orbwalker) { }
 
-        public void CreateBasicMenu(Menu comboMenu, Menu harassMenu, Menu laneclearMenu, Menu antiGapcloserMenu, Menu interrupterMenu, Menu manamanagerMenu, Menu ignitemanagerMenu, bool combo = true, bool harass = true, bool laneclear = true, bool laneclearHarassSwitch = true, bool antiGapcloser = true, bool interrupter = true, bool manamanager = true, bool ignitemanager = true)
+        public void CreateBasicMenu(Menu comboMenu, Menu harassMenu, Menu laneclearMenu, Menu antiGapcloserMenu, Menu interrupterMenu, Menu manamanagerMenu, Menu ignitemanagerMenu, /*Menu healMenu,*/ Menu itemMenu, bool combo = true, bool harass = true, bool laneclear = true, bool laneclearHarassSwitch = true, bool antiGapcloser = true, bool interrupter = true, bool manamanager = true, bool ignitemanager = true, /*bool healmanager = true,*/ bool items = true)
         {
             if (combo)
             {
@@ -106,7 +112,17 @@ namespace TheBrand.ComboSystem
 
             if (ignitemanager)
             {
-                IgniteManager.Initialize(ignitemanagerMenu);
+                IgniteManager.Initialize(ignitemanagerMenu, this, true);
+            }
+
+            //if (healmanager)
+            //{
+            //    HealManager.Initialize(healMenu, this);
+            //}
+
+            if (items)
+            {
+                ItemManager.Initialize(itemMenu, this);
             }
         }
 
@@ -143,7 +159,7 @@ namespace TheBrand.ComboSystem
             foreach (var skill in Skills)
             {
                 Skill currentSkill = skill;
-                if (forbiddenSlots.Contains(currentSkill.Spell.Slot)) continue;
+                if (forbiddenSlots.Contains(currentSkill.Spell.Slot) || currentSkill.Spell.Slot == SpellSlot.R) continue;
                 laneclearMenu.AddMItem("Use " + skill.Spell.Slot, true, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.LaneClear, args.GetNewValue<bool>()));
             }
             if (harassSwitch) laneclearMenu.AddMItem("Harass instead if enemy near", true, (sender, args) => GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));

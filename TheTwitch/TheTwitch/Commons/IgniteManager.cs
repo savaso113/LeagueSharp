@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheBrand.ComboSystem;
+using TheTwitch.Commons.ComboSystem;
 
-namespace TheBrand.Commons
+namespace TheTwitch.Commons
 {
     public static class IgniteManager
     {
@@ -21,7 +17,7 @@ namespace TheBrand.Commons
         /// <summary>
         /// Adds to the menu and stuffs
         /// </summary>
-        public static void Initialize(Menu igniteMenu)
+        public static void Initialize(Menu igniteMenu, ComboProvider combo, bool autoUpdate = false)
         {
             _ignite = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "summonerdot");
             if (_ignite == null) return;
@@ -35,6 +31,8 @@ namespace TheBrand.Commons
             _igniteSpellsCooldown = igniteMenu.AddMItem("Don't use if skills up", false);
             _igniteCloseFight = igniteMenu.AddMItem("Ignore above in close fight", true);
             _igniteCloseFightHealth = igniteMenu.AddMItem("Close fight health diff %", new Slider(20));
+            if (autoUpdate)
+                Game.OnUpdate += _ => Update(combo);
         }
 
         /// <summary>
@@ -45,7 +43,7 @@ namespace TheBrand.Commons
         /// <param name="otherDamageTime">How much time will pass till the otherDamage applies (checks on healthreg ...)</param>
         public static void Update(ComboProvider combo, float otherDamage = 0f, float otherDamageTime = 3f)
         {
-            if (_ignite == null || !_igniteUsage.GetValue<bool>()) return;
+            if (_ignite == null || _igniteUsage == null || !_igniteUsage.GetValue<bool>()) return;
             if (combo.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo && _igniteOnlyCombo.GetValue<bool>()) return;
 
             if (_igniteKillsteal.GetValue<bool>())
@@ -144,6 +142,11 @@ namespace TheBrand.Commons
         public static bool CanBeUsed()
         {
             return _igniteSpell != null && _igniteSpell.Instance.State == SpellState.Ready;
+        }
+
+        public static bool HasIgnite()
+        {
+            return ObjectManager.Player.Spellbook.Spells.Any(spell => spell.Name == "summonerdot");
         }
 
     }

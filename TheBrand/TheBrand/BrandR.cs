@@ -27,40 +27,51 @@ namespace TheBrand
         public BrandR(Spell spell)
             : base(spell)
         {
+            OnlyUpdateIfTargetValid = false;
+            SafeCastMaxTime = 2.5f;
         }
 
-        public override void Initialize(IMainContext context, ComboProvider combo)
+        public override void Initialize(ComboProvider combo)
         {
             var skills = combo.GetSkills().ToList();
             skills.Remove(this);
             _otherSkills = skills.ToArray();
             _brandE = combo.GetSkill<BrandE>();
             _brandQ = combo.GetSkill<BrandQ>();
-            base.Initialize(context, combo);
+            base.Initialize(combo);
         }
 
 
-        public override void Cast(Obj_AI_Hero target, bool force = false, HitChance minChance = HitChance.Low)
+        public override void Cast(Obj_AI_Hero target, bool force = false)
         {
             if (target == null)
                 target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
-            if (HasBeenSafeCast() || target == null) return;
+            if (target == null) return;
 
-            var dmgPerBounce = ObjectManager.Player.GetSpellDamage(target, Spell.Slot);
-            if (dmgPerBounce > target.Health && ObjectManager.Player.GetAutoAttackDamage(target, true) < target.Health && ((_otherSkills.All(skill => skill.Spell.Instance.State != SpellState.Ready && skill.Spell.Instance.State != SpellState.Surpressed && !skill.IsInSafeCast(1)) /*|| target.Distance(ObjectManager.Player) > 650*/) || ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + dmgPerBounce + ObjectManager.Player.GetAutoAttackDamage(target) > target.Health && !target.HasBuff("brandablaze") && target.Distance(ObjectManager.Player) < 750))
+            var dmgPerBounce = ObjectManager.Player.GetSpellDamage(target, Spell.Slot) + BrandCombo.GetPassiveDamage(target);
+            if (dmgPerBounce > target.Health && target.Distance(ObjectManager.Player) > 750)
             {
-                if (target.Distance(ObjectManager.Player) > 750)
-                    TryBridgeUlt(target);
-                else if (ObjectManager.Player.HealthPercent - target.HealthPercent < OverkillPercent || !AntiOverkill || IgnoreAntiOverkillOnFlee && target.Distance(ObjectManager.Player) > ObjectManager.Player.AttackRange)
+                TryBridgeUlt(target);
+
+                Console.WriteLine("ayy lmao bridge bois");
+            }
+            else
+            {
+                Console.WriteLine("no bridge possible: " + dmgPerBounce + " / " + target.Health);
+            }
+
+            if (dmgPerBounce > target.Health && !Provider.ShouldBeDead(target) && ObjectManager.Player.GetAutoAttackDamage(target, true) < target.Health && ((_otherSkills.All(skill => skill.Spell.Instance.State != SpellState.Ready && skill.Spell.Instance.State != SpellState.Surpressed && !skill.IsSafeCasting(1)) /*|| target.Distance(ObjectManager.Player) > 650*/) || ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + dmgPerBounce + ObjectManager.Player.GetAutoAttackDamage(target) > target.Health && !target.HasBuff("brandablaze") && target.Distance(ObjectManager.Player) < 750))
+            {
+                if (ObjectManager.Player.HealthPercent - target.HealthPercent < OverkillPercent || !AntiOverkill || IgnoreAntiOverkillOnFlee && target.Distance(ObjectManager.Player) > ObjectManager.Player.AttackRange)
                 {
-                    if (HealthPrediction.GetHealthPrediction(target, 1) > 0)
-                        SafeCast(() => Spell.Cast(target));
+                    if (HealthPrediction.GetHealthPrediction(target, 1) > 0 && (Game.Time - IgniteManager.LastIgniteTime > 1 || IgniteManager.LastIgniteTarget.NetworkId != target.NetworkId))
+                        SafeCast(target);
                 }
                 else if (ObjectManager.Player.HealthPercent < target.HealthPercent && IgniteManager.CanBeUsed() && IgniteManager.GetDamage() + dmgPerBounce > target.Health)
                 {
                     if (target.Distance(ObjectManager.Player) < 600)
                         IgniteManager.UseIgnite(target);
-                    SafeCast(() => Spell.Cast(target));
+                    SafeCast(target);
                 }
             }
 
@@ -70,6 +81,8 @@ namespace TheBrand
             var canBounce = BounceCheck(target, inBounce);
             if (canBounce)
             {
+
+
                 var inBounceEnemies = HeroManager.Enemies.Where(enemy => inBounce[HeroManager.Enemies.IndexOf(enemy)]).ToArray();
                 var distance = target.Distance(ObjectManager.Player);
 
@@ -83,7 +96,7 @@ namespace TheBrand
                 }
                 else if (bounceCount == 2 && dmgPerBounce * 3 > target.Health && MaxDamage > target.Health && distance < 750 && RiskyUlt)
                 {
-                    SafeCast(() => Spell.Cast(target));
+                    SafeCast(target);
                 }
                 else if (dmgPerBounce * 2 > target.Health && MaxDamage > target.Health)
                 {
@@ -96,7 +109,7 @@ namespace TheBrand
             }
         }
 
-        private void TryUlt(Obj_AI_Hero target, Obj_AI_Hero[] alternate, float distance, bool bridgeUlt = true)
+        private void TryUlt(Obj_AI_Hero target, IEnumerable<Obj_AI_Hero> alternate, float distance, bool bridgeUlt = true)
         {
             if (distance > 750)
             {
@@ -107,17 +120,17 @@ namespace TheBrand
                 }
                 else
                 {
-                    SafeCast(() => Spell.Cast(alternateTarget));
+                    SafeCast(alternateTarget);
                 }
             }
             else
-                SafeCast(() => Spell.Cast(target));
+                SafeCast(target);
         }
 
         private void TryBridgeUlt(Obj_AI_Hero target)
         {
             if (!UseBridgeUlt) return;
-            //Console.WriteLine("BRIDGE ULT INIT");
+            Console.WriteLine("BRIDGE ULT INIT");
             #region bridge ult
             if (target.Distance(ObjectManager.Player) > 750 && (_brandE.Spell.Instance.State == SpellState.Ready || _brandQ.Spell.Instance.State == SpellState.Ready))
             {
@@ -128,7 +141,7 @@ namespace TheBrand
                 var minions = MinionManager.GetMinions(650);
                 if (minions != null && minions.Count > 0)
                 {
-                    //Console.WriteLine("BRIDGE CHECK MINIONS");
+                    Console.WriteLine("BRIDGE CHECK MINIONS");
                     var unit = GetMinimumDistanceUnit(target, minions, bridgeSpellSlot);
                     if (unit != null && unit.Distance(target) < 500)
                     {
@@ -138,7 +151,7 @@ namespace TheBrand
                 }
                 if (bridgeUnit == null)
                 {
-                    //Console.WriteLine("BRIDGE CHECK HEROS");
+                    Console.WriteLine("BRIDGE CHECK HEROS");
                     var unit = GetMinimumDistanceUnit(target, HeroManager.Enemies.Where(enemy => enemy.Distance(ObjectManager.Player) < bridgeSpellRange), bridgeSpellSlot);
                     if (unit != null && unit.Distance(target) < 500)
                     {
@@ -150,29 +163,42 @@ namespace TheBrand
 
                 if (bridgeUnit != null)
                 {
-                    //Console.WriteLine("BRIDGE HAS BRIDGE");
+                    Console.WriteLine("BRIDGE HAS BRIDGE");
                     if (bridgeSpellSlot == SpellSlot.E && bridgeUnitDistance < 650)
                     {
+
                         _brandE.Spell.Cast(bridgeUnit);
-                        SafeCast(() => Spell.Cast(bridgeUnit));
+                        SafeCast(() =>
+                        {
+                            if (bridgeUnit.HasBuff("brandablaze"))
+                                Spell.Cast(bridgeUnit);
+                        });
                     }
                     else
                     {
                         var prediction = _brandQ.Spell.GetPrediction(bridgeUnit);
                         if (prediction.CollisionObjects.Count == 0)
                         {
-                            _brandQ.Spell.Cast(prediction.CastPosition);
-                            SafeCast(() => Spell.Cast(bridgeUnit));
-                            //Console.WriteLine("BRIDGE FIRE");
+                            _brandQ.SafeCast(prediction.CastPosition);
+                            SafeCast(() =>
+                            {
+                                if (bridgeUnit.HasBuff("brandablaze"))
+                                    Spell.Cast(bridgeUnit);
+                            });
+                            Console.WriteLine("BRIDGE FIRE");
                         }
                         else
                         {
                             var collidingObj = prediction.CollisionObjects.First();
                             if (collidingObj.Distance(target) < 500)
                             {
-                                //Console.WriteLine("BRIDGE FIRE");
+                                Console.WriteLine("BRIDGE FIRE");
                                 _brandQ.Spell.Cast(prediction.CastPosition);
-                                SafeCast(() => Spell.Cast(bridgeUnit));
+                                SafeCast(() =>
+                                {
+                                    if (bridgeUnit.HasBuff("brandablaze"))
+                                        Spell.Cast(bridgeUnit);
+                                });
                             }
                         }
                     }
@@ -187,7 +213,7 @@ namespace TheBrand
         {
             for (int i = 0; i < HeroManager.Enemies.Count; i++)
             {
-                if (!inBounce[i] && HeroManager.Enemies[i].Distance(target) < 500)
+                if (!inBounce[i] && HeroManager.Enemies[i].Distance(target) < 500 && HeroManager.Enemies[i].IsValidTarget())
                 {
                     var minions = MinionManager.GetMinions(target.Position, 500);
                     if (minions.Any(minion => !minion.HasBuff("brandablaze")))
