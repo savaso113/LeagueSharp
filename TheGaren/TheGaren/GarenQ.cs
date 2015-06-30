@@ -5,88 +5,53 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheGaren.ComboSystem;
+using TheGaren.Commons.ComboSystem;
 
 namespace TheGaren
 {
     class GarenQ : Skill
     {
-        private readonly Obj_AI_Hero _player;
-        private bool _isDoingWindingUpProcess;
-        private IMainContext _mainContext;
+        public bool OnlyAfterAuto;
+        private bool _recentAutoattack;
+        public bool UseWhenOutOfRange;
 
         public GarenQ(Spell spell)
             : base(spell)
         {
-            _player = ObjectManager.Player;
-            Interrupter2.OnInterruptableTarget += OnPossibleInterrupt;
+            Orbwalking.AfterAttack += OnAfterAttack;
+            HarassEnabled = false;
+            OnlyUpdateIfTargetValid = false;
         }
 
-        public override void Initialize(IMainContext context, ComboProvider combo)
+        private void OnAfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            _mainContext = context;
-            base.Initialize(context, combo);
+            _recentAutoattack = true;
         }
 
-        private void OnPossibleInterrupt(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
         {
-            if (args.EndTime > 0.5f && _mainContext.GetRootMenu().SubMenu("Misc").Item("Misc.QInterrupt").GetValue<bool>() && sender.Distance(ObjectManager.Player.Position) < ObjectManager.Player.AttackRange + _player.BoundingRadius + sender.BoundingRadius + 50)
+            base.Update(mode, combo, target);
+            _recentAutoattack = false;
+        }
+
+
+        public override void Cast(Obj_AI_Hero target, bool force = false)
+        {
+            if (!OnlyAfterAuto || _recentAutoattack || ObjectManager.Player.CountEnemiesInRange(ObjectManager.Player.AttackRange * 2) == 0 && UseWhenOutOfRange)
             {
-                if (Spell.Instance.State == SpellState.Ready)
-                    SafeCast(() => Spell.Cast());
-
-                ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, sender);
+                SafeCast();
+                Orbwalking.ResetAutoAttackTimer();
             }
         }
 
-
-
-        public override void Combo(IMainContext context, ComboProvider combo)
+        public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
         {
-
-            var target = TargetSelector.GetTarget(400, TargetSelector.DamageType.Physical);
-
-            if ((!HasBeenSafeCast("GarenQ")) && ObjectManager.Player.Buffs.All(buff => buff.Name != "GarenQ") &&  combo.GrabControl(this))
+            if (_recentAutoattack)
             {
-                //attkrange bounding + 65
-                if (target == null || target.Distance(_player) > _player.AttackRange + _player.BoundingRadius + target.BoundingRadius + 50f || (!context.GetRootMenu().SubMenu("Misc").Item("Misc.Qafterattack").GetValue<bool>()))
-                {
-                    SafeCast(() => Spell.Cast());
-                    _isDoingWindingUpProcess = false;
-                }
-                else
-                {
-                    _isDoingWindingUpProcess = true;
-                    if (AAHelper.JustFinishedAutoattack)
-                    {
-                        SafeCast(() => Spell.Cast());
-                        _isDoingWindingUpProcess = false;
-                    }
-                }
+                SafeCast();
+                Orbwalking.ResetAutoAttackTimer();
             }
-
         }
-
-        public override void Harass(IMainContext context, ComboProvider combo)
-        {
-            Combo(context, combo);
-            base.Harass(context, combo);
-        }
-
-        public override void LaneClear(IMainContext context, ComboProvider combo)
-        {
-            var minions = MinionManager.GetMinions(400);
-            if (minions.Count > 0 && (!HasBeenSafeCast("GarenQ")) && ObjectManager.Player.Buffs.All(buff => buff.Name != "GarenQ") && AAHelper.JustFinishedAutoattack && combo.GrabControl(this))
-                SafeCast(() => Spell.Cast());
-
-            base.LaneClear(context, combo);
-        }
-
-        public override bool NeedsControl()
-        {
-            return Spell.Instance.State == SpellState.Ready || IsInSafeCast("GarenQ") || ObjectManager.Player.Buffs.Any(buff => buff.Name == "GarenQ");// || _isDoingWindingUpProcess;
-        }
-
 
         public override int GetPriority()
         {

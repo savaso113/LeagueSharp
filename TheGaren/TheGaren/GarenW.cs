@@ -5,49 +5,63 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheGaren.ComboSystem;
+using TheGaren.Commons;
+using TheGaren.Commons.ComboSystem;
 
 namespace TheGaren
 {
     class GarenW : Skill
     {
-        private const float CheckTime = 0.5f;
-        private const float TriggerRate = 0.01f; // 1%
-        private float _checkTime;
-        private float _lastHealthRate;
+        public bool UseAlways;
+        public float MinDamagePercent; // per sec
+        public bool UseOnUltimates;
+        private float _healthTime;
+        private float _healthValue;
+        private bool _shouldUse;
 
         public GarenW(Spell spell)
             : base(spell)
         {
+            Spellbook.OnCastSpell += OnSpellcast;
+            OnlyUpdateIfTargetValid = false;
         }
 
-        public override void SetEnabled(Orbwalking.OrbwalkingMode mode, bool enabled)
+        private void OnSpellcast(Spellbook sender, SpellbookCastSpellEventArgs args)
         {
-            if(mode == Orbwalking.OrbwalkingMode.Combo && enabled == true)
-                _lastHealthRate = ObjectManager.Player.Health / ObjectManager.Player.MaxHealth;
-            base.SetEnabled(mode, enabled);
-        }
-
-        public override void Combo(IMainContext context, ComboProvider combo)
-        {
-            if (context.GetRootMenu().SubMenu("Misc").Item("Misc.WMode").GetValue<StringList>().SelectedValue == "Always")
+            if (sender.Owner.IsEnemy && args.Slot == SpellSlot.R && UseOnUltimates)
             {
-                if (Spell.Instance.State == SpellState.Ready)
-                    SafeCast(() => Spell.Cast());
-            }
-            else if (_checkTime < Game.Time)
-            {
-                _checkTime = Game.Time + CheckTime;
-
-                if (_lastHealthRate - TriggerRate > (ObjectManager.Player.Health / ObjectManager.Player.MaxHealth) && Spell.Instance.State == SpellState.Ready)
-                    SafeCast(() => Spell.Cast());
-                _lastHealthRate = ObjectManager.Player.Health / ObjectManager.Player.MaxHealth;
+                var halfLineLength = (args.EndPosition - args.StartPosition).Length() / 2f;
+                if (ObjectManager.Player.Position.Distance(args.StartPosition) > halfLineLength && ObjectManager.Player.Position.Distance(args.EndPosition) > halfLineLength) return;
+                if (UseAlways)
+                    SafeCast();
+                else
+                    _shouldUse = true;
             }
         }
 
-        public override bool NeedsControl()
+        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
         {
-            return false;
+            if (Game.Time - _healthTime > 1)
+            {
+                _healthTime = Game.Time;
+                _healthValue = ObjectManager.Player.Health;
+            }
+
+            base.Update(mode, combo, target);
+            if (UseAlways && ShouldUse())
+                SafeCast();
+            _shouldUse = false;
+        }
+
+        public override void Cast(Obj_AI_Hero target, bool force = false)
+        {
+            if (!UseAlways && ShouldUse())
+                SafeCast();
+        }
+
+        private bool ShouldUse()
+        {
+            return ObjectManager.Player.GetHealthPercent(ObjectManager.Player.Health - HealthPrediction.GetHealthPrediction(ObjectManager.Player, 1)) > MinDamagePercent || ObjectManager.Player.GetHealthPercent(_healthValue - ObjectManager.Player.Health) > MinDamagePercent || _shouldUse;
         }
 
         public override int GetPriority()

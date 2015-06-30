@@ -84,6 +84,7 @@ namespace TheTwitch
 
             combo.Initialize();
             mainMenu.AddToMainMenu();
+
         }
 
 

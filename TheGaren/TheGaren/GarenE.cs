@@ -6,85 +6,76 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using TheGaren.ComboSystem;
+using TheGaren.Commons;
+using TheGaren.Commons.ComboSystem;
+using TheGaren.Commons.Items;
 
 namespace TheGaren
 {
     class GarenE : Skill
     {
-        private float _issueTime;
+        public bool OnlyAfterAuto;
+        public int MinFarmMinions;
+        public bool UseHydra;
+        private bool _recentAutoattack;
+        private bool _resetOrbwalker;
+        private GarenQ _q;
 
         public GarenE(Spell spell)
             : base(spell)
         {
+            HarassEnabled = false;
+            Orbwalking.AfterAttack += OnAfterAttack;
+            OnlyUpdateIfTargetValid = false;
+            OnlyUpdateIfCastable = false;
         }
 
-        public override void Combo(IMainContext context, ComboProvider combo)
+        public override void Initialize(ComboProvider combo)
         {
-            var target = TargetSelector.GetTarget(400, TargetSelector.DamageType.Physical);
-            if (Spell.Instance.State == SpellState.Ready && target != null && ((!context.GetRootMenu().SubMenu("Misc").Item("Misc.Eafterattack").GetValue<bool>()) || AAHelper.JustFinishedAutoattack || !AAHelper.WillAutoattackSoon) && combo.GrabControl(this))
-            {
-                SafeCast(() =>
-                {
-                    Spell.Cast();
-                    var orbwalker = context.GetOrbwalker();
-                    orbwalker.SetAttack(false);
-                    orbwalker.SetMovement(true);
-                }, "GarenE");
+            _q = combo.GetSkill<GarenQ>();
+            base.Initialize(combo);
+        }
 
-                if (_issueTime < Game.Time)
-                {
-                    _issueTime = Game.Time + 0.01f;
-                    ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-                }
+        private void OnAfterAttack(AttackableUnit unit, AttackableUnit target)
+        {
+            _recentAutoattack = true;
+        }
+
+        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
+        {
+            base.Update(mode, combo, target);
+            _recentAutoattack = false;
+            if (_resetOrbwalker && !ObjectManager.Player.HasBuff("GarenE") && Spell.GetState() == SpellState.Cooldown)
+            {
+                _resetOrbwalker = false;
+                Provider.Orbwalker.SetAttack(true);
             }
         }
 
-        public override void Harass(IMainContext context, ComboProvider combo)
+        public override void Cast(Obj_AI_Hero target, bool force = false)
         {
-            Combo(context, combo);
-            base.Harass(context, combo);
-        }
-
-        public override void LaneClear(IMainContext context, ComboProvider combo)
-        {
-            var minions = MinionManager.GetMinions(400);
-            if (Spell.Instance.State == SpellState.Ready && minions.Count > 0 && combo.GrabControl(this))
+            if (!CanBeCast()) return;
+            if (_q.Spell.GetState() == SpellState.Cooldown && !ObjectManager.Player.HasBuff("GarenQ") && (!OnlyAfterAuto || !AAHelper.WillAutoattackSoon || _recentAutoattack) && HeroManager.Enemies.Any(enemy => enemy.Position.Distance(ObjectManager.Player.Position) < 325) && Spell.Instance.Name == "GarenE")
             {
-                SafeCast(() =>
-                {
-                    Spell.Cast();
-                    var orbwalker = context.GetOrbwalker();
-                    orbwalker.SetAttack(false);
-                    orbwalker.SetMovement(true);
-                }, "GarenE");
-
-                if (_issueTime < Game.Time)
-                {
-                    _issueTime = Game.Time + 0.01f;
-                    ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-                }
+                Provider.Orbwalker.SetAttack(false);
+                _resetOrbwalker = true;
+                SafeCast();
             }
-
-            base.LaneClear(context, combo);
         }
 
-        public override bool TryTerminate(IMainContext context)
+        public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
         {
-            var orbwalker = context.GetOrbwalker();
-            orbwalker.SetAttack(true);
-            orbwalker.SetMovement(true);
-            return base.TryTerminate(context);
-        }
-
-        public override bool NeedsControl()
-        {
-            return IsInSafeCast("GarenE") || ObjectManager.Player.Buffs.Any(buff => buff.Name == "GarenE");
+            if (MinionManager.GetMinions(325, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).Count >= MinFarmMinions)
+            {
+                if (!ObjectManager.Player.HasBuff("GarenQ") && Spell.Instance.Name == "GarenE")
+                    SafeCast();
+                if (UseHydra) ItemManager.GetItem<RavenousHydra>().Use(null);
+            }
         }
 
         public override int GetPriority()
         {
-            return ObjectManager.Player.Buffs.Any(buff => buff.Name == "GarenE") ? 2 : 1; //overrule Q when spinning
+            return ObjectManager.Player.HasBuff("GarenE") ? 3 : 1;
         }
     }
 }

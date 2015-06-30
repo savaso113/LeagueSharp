@@ -42,7 +42,7 @@ namespace TheTwitch
         }
 
         public override void Cast(Obj_AI_Hero target, bool force = false)
-        {
+        {  
             if (Killsteal)
             {
                 foreach (var enemy in HeroManager.Enemies)
@@ -57,7 +57,7 @@ namespace TheTwitch
             }
 
             var targetBuffCount = target.GetBuffCount("twitchdeadlyvenom");
-            if (targetBuffCount == 0) return;
+            if (targetBuffCount == 0 || !target.IsValidTarget(1100)) return;
             if (GetPassiveAndActivateDamage(target, targetBuffCount) > target.Health)
                 SafeCast();
         }

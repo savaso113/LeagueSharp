@@ -59,12 +59,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AAHelper.cs" />
-    <Compile Include="ComboSystem\ComboProvider.cs" />
-    <Compile Include="ComboSystem\IMainContext.cs" />
-    <Compile Include="ComboSystem\Skill.cs" />
-    <Compile Include="Commons.cs" />
-    <None Include="GarenBackup.csv" />
-    <Compile Include="DamageIndicator.cs" />
+    <Compile Include="Commons\ComboSystem\ComboProvider.cs" />
+    <Compile Include="Commons\ComboSystem\Skill.cs" />
+    <Compile Include="Commons\DamageIndicator.cs" />
+    <Compile Include="Commons\Extensions.cs" />
+    <Compile Include="Commons\HealManager.cs" />
+    <Compile Include="Commons\IActivateableItem.cs" />
+    <Compile Include="Commons\IgniteManager.cs" />
+    <Compile Include="Commons\ItemManager.cs" />
+    <Compile Include="Commons\Items\BilgewaterCutlass.cs" />
+    <Compile Include="Commons\Items\Botrk.cs" />
+    <Compile Include="Commons\Items\RavenousHydra.cs" />
+    <Compile Include="Commons\Items\YoumusBlade.cs" />
+    <Compile Include="Commons\ManaManager.cs" />
+    <Compile Include="Commons\MenuExtensions.cs" />
     <Compile Include="Garen.cs" />
     <Compile Include="GarenE.cs" />
     <Compile Include="GarenQ.cs" />
@@ -76,7 +84,9 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Commons\ComboSystem\Combo System Tutorial.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

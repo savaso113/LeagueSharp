@@ -13,22 +13,22 @@ namespace TheGaren
     {
         public static bool JustFinishedAutoattack;
         public static bool WillAutoattackSoon;
-        private static float _lastAATime;
+        private static float _lastAaTime;
         private static bool _windingUp;
-        private static readonly Obj_AI_Hero _player;
+        private static readonly Obj_AI_Hero Player;
 
         static AAHelper()
         {
-            _player = ObjectManager.Player;
+            Player = ObjectManager.Player;
             Game.OnUpdate += Update;
         }
 
         private static void Update(EventArgs args)
         {
-            JustFinishedAutoattack = _windingUp && !_player.IsWindingUp;
+            JustFinishedAutoattack = _windingUp && !Player.IsWindingUp;
             if (JustFinishedAutoattack)
-                _lastAATime = Game.Time;
-            WillAutoattackSoon = (_windingUp = _player.IsWindingUp) || Game.Time - _lastAATime > _player.AttackDelay / 2f;
+                _lastAaTime = Game.Time;
+            WillAutoattackSoon = (_windingUp = Player.IsWindingUp) || Game.Time - _lastAaTime > Player.AttackDelay / 2f;
         }
     }
 }
