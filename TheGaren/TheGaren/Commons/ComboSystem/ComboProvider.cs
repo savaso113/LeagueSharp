@@ -231,13 +231,13 @@ namespace TheGaren.Commons.ComboSystem
 
         private void OnInterrupter(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
         {
-            if (!Interrupter) return;
+            if (!Interrupter || sender.IsAlly) return;
             var interruptableSpell = InterruptableSpells[sender.ChampionName].FirstOrDefault(interruptable => interruptable.Slot == sender.Spellbook.ActiveSpellSlot || (sender.Spellbook.ActiveSpellSlot == SpellSlot.Unknown && interruptable.DangerLevel.ToString() == args.DangerLevel.ToString()));
             if (interruptableSpell == null || !interruptableSpell.FireEvent)
                 return;
 
             foreach (var skill in Skills)
-                skill.Interruptable(this, sender, interruptableSpell);
+                skill.Interruptable(this, sender, interruptableSpell, args.EndTime);
         }
 
         public void AddGapclosersToMenu(Menu menu)
@@ -254,7 +254,7 @@ namespace TheGaren.Commons.ComboSystem
         {
             //            Game.PrintChat("try " + gapcloser.Sender.ChampionName + " have: " + GapcloserCancel.FirstOrDefault().Key);
 
-            if (!AntiGapcloser || !GapcloserCancel[gapcloser.Sender.ChampionName]) return;
+            if (!AntiGapcloser || !GapcloserCancel[gapcloser.Sender.ChampionName] || gapcloser.Sender.IsAlly) return;
             foreach (var skill in Skills)
                 skill.Gapcloser(this, gapcloser);
         }
@@ -345,7 +345,7 @@ namespace TheGaren.Commons.ComboSystem
                 if (_queuedCasts[i].Item1 == skill) return;
             _queuedCasts.Add(new Tuple<Skill, Action>(skill, action));
         }
-
+        
         public bool GrabControl(Skill skill)
         {
             if (_totalControl && TotalControl == skill)

@@ -37,7 +37,13 @@ namespace TheGaren
 
         public override void Cast(Obj_AI_Hero target, bool force = false)
         {
-            if (!OnlyAfterAuto || _recentAutoattack || ObjectManager.Player.CountEnemiesInRange(ObjectManager.Player.AttackRange * 2) == 0 && UseWhenOutOfRange)
+            if (!force)
+            {
+                var buff = ObjectManager.Player.GetBuff("GarenE");
+                if (buff != null && buff.EndTime - Game.Time > 0.75f * (Spell.Level + 1) + 0.5f) return;
+            }
+            var nearEnemyCount = ObjectManager.Player.CountEnemiesInRange(ObjectManager.Player.AttackRange * 2);
+            if (nearEnemyCount > 0 && (!OnlyAfterAuto || _recentAutoattack) || nearEnemyCount == 0 && UseWhenOutOfRange)
             {
                 SafeCast();
                 Orbwalking.ResetAutoAttackTimer();
@@ -50,6 +56,15 @@ namespace TheGaren
             {
                 SafeCast();
                 Orbwalking.ResetAutoAttackTimer();
+            }
+        }
+
+        public override void Interruptable(ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell, float endTime)
+        {
+            if (endTime - Game.Time > Math.Max(sender.Distance(ObjectManager.Player) - Orbwalking.GetRealAutoAttackRange(sender), 0)/ObjectManager.Player.MoveSpeed + 0.5f)
+            {
+                SafeCast();
+                Orbwalking.Orbwalk(sender, sender.Position);
             }
         }
 

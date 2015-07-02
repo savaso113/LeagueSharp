@@ -59,9 +59,14 @@ namespace TheGaren
                 SafeCast();
         }
 
+        public override void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser)
+        {
+            SafeCast();
+        }
+
         private bool ShouldUse()
         {
-            return ObjectManager.Player.GetHealthPercent(ObjectManager.Player.Health - HealthPrediction.GetHealthPrediction(ObjectManager.Player, 1)) > MinDamagePercent || ObjectManager.Player.GetHealthPercent(_healthValue - ObjectManager.Player.Health) > MinDamagePercent || _shouldUse;
+            return ObjectManager.Player.GetHealthPercent(ObjectManager.Player.Health - HealthPrediction.GetHealthPrediction(ObjectManager.Player, 1000)) > MinDamagePercent || ObjectManager.Player.GetHealthPercent(_healthValue - ObjectManager.Player.Health) > MinDamagePercent || _shouldUse;
         }
 
         public override int GetPriority()

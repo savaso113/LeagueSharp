@@ -9,6 +9,7 @@ namespace TheGaren.Commons
     public static class ItemManager
     {
         private static Dictionary<IActivateableItem, bool> _items;
+        private static bool _combo, _harass;
 
         public static void Initialize(Menu menu, ComboProvider combo)
         {
@@ -25,13 +26,17 @@ namespace TheGaren.Commons
                 itemMenu.AddMItem("Enabled", true, (sender, agrs) => _items[item] = agrs.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
                 menu.AddSubMenu(itemMenu);
             }
+            menu.AddMItem("Use in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
+            menu.AddMItem("Use in harass", false, (sender, args) => _harass = args.GetNewValue<bool>());
+            menu.ProcStoredValueChanged<bool>();
             Game.OnUpdate += _ => Update(combo);
         }
 
         private static void Update(ComboProvider combo)
         {
             var target = combo.GetTarget();
-            if (!target.IsValidTarget() || combo.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo) return;
+            if (!target.IsValidTarget()) return;
+            if (combo.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && !_combo || combo.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed && !_harass || (combo.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo && combo.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Mixed)) return;
             foreach (var item in _items)
                 if (item.Value)
                     item.Key.Update(target);

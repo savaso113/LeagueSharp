@@ -56,6 +56,7 @@ namespace TheGaren
             miscMenu.AddMItem("Always W enemy ults", true, (sender, args) => _comboProvider.GetSkill<GarenW>().UseOnUltimates = args.GetNewValue<bool>());
             miscMenu.ProcStoredValueChanged<bool>();
 
+            gapcloserMenu.AddMItem("(Using W if enabled)");
 
             laneClearMenu.AddMItem("E min. minions", new Slider(1, 1, 8), (sender, args) => _comboProvider.GetSkill<GarenE>().MinFarmMinions = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
             laneClearMenu.AddMItem("Use Hydra", true, (sender, args) => _comboProvider.GetSkill<GarenE>().UseHydra = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();

@@ -20,6 +20,7 @@ namespace TheGaren
         private bool _recentAutoattack;
         private bool _resetOrbwalker;
         private GarenQ _q;
+        private GarenR _r;
 
         public GarenE(Spell spell)
             : base(spell)
@@ -33,6 +34,7 @@ namespace TheGaren
         public override void Initialize(ComboProvider combo)
         {
             _q = combo.GetSkill<GarenQ>();
+            _r = combo.GetSkill<GarenR>();
             base.Initialize(combo);
         }
 
@@ -45,7 +47,7 @@ namespace TheGaren
         {
             base.Update(mode, combo, target);
             _recentAutoattack = false;
-            if (_resetOrbwalker && !ObjectManager.Player.HasBuff("GarenE") && Spell.GetState() == SpellState.Cooldown)
+            if (_resetOrbwalker && !ObjectManager.Player.HasBuff("GarenE"))
             {
                 _resetOrbwalker = false;
                 Provider.Orbwalker.SetAttack(true);
@@ -55,7 +57,12 @@ namespace TheGaren
         public override void Cast(Obj_AI_Hero target, bool force = false)
         {
             if (!CanBeCast()) return;
-            if (_q.Spell.GetState() == SpellState.Cooldown && !ObjectManager.Player.HasBuff("GarenQ") && (!OnlyAfterAuto || !AAHelper.WillAutoattackSoon || _recentAutoattack) && HeroManager.Enemies.Any(enemy => enemy.Position.Distance(ObjectManager.Player.Position) < 325) && Spell.Instance.Name == "GarenE")
+            if (_r.CanBeCast() && Spell.Instance.Name != "GarenE" && target.IsValidTarget() && _r.Spell.IsKillable(target))
+            {
+                SafeCast();
+                return;
+            }
+            if ((_q.Spell.GetState() == SpellState.Cooldown || _q.Spell.GetState() == SpellState.NotLearned) && !ObjectManager.Player.HasBuff("GarenQ") && (!OnlyAfterAuto || !AAHelper.WillAutoattackSoon || _recentAutoattack) && HeroManager.Enemies.Any(enemy => enemy.IsValidTarget() && Spell.Instance.Name == "GarenE" && enemy.Position.Distance(ObjectManager.Player.Position) < 325))
             {
                 Provider.Orbwalker.SetAttack(false);
                 _resetOrbwalker = true;

@@ -181,7 +181,7 @@ namespace TheGaren.Commons.ComboSystem
             Cast(target);
         }
         public virtual void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser) { }
-        public virtual void Interruptable(ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell) { }
+        public virtual void Interruptable(ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell, float endTime) { }
         public virtual void Draw() { }
 
         public virtual float GetDamage(Obj_AI_Hero enemy)
