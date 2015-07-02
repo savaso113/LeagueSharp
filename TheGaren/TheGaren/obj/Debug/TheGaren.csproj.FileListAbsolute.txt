@@ -10,3 +10,4 @@ C:\Users\Nino\Documents\GitHub\LeagueSharp\TheGaren\TheGaren\bin\Release\LeagueS
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheGaren\TheGaren\bin\Release\LeagueSharp.xml
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheGaren\TheGaren\obj\Debug\TheGaren.exe
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheGaren\TheGaren\obj\Debug\TheGaren.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheGaren\TheGaren\obj\Debug\TheGaren.csprojResolveAssemblyReference.cache

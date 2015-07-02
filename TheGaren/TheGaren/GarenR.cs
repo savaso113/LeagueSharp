@@ -26,7 +26,7 @@ namespace TheGaren
                         SafeCast(enemy);
                 }
             }
-            else if (Spell.IsKillable(target) && HealthPrediction.GetHealthPrediction(target, 1000) > ObjectManager.Player.GetAutoAttackDamage(target))
+            else if (Spell.IsKillable(target) && HealthPrediction.GetHealthPrediction(target, 1000) > ObjectManager.Player.GetAutoAttackDamage(target) && !Provider.ShouldBeDead(target))
             {
                 SafeCast(target);
             }

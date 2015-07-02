@@ -225,8 +225,8 @@ namespace TheGaren.Commons.ComboSystem
         /// <returns></returns>
         public virtual bool ShouldBeDead(Obj_AI_Hero target, float additionalSpellDamage = 0f)
         {
-            var healthPred = HealthPrediction.GetHealthPrediction(target, 1);
-            return healthPred - (IgniteManager.GetRemainingDamage(target) + additionalSpellDamage) < 0;
+            var healthPred = HealthPrediction.GetHealthPrediction(target, 1000);
+            return healthPred - (IgniteManager.GetRemainingDamage(target) + additionalSpellDamage) <= 0;
         }
 
         private void OnInterrupter(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
