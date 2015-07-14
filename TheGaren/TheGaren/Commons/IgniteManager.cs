@@ -67,7 +67,7 @@ namespace TheGaren.Commons
         {
             var distance = ObjectManager.Player.Distance(target);
             if (distance > 600) return;
-            var enemyHealth = target.AttackShield + target.Health;
+            var enemyHealth = target.Health;
             if (GetDamage() < enemyHealth + (target.HPRegenRate * 5)) return;
 
             if (_igniteSpellsCooldown.GetValue<bool>() && (ObjectManager.Player.GetSpell(SpellSlot.Q).State == SpellState.Ready || ObjectManager.Player.GetSpell(SpellSlot.W).State == SpellState.Ready || ObjectManager.Player.GetSpell(SpellSlot.E).State == SpellState.Ready || ObjectManager.Player.GetSpell(SpellSlot.R).State == SpellState.Ready))
