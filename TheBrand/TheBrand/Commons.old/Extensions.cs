@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -8,7 +12,7 @@ namespace TheBrand.Commons
     {
         public static SpellState GetState(this SpellDataInst spellData)
         {
-            switch ((int)spellData.State)
+            switch((int)spellData.State)
             {
                 case 0:
                     return SpellState.Ready;
@@ -20,8 +24,6 @@ namespace TheBrand.Commons
                     return SpellState.Cooldown;
                 case 6:
                     return SpellState.NoMana;
-                case 10:
-                    return SpellState.Surpressed;
                 default:
                     return SpellState.Unknown;
             }
@@ -37,14 +39,5 @@ namespace TheBrand.Commons
             return (T)Enum.Parse(typeof(T), str);
         }
 
-        public static float GetHealthPercent(this Obj_AI_Hero entity, float health)
-        {
-            return health / entity.MaxHealth * 100f;
-        }
-
-        public static bool HasSpellShield(this Obj_AI_Hero entity)
-        {
-            return entity.HasBuff("bansheesveil") || entity.HasBuff("SivirE") || entity.HasBuff("NocturneW"); 
-        }
     }
 }

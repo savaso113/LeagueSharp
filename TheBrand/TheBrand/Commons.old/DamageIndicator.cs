@@ -5,7 +5,7 @@ using LeagueSharp.Common;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace TheBrand.Commons
+namespace TheBrand
 {
     /*
         Note: This class is from the xSalice Religion AIO!

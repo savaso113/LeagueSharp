@@ -6,7 +6,7 @@ using System.Text;
 using LeagueSharp;
 using LeagueSharp.Common;
 using System.Drawing;
-using TheBrand.ComboSystem;
+using TheBrand.Commons.ComboSystem;
 
 namespace TheBrand
 {
@@ -17,12 +17,13 @@ namespace TheBrand
         public bool DrawPredictedW, InterruptE, InterruptW;
         public int WaveclearTargets;
         public Color PredictedWColor;
+        public bool TryAreaOfEffect;
 
-        public BrandW(Spell spell)
-            : base(spell)
+        public BrandW(SpellSlot slot)
+            : base(slot)
         {
-            spell.SetSkillshot(1.15f, 230f, int.MaxValue, false, SkillshotType.SkillshotCircle); // adjusted the range, for some reason the prediction was off, and missplaced it alot
-            IsAreaOfEffect = true;
+            SetSkillshot(1.15f, 230f, int.MaxValue, false, SkillshotType.SkillshotCircle); // adjusted the range, for some reason the prediction was off, and missplaced it alot
+            Range = 920;
         }
 
         public override void Initialize(ComboProvider combo)
@@ -38,26 +39,20 @@ namespace TheBrand
             if (!DrawPredictedW) return;
             try
             {
-                var target = Provider.GetTarget();
+                var target = Provider.Target;
                 if (Provider.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo || target == null) return;
-                var prediction = Spell.GetPrediction(target, true);
+                var prediction = GetPrediction(target, true);
                 if (prediction.CastPosition.Distance(ObjectManager.Player.Position) < 900)
                     Render.Circle.DrawCircle(prediction.CastPosition, 240f, PredictedWColor);
             }
             catch { }
         }
 
-        public override void Cast(Obj_AI_Hero target, bool force = false)
+        public override void Execute(Obj_AI_Hero target)
         {
-            if (target.Distance(ObjectManager.Player) < 900 && !Provider.ShouldBeDead(target))
+            if (!Provider.ShouldBeDead(target))
             {
-                Console.WriteLine("w cast 123");
-                SafeCast(target);
-
-                //Todo: un-comment below code, error was: target was often out of range, especially on a chase. Will do faster combo though
-                //if (prediction.Hitchance >= HitChance.High && target.Position.Distance(ObjectManager.Player.Position) > 650)
-                //    _brandQ.Cast(target, true);
-
+                Cast(target, aoe: TryAreaOfEffect);
             }
         }
 
@@ -69,28 +64,18 @@ namespace TheBrand
 
         public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
         {
-            if (HasBeenSafeCast()) return;
-            var locationM = Spell.GetCircularFarmLocation(MinionManager.GetMinions(900 + 120));
+            var locationM = GetCircularFarmLocation(MinionManager.GetMinions(900 + 120, MinionTypes.All, MinionTeam.NotAlly));
             if (locationM.MinionsHit >= WaveclearTargets)
-                SafeCast(() =>
-                {
-                    var location = Spell.GetCircularFarmLocation(MinionManager.GetMinions(900 + 120));
-                    if (location.MinionsHit >= WaveclearTargets)
-                        Spell.Cast(location.Position);
-                });
-
+                Cast(locationM.Position);
         }
 
-        public override void Interruptable(ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell)
+        public override void Interruptable(ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell, float endTime)
         {
             var distance = sender.Distance(ObjectManager.Player);
-            if (distance > 900 || _brandE.Spell.Instance.State == SpellState.Ready && InterruptE && distance < 650 || sender.HasBuff("brandablaze") || !_brandQ.CanBeCast() || !InterruptW) return;
-           
-            var stunprediction = _brandQ.Spell.GetPrediction(sender);
-            if (stunprediction.CollisionObjects.Count > 0) return;
+            if (sender.HasBuff("brandablaze") || Provider.IsMarked(sender) || !_brandQ.CouldHit(sender) || !InterruptW) return;
 
-            Cast(sender, true);
-            _brandQ.Cast(sender, true);
+            if (Cast(sender) == CastStates.SuccessfullyCasted)
+                Provider.SetMarked(sender); //Todo: risky, keep an eye on this. If the W misses u r fucked 
         }
 
         public override int GetPriority()

@@ -67,11 +67,18 @@
     <Compile Include="BrandW.cs" />
     <Compile Include="Commons\ComboSystem\ComboProvider.cs" />
     <Compile Include="Commons\ComboSystem\Skill.cs" />
-    <Compile Include="Commons\Extensions.cs" />
-    <Compile Include="Commons\MenuExtensions.cs" />
     <Compile Include="Commons\DamageIndicator.cs" />
-    <Compile Include="Commons\ManaManager.cs" />
+    <Compile Include="Commons\Extensions.cs" />
+    <Compile Include="Commons\HealManager.cs" />
+    <Compile Include="Commons\IActivateableItem.cs" />
     <Compile Include="Commons\IgniteManager.cs" />
+    <Compile Include="Commons\ItemManager.cs" />
+    <Compile Include="Commons\Items\BilgewaterCutlass.cs" />
+    <Compile Include="Commons\Items\Botrk.cs" />
+    <Compile Include="Commons\Items\RavenousHydra.cs" />
+    <Compile Include="Commons\Items\YoumusBlade.cs" />
+    <Compile Include="Commons\ManaManager.cs" />
+    <Compile Include="Commons\MenuExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -79,7 +86,7 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Commons\ComboSystem\Combo System Tutorial.txt" />
+    <Content Include="Commons\ComboSystem\Combo System thoughts.txt" />
     <Content Include="Todo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

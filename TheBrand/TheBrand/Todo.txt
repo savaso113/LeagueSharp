@@ -1,4 +1,24 @@
-﻿r logic: random rng ult before death if maximum hits could kill
+﻿Check W - Q combo: q cast before w applies
+Check Ignite
+Check Bridge
+Check Q casting 0.1 sec before passive gone
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## old
+
+r logic: random rng ult before death if maximum hits could kill
 harass toggleable  -- dunno dont like it
 optimal range/target for each skill, should it even switch targets? -- seems okay now, could still do better tho
 fix damage indicator -- done, could use more logic at ult (two object bounce -> more dmg) but that would be perf intense and pretty unnesecary

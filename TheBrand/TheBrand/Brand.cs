@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Text;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheBrand.ComboSystem;
+using SharpDX;
 using TheBrand.Commons;
+using TheBrand.Commons.ComboSystem;
+using Color = System.Drawing.Color;
 
 namespace TheBrand
 {
@@ -16,8 +18,7 @@ namespace TheBrand
         private BrandCombo _comboProvider;
         private Menu _mainMenu;
         private Orbwalking.Orbwalker _orbwalker;
-        private MenuItem _drawQ, _drawW, _drawE, _drawR, _drawDead;
-
+        private MenuItem _drawQ, _drawW, _drawE, _drawR;
 
         public void Load(EventArgs loadargs)
         {
@@ -26,7 +27,7 @@ namespace TheBrand
                 if (ObjectManager.Player.ChampionName != "Brand")
                     return;
 
-                var notification = new Notification("The Brand loaded", 3) { TextColor = new SharpDX.ColorBGRA(255, 0, 0, 255), BorderColor = new SharpDX.ColorBGRA(139, 100, 0, 255) };
+                var notification = new Notification("The Brand loaded", 10000) { TextColor = new SharpDX.ColorBGRA(255, 0, 0, 255), BorderColor = new SharpDX.ColorBGRA(139, 100, 0, 255) };
                 Notifications.AddNotification(notification);
 
                 _mainMenu = CreateMenu("The Brand", true);
@@ -40,34 +41,37 @@ namespace TheBrand
                 var miscMenu = CreateMenu("Misc", _mainMenu);
                 var antiGapcloser = CreateMenu("Anti gapcloser", _mainMenu);
                 var interrupter = CreateMenu("Interrupter", _mainMenu);
+                var autoLevel = CreateMenu("Auto level spells", _mainMenu);
                 var drawingMenu = CreateMenu("Drawing", _mainMenu);
 
                 _orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
                 TargetSelector.AddToMenu(targetSelectorMenu);
 
-                _comboProvider = new BrandCombo(1050, _orbwalker, new BrandQ(new Spell(SpellSlot.Q)), new BrandW(new Spell(SpellSlot.W)), new BrandE(new Spell(SpellSlot.E)), new BrandR(new Spell(SpellSlot.R)));
+                _comboProvider = new BrandCombo(1050, _orbwalker, new BrandQ(SpellSlot.Q), new BrandW(SpellSlot.W), new BrandE(SpellSlot.E), new BrandR(SpellSlot.R));
 
-                _comboProvider.CreateBasicMenu(comboMenu, harassMenu, laneclearMenu, antiGapcloser, interrupter, manamanagerMenu, igniteMenu, laneclear: false);
+                _comboProvider.CreateBasicMenu(comboMenu, harassMenu, null, antiGapcloser, interrupter, manamanagerMenu, igniteMenu, null, drawingMenu);
                 _comboProvider.CreateLaneclearMenu(laneclearMenu, true, SpellSlot.Q, SpellSlot.R);
+                _comboProvider.CreateAutoLevelMenu(autoLevel, ComboProvider.SpellOrder.RWQE, ComboProvider.SpellOrder.RWQE);
 
                 var rOptions = CreateMenu("Ult Options", comboMenu);
-                rOptions.AddMItem("Bridge R", true, (sender, args) => _comboProvider.GetSkill<BrandR>().UseBridgeUlt = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
-                rOptions.AddMItem("", Guid.NewGuid().ToString());
+                rOptions.AddMItem("Bridge R", false, (sender, args) => _comboProvider.GetSkill<BrandR>().UseBridgeUlt = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
+                rOptions.AddMItem("", "_");
                 rOptions.AddMItem("Risky R", true, (sender, args) => _comboProvider.GetSkill<BrandR>().RiskyUlt = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
                 rOptions.AddMItem("(R bounces, no 100% success)");
-                rOptions.AddMItem("", Guid.NewGuid().ToString());
+                rOptions.AddMItem("", "__");
                 rOptions.AddMItem("Ult non killable", true, (sender, args) => _comboProvider.GetSkill<BrandR>().UltNonKillable = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
-                rOptions.AddMItem("when min X targets", new Slider(Math.Max(HeroManager.Enemies.Count - 1, 2), 1, Math.Max(HeroManager.Enemies.Count, 2)), (sender, args) => _comboProvider.GetSkill<BrandR>().MinBounceTargets = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
-                rOptions.AddMItem("", Guid.NewGuid().ToString());
+                rOptions.AddMItem("when min X targets", new Slider(Math.Min(HeroManager.Enemies.Count, 1), 1, Math.Max(HeroManager.Enemies.Count, 2)), (sender, args) => _comboProvider.GetSkill<BrandR>().MinBounceTargets = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
+                rOptions.AddMItem("", "___");
                 rOptions.AddMItem("Don't R with", true, (sender, args) => _comboProvider.GetSkill<BrandR>().AntiOverkill = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
                 rOptions.AddMItem("% Health difference", new Slider(60), (sender, args) => _comboProvider.GetSkill<BrandR>().OverkillPercent = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
                 rOptions.AddMItem("Ignore when fleeing", true, (sender, args) => _comboProvider.GetSkill<BrandR>().IgnoreAntiOverkillOnFlee = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
                 rOptions.ProcStoredValueChanged<bool>();
                 rOptions.ProcStoredValueChanged<Slider>();
 
-                laneclearMenu.AddMItem("Min W targets", new Slider(3, 0, 10), (sender, args) => _comboProvider.GetSkill<BrandW>().WaveclearTargets = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
+                laneclearMenu.AddMItem("Min W targets", new Slider(3, 1, 10), (sender, args) => _comboProvider.GetSkill<BrandW>().WaveclearTargets = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
 
                 miscMenu.AddMItem("E on fire-minion", true, (sender, args) => _comboProvider.GetSkill<BrandE>().UseMinions = args.GetNewValue<bool>());
+                miscMenu.AddMItem("Try AOE with W", true, (sender, args) => _comboProvider.GetSkill<BrandW>().TryAreaOfEffect = args.GetNewValue<bool>());
                 miscMenu.AddMItem("E farm assist", true, (sender, args) => _comboProvider.GetSkill<BrandE>().FarmAssist = args.GetNewValue<bool>());
                 miscMenu.AddMItem("E Killsteal", true, (sender, args) => _comboProvider.GetSkill<BrandE>().Killsteal = args.GetNewValue<bool>());
                 miscMenu.AddMItem("Only KS in Combo", false, (sender, args) => _comboProvider.GetSkill<BrandE>().KillstealCombo = args.GetNewValue<bool>());
@@ -100,9 +104,9 @@ namespace TheBrand
 
                 _drawW = drawingMenu.AddMItem("W Range", new Circle(true, Color.Red));
                 _drawQ = drawingMenu.AddMItem("Q Range", new Circle(false, Color.OrangeRed));
-                _drawE = drawingMenu.AddMItem("E Range", new Circle(true, Color.Goldenrod));
+                _drawE = drawingMenu.AddMItem("E Range", new Circle(false, Color.Goldenrod));
                 _drawR = drawingMenu.AddMItem("R Range", new Circle(false, Color.DarkViolet));
-                _drawDead = drawingMenu.AddMItem("Draw dead enemies", new Circle(true, Color.LightGreen));
+
                 drawingMenu.ProcStoredValueChanged<Circle>();
                 _mainMenu.AddToMainMenu();
 
@@ -113,9 +117,10 @@ namespace TheBrand
             }
             catch (Exception ex)
             {
-                Console.WriteLine("such exception: " + ex);
+                Console.WriteLine("Error initialitzing TheBrand: " + ex);
             }
         }
+
 
         private void Draw(EventArgs args)
         {
@@ -125,7 +130,6 @@ namespace TheBrand
             var w = _drawW.GetValue<Circle>();
             var e = _drawE.GetValue<Circle>();
             var r = _drawR.GetValue<Circle>();
-            var dead = _drawDead.GetValue<Circle>();
 
             if (q.Active)
                 Render.Circle.DrawCircle(ObjectManager.Player.Position, 1050, q.Color);
@@ -135,31 +139,13 @@ namespace TheBrand
                 Render.Circle.DrawCircle(ObjectManager.Player.Position, 650, e.Color);
             if (r.Active)
                 Render.Circle.DrawCircle(ObjectManager.Player.Position, 750, r.Color);
-
-            if (dead.Active)
-                foreach (var enemy in HeroManager.Enemies)
-                    if (enemy.IsValidTarget(_comboProvider.TargetRange) && _comboProvider.ShouldBeDead(enemy))
-                        Render.Circle.DrawCircle(enemy.Position, 200, dead.Color);
-
         }
 
 
 
         private void Tick(EventArgs args)
         {
-
-            var watch = Stopwatch.StartNew();
-            try
-            {
-                _comboProvider.Update();
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                //  throw;
-            }
-            watch.Stop();
+            _comboProvider.Update();
         }
 
         private Menu CreateMenu(string name, Menu menu)

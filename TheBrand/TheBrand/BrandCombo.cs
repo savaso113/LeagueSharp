@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheBrand.ComboSystem;
 using TheBrand.Commons;
+using TheBrand.Commons.ComboSystem;
 
 namespace TheBrand
 {
@@ -27,13 +27,19 @@ namespace TheBrand
                 base.Update();
 
 
-            var passiveBuff = ObjectManager.Player.GetBuff("brandablaze");
-            var target = TargetSelector.GetTarget(600, TargetSelector.DamageType.True);
 
-            if (passiveBuff != null)
-                IgniteManager.Update(this, GetRemainingPassiveDamage(target, passiveBuff), (int)(passiveBuff.EndTime - Game.Time) + 1); // maybe should use GetTarget!?
-            else
-                IgniteManager.Update(this); // maybe should use GetTarget!?
+            var target = TargetSelector.GetTarget(600, TargetSelector.DamageType.True);
+            if (target.IsValidTarget())
+            {
+                var passiveBuff = target.GetBuff("brandablaze");
+                if (passiveBuff != null)
+                {
+                    IgniteManager.Update(this, GetRemainingPassiveDamage(target, passiveBuff), (int)(passiveBuff.EndTime - Game.Time) + 1);
+                    return;
+                }
+            }
+
+            IgniteManager.Update(this); // maybe should use GetTarget!?
 
         }
 
