@@ -1,11 +1,9 @@
-﻿using System;
-using System.Drawing;
-using System.Linq;
+﻿using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheBrand.Commons.ComboSystem;
+using TheCassiopeia.Commons.ComboSystem;
 
-namespace TheBrand.Commons
+namespace TheCassiopeia.Commons
 {
     public static class IgniteManager
     {
@@ -92,7 +90,7 @@ namespace TheBrand.Commons
             return 50 + ObjectManager.Player.Level * 20;
         }
 
-        public static float GetRemainingDamage(Obj_AI_Hero target)
+        public static float GetRemainingDamage(Obj_AI_Base target)
         {
             var ignitebuff = target.GetBuff("summonerdot");
             if (ignitebuff == null) return 0;
@@ -108,8 +106,8 @@ namespace TheBrand.Commons
         /// <returns></returns>
         private static bool IsDeadForSure(Obj_AI_Hero target, float fleeRange = 550, float dangerousHealthPercent = 0.25f) //Todo: make better
         {
-            var myHealthPercent = ObjectManager.Player.HealthPercent/100f;
-            var enemyHealthPercent = target.HealthPercent/100f;
+            var myHealthPercent = ObjectManager.Player.Health + ObjectManager.Player.AttackShield / ObjectManager.Player.MaxHealth;
+            var enemyHealthPercent = target.Health + target.AttackShield / target.MaxHealth;
             if (myHealthPercent < enemyHealthPercent + dangerousHealthPercent)
                 return false;
 
