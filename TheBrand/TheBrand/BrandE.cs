@@ -39,7 +39,7 @@ namespace TheBrand
         public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
         {
             if (Killsteal && (mode == Orbwalking.OrbwalkingMode.Combo || !KillstealCombo))
-                foreach (var enemy in HeroManager.Enemies)
+                foreach (var enemy in HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(650)))
                 {
                     if (!IsKillable(enemy)) continue;
                     Cast(enemy);
