@@ -17,27 +17,41 @@ namespace TheTwitch
         public bool StealthRecall;
         private float _stealthRecallTime;
 
-        public TwitchQ(Spell spell)
+        public TwitchQ(SpellSlot spell)
             : base(spell)
         {
             OnlyUpdateIfTargetValid = false;
             HarassEnabled = false;
+            ComboEnabled = false;
+            Spellbook.OnCastSpell += OnCastSpell;
+            Drawing.OnEndScene += Drawing_OnEndScene;
         }
 
-        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
+        void Drawing_OnEndScene(EventArgs args)
         {
-            if (StealthRecall && ObjectManager.Player.IsRecalling() && Game.Time - _stealthRecallTime > 10 && CanBeCast())
+            if (DrawRange.Active)
+#pragma warning disable 618
+                Utility.DrawCircle(ObjectManager.Player.Position, GetRemainingTime() * ObjectManager.Player.MoveSpeed, DrawRange.Color, 1, onMinimap: true);
+#pragma warning restore 618
+        }
+
+        private void OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
+        {
+            if (sender.Owner.IsMe && ObjectManager.Player.GetSpell(args.Slot).Name == "recall")
             {
-                _stealthRecallTime = Game.Time;
-                Spell.Cast();
-                ObjectManager.Player.Spellbook.CastSpell(ObjectManager.Player.Spellbook.Spells.First(spell => spell.Name == "recall").Slot);
+                if (StealthRecall && Game.Time - _stealthRecallTime > 10 && CanBeCast())
+                {
+                    args.Process = false;
+                    _stealthRecallTime = Game.Time;
+                    Cast();
+                    ObjectManager.Player.Spellbook.CastSpell(ObjectManager.Player.Spellbook.Spells.First(spell => spell.Name == "recall").Slot);
+                }
             }
-            base.Update(mode, combo, target);
         }
 
-        public override void Cast(Obj_AI_Hero target, bool force = false)
+        public override void Execute(Obj_AI_Hero target)
         {
-            SafeCast();
+            Cast();
         }
 
         public override void Draw()
@@ -47,14 +61,15 @@ namespace TheTwitch
             var stealthTime = GetRemainingTime();
             if (stealthTime > 0)
             {
-                Render.Circle.DrawCircle(ObjectManager.Player.Position, GetRemainingTime() * ObjectManager.Player.MoveSpeed, DrawRange.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, stealthTime * ObjectManager.Player.MoveSpeed, DrawRange.Color);
+
             }
         }
 
         private float GetRemainingTime()
         {
             var buff = ObjectManager.Player.GetBuff("TwitchHideInShadows");
-            if (buff == null && Spell.GetState() == SpellState.Ready) return Spell.Level + 3 + 1.5f;
+            if (buff == null && Instance.State == SpellState.Ready) return Level + 3 + 1.5f + 1f;
             if (buff == null) return 0;
             return buff.EndTime - Game.Time;
         }

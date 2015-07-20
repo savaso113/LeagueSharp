@@ -14,13 +14,15 @@ namespace TheTwitch
         public int MinFarmMinions;
         public Circle DrawRange;
         private bool _afterAttack;
+        public bool IsAreaOfEffect;
+        public bool NotDuringR;
 
-        public TwitchW(Spell spell)
-            : base(spell)
+        public TwitchW(SpellSlot slot)
+            : base(slot)
         {
-            Spell.SetSkillshot(0.25f, 275f, 1400f, false, SkillshotType.SkillshotCircle);
-            IsAreaOfEffect = true;
+            SetSkillshot(0.25f, 275f, 1400f, false, SkillshotType.SkillshotCircle);
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
+            HarassEnabled = false;
         }
 
         private void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
@@ -37,11 +39,11 @@ namespace TheTwitch
             if (_afterAttack) _afterAttack = false;
         }
 
-        public override void Cast(Obj_AI_Hero target, bool force = false)
+        public override void Execute(Obj_AI_Hero target)
         {
-            if (_afterAttack || force)
+            if ((_afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
             {
-                SafeCast(target);
+                Cast(target, aoe: IsAreaOfEffect);
             }
         }
 
@@ -53,9 +55,9 @@ namespace TheTwitch
 
         public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
         {
-            var location = Spell.GetCircularFarmLocation(MinionManager.GetMinions(950, MinionTypes.All, MinionTeam.NotAlly));
+            var location = GetCircularFarmLocation(MinionManager.GetMinions(950, MinionTypes.All, MinionTeam.NotAlly));
             if (location.MinionsHit >= MinFarmMinions)
-                SafeCast(location.Position);
+                Cast(location.Position);
         }
 
         public override void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser)

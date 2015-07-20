@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -27,9 +23,24 @@ namespace TheTwitch.Commons.Items
         {
             if (target.HealthPercent >= _minEnemyHealth && target.Distance(ObjectManager.Player) < 550)
             {
-                var itemSpell = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "BilgewaterCutlass");
-                if (itemSpell != null && itemSpell.GetState() == SpellState.Ready) ObjectManager.Player.Spellbook.CastSpell(itemSpell.Slot, target);
+                Use(target);
             }
+        }
+
+        public void Use(Obj_AI_Base target)
+        {
+            var itemSpell = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "BilgewaterCutlass");
+            if (itemSpell != null && itemSpell.GetState() == SpellState.Ready) ObjectManager.Player.Spellbook.CastSpell(itemSpell.Slot, target);
+        }
+
+        public int GetRange()
+        {
+            return 600;
+        }
+
+        public TargetSelector.DamageType GetDamageType()
+        {
+            return TargetSelector.DamageType.Magical;
         }
     }
 }

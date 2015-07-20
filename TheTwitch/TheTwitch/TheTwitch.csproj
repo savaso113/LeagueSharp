@@ -58,19 +58,25 @@
     <Compile Include="Commons\ComboSystem\ComboProvider.cs" />
     <Compile Include="Commons\ComboSystem\Skill.cs" />
     <Compile Include="Commons\DamageIndicator.cs" />
+    <Compile Include="Commons\Debug\DevAssistant.cs" />
     <Compile Include="Commons\Extensions.cs" />
-    <Compile Include="Commons\Items\BilgewaterCutlass.cs" />
-    <Compile Include="Commons\Items\Botrk.cs" />
-    <Compile Include="Commons\Items\YoumusBlade.cs" />
-    <Compile Include="Commons\IActivateableItem.cs" />
-    <Compile Include="Commons\IgniteManager.cs" />
     <Compile Include="Commons\ManaManager.cs" />
     <Compile Include="Commons\MenuExtensions.cs" />
+    <Compile Include="Commons\IManager.cs" />
     <Compile Include="Commons\ItemManager.cs" />
-    <Compile Include="Commons\HealManager.cs" />
+    <Compile Include="Commons\Items\BilgewaterCutlass.cs" />
+    <Compile Include="Commons\Items\Botrk.cs" />
+    <Compile Include="Commons\Items\IActivateableItem.cs" />
+    <Compile Include="Commons\Items\RavenousHydra.cs" />
+    <Compile Include="Commons\Items\YoumusBlade.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Commons\SummonerManager.cs" />
+    <Compile Include="Commons\Summoners\Cleanse.cs" />
+    <Compile Include="Commons\Summoners\Heal.cs" />
+    <Compile Include="Commons\Summoners\ISummonerSpell.cs" />
     <Compile Include="Twitch.cs" />
+    <Compile Include="TwitchCombo.cs" />
     <Compile Include="TwitchE.cs" />
     <Compile Include="TwitchQ.cs" />
     <Compile Include="TwitchR.cs" />
@@ -80,7 +86,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Commons\ComboSystem\Combo System Tutorial.txt" />
+    <Content Include="Commons\ComboSystem\Combo System thoughts.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

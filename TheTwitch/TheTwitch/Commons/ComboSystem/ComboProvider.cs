@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -9,9 +10,6 @@ namespace TheTwitch.Commons.ComboSystem
     public class ComboProvider
     {
         protected List<Skill> Skills;
-        protected Skill TotalControl;
-        private bool _totalControl;
-        private bool _cancelUpdate;
         public Obj_AI_Hero Target;
         public readonly Orbwalking.Orbwalker Orbwalker;
         public float TargetRange;
@@ -20,6 +18,21 @@ namespace TheTwitch.Commons.ComboSystem
         public bool Interrupter = true;
         public Dictionary<string, bool> GapcloserCancel = new Dictionary<string, bool>();
         public readonly Dictionary<string, List<InterruptableSpell>> InterruptableSpells = new Dictionary<string, List<InterruptableSpell>>();
+        private readonly List<Tuple<Skill, Action>> _queuedCasts = new List<Tuple<Skill, Action>>(); //Todo: check if properly working
+        private bool _cancelSpellUpdates;
+        private readonly Dictionary<int, float> _marks = new Dictionary<int, float>();
+        private bool _autoLevelSpells;
+        private string _autoLevelSpellsSkillOrder;
+        private string _autoLevelSpellsMaxOrder;
+
+        // ReSharper disable InconsistentNaming
+        public enum SpellOrder { RQWE, RQEW, RWQE, RWEQ, REQW, REWQ }
+        // ReSharper restore InconsistentNaming
+
+        private bool _drawingsEnabled;
+        private Circle _targetDrawing;
+        private Circle _deadDrawing;
+        private bool _autoLevelNotOne;
 
         public class InterruptableSpell
         {
@@ -42,7 +55,7 @@ namespace TheTwitch.Commons.ComboSystem
         public ComboProvider(float targetSelectorRange, IEnumerable<Skill> skills, Orbwalking.Orbwalker orbwalker)
         {
             Skills = skills as List<Skill> ?? skills.ToList();
-            DamageType = Skills.Count(spell => spell.Spell.DamageType == TargetSelector.DamageType.Magical) > Skills.Count(spell => spell.Spell.DamageType == TargetSelector.DamageType.Physical) ?
+            DamageType = Skills.Count(spell => spell.DamageType == TargetSelector.DamageType.Magical) > Skills.Count(spell => spell.DamageType == TargetSelector.DamageType.Physical) ?
                 TargetSelector.DamageType.Magical : TargetSelector.DamageType.Physical;
             TargetRange = targetSelectorRange;
             Orbwalker = orbwalker;
@@ -51,45 +64,74 @@ namespace TheTwitch.Commons.ComboSystem
             {
                 var champ = HeroManager.Enemies.FirstOrDefault(enemy => enemy.ChampionName.Equals(spell.ChampionName, StringComparison.InvariantCultureIgnoreCase));
                 if (champ != null && !GapcloserCancel.ContainsKey(champ.ChampionName))
-                {
                     GapcloserCancel.Add(champ.ChampionName, true);
-
-                }
             });
             LeagueSharp.Common.AntiGapcloser.OnEnemyGapcloser += OnGapcloser;
             InitInterruptable();
             Interrupter2.OnInterruptableTarget += OnInterrupter;
-            Game.OnUpdate += _ => Update();
             Drawing.OnDraw += _ =>
             {
                 foreach (var skill in Skills)
                 {
                     skill.Draw();
                 }
+
+                if (!_drawingsEnabled) return;
+
+                if (_targetDrawing.Active && Target.IsValidTarget())
+                    Render.Circle.DrawCircle(Target.Position, 100, _targetDrawing.Color);
+
+                if (_deadDrawing.Active)
+                    foreach (var enemy in HeroManager.Enemies)
+                        if (enemy.IsValidTarget(TargetRange) && ShouldBeDead(enemy))
+                            Render.Circle.DrawCircle(enemy.Position, 200, _deadDrawing.Color);
+
+                //foreach (var enemy in ObjectManager.Get<Obj_AI_Base>())
+                //    if (enemy.IsValidTarget() && ShouldBeDead(enemy))
+                //        Render.Circle.DrawCircle(enemy.Position, 200, _deadDrawing.Color);
+
+            };
+
+            Spellbook.OnCastSpell += (sender, args) =>
+            {
+                if (!sender.Owner.IsMe) return;
+
+                for (int i = 0; i < _queuedCasts.Count; i++)
+                {
+                    if (_queuedCasts[i].Item1.Slot == args.Slot)
+                    {
+                        _queuedCasts.RemoveAt(i);
+                        break;
+                    }
+                }
             };
         }
 
+        /// <summary>
+        /// Represents a "combo" and it's logic. Manages skill logic.
+        /// </summary>
         public ComboProvider(float targetSelectorRange, Orbwalking.Orbwalker orbwalker, params Skill[] skills)
             : this(targetSelectorRange, skills.ToList(), orbwalker) { }
 
-        public void CreateBasicMenu(Menu comboMenu, Menu harassMenu, Menu laneclearMenu, Menu antiGapcloserMenu, Menu interrupterMenu, Menu manamanagerMenu, Menu ignitemanagerMenu, /*Menu healMenu,*/ Menu itemMenu, bool combo = true, bool harass = true, bool laneclear = true, bool laneclearHarassSwitch = true, bool antiGapcloser = true, bool interrupter = true, bool manamanager = true, bool ignitemanager = true, /*bool healmanager = true,*/ bool items = true)
+        #region Menu creators
+        public void CreateBasicMenu(Menu comboMenu, Menu harassMenu, Menu laneclearMenu, Menu antiGapcloserMenu, Menu interrupterMenu, Menu manamanagerMenu, Menu summonerMenu, Menu itemMenu, Menu drawingMenu, bool laneclearHarassSwitch = true /*bool healmanager = true,*/)
         {
-            if (combo)
+            if (comboMenu != null)
             {
                 CreateComboMenu(comboMenu);
             }
 
-            if (harass)
+            if (harassMenu != null)
             {
                 CreateHarassMenu(harassMenu);
             }
 
-            if (laneclear)
+            if (laneclearMenu != null)
             {
                 CreateLaneclearMenu(laneclearMenu, laneclearHarassSwitch);
             }
 
-            if (antiGapcloser)
+            if (antiGapcloserMenu != null)
             {
                 var gapcloserSpells = new Menu("Enemies", "Gapcloser.Enemies");
                 AddGapclosersToMenu(gapcloserSpells);
@@ -97,7 +139,7 @@ namespace TheTwitch.Commons.ComboSystem
                 antiGapcloserMenu.AddMItem("Enabled", true, (sender, args) => AntiGapcloser = args.GetNewValue<bool>());
             }
 
-            if (interrupter)
+            if (interrupterMenu != null)
             {
                 var spellMenu = new Menu("Spells", "Interrupter.Spells");
                 AddInterruptablesToMenu(spellMenu);
@@ -105,25 +147,23 @@ namespace TheTwitch.Commons.ComboSystem
                 interrupterMenu.AddMItem("Enabled", true, (sender, args) => Interrupter = args.GetNewValue<bool>());
             }
 
-            if (manamanager)
+            if (manamanagerMenu != null)
             {
                 ManaManager.Initialize(manamanagerMenu);
             }
 
-            if (ignitemanager)
+            if (summonerMenu != null)
             {
-                IgniteManager.Initialize(ignitemanagerMenu, this, true);
+                new SummonerManager().Attach(summonerMenu, this);
             }
 
-            //if (healmanager)
-            //{
-            //    HealManager.Initialize(healMenu, this);
-            //}
-
-            if (items)
+            if (itemMenu != null)
             {
-                ItemManager.Initialize(itemMenu, this);
+                new ItemManager().Attach(itemMenu, this);
             }
+
+            if (drawingMenu != null)
+                CreateDrawingMenu(drawingMenu);
         }
 
         public void CreateComboMenu(Menu comboMenu, params SpellSlot[] forbiddenSlots)
@@ -131,10 +171,10 @@ namespace TheTwitch.Commons.ComboSystem
             foreach (var skill in Skills)
             {
                 Skill currentSkill = skill;
-                if (forbiddenSlots.Contains(currentSkill.Spell.Slot)) continue;
-                comboMenu.AddMItem("Use " + skill.Spell.Slot, skill.ComboEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.Combo, args.GetNewValue<bool>()));
-                if (skill.Spell.IsSkillshot)
-                    comboMenu.AddMItem(skill.Spell.Slot + " Hitchance", new StringList(new[] { "Low", "Medium", "High", "VeryHigh" }), (sender, args) => currentSkill.SetMinComboHitchance(args.GetNewValue<StringList>().SelectedValue));
+                if (forbiddenSlots.Contains(currentSkill.Slot)) continue;
+                comboMenu.AddMItem("Use " + skill.Slot, skill.ComboEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.Combo, args.GetNewValue<bool>()));
+                if (skill.IsSkillshot)
+                    comboMenu.AddMItem(skill.Slot + " Hitchance", new StringList(new[] { "Low", "Medium", "High", "VeryHigh" }), (sender, args) => currentSkill.SetMinComboHitchance(args.GetNewValue<StringList>().SelectedValue));
             }
             comboMenu.ProcStoredValueChanged<bool>();
             comboMenu.ProcStoredValueChanged<StringList>();
@@ -145,10 +185,10 @@ namespace TheTwitch.Commons.ComboSystem
             foreach (var skill in Skills)
             {
                 Skill currentSkill = skill;
-                if (forbiddenSlots.Contains(currentSkill.Spell.Slot) || currentSkill.Spell.Slot == SpellSlot.R) continue;
-                harassMenu.AddMItem("Use " + skill.Spell.Slot, skill.HarassEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.Mixed, args.GetNewValue<bool>()));
-                if (skill.Spell.IsSkillshot)
-                    harassMenu.AddMItem(skill.Spell.Slot + " Hitchance", new StringList(new[] { "Low", "Medium", "High", "VeryHigh" }) { SelectedIndex = 3 }, (sender, args) => currentSkill.SetMinHarassHitchance(args.GetNewValue<StringList>().SelectedValue));
+                if (forbiddenSlots.Contains(currentSkill.Slot) || currentSkill.Slot == SpellSlot.R) continue;
+                harassMenu.AddMItem("Use " + skill.Slot, skill.HarassEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.Mixed, args.GetNewValue<bool>()));
+                if (skill.IsSkillshot)
+                    harassMenu.AddMItem(skill.Slot + " Hitchance", new StringList(new[] { "Low", "Medium", "High", "VeryHigh" }) { SelectedIndex = 3 }, (sender, args) => currentSkill.SetMinHarassHitchance(args.GetNewValue<StringList>().SelectedValue));
             }
             harassMenu.ProcStoredValueChanged<bool>();
             harassMenu.ProcStoredValueChanged<StringList>();
@@ -159,14 +199,73 @@ namespace TheTwitch.Commons.ComboSystem
             foreach (var skill in Skills)
             {
                 Skill currentSkill = skill;
-                if (forbiddenSlots.Contains(currentSkill.Spell.Slot) || currentSkill.Spell.Slot == SpellSlot.R) continue;
-                laneclearMenu.AddMItem("Use " + skill.Spell.Slot, skill.LaneclearEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.LaneClear, args.GetNewValue<bool>()));
+                if (forbiddenSlots.Contains(currentSkill.Slot) || currentSkill.Slot == SpellSlot.R) continue;
+                laneclearMenu.AddMItem("Use " + skill.Slot, skill.LaneclearEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.LaneClear, args.GetNewValue<bool>()));
             }
             if (harassSwitch) laneclearMenu.AddMItem("Harass instead if enemy near", false, (sender, args) => GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));
 
             laneclearMenu.ProcStoredValueChanged<bool>();
         }
 
+        public void CreateDrawingMenu(Menu drawingMenu)
+        {
+            _drawingsEnabled = true;
+            drawingMenu.AddMItem("Target", new Circle(true, Color.FromArgb(150, Color.OrangeRed)), (sender, args) => _targetDrawing = args.GetNewValue<Circle>()).ProcStoredValueChanged<Circle>();
+            drawingMenu.AddMItem("Draw 100% dead enemies", new Circle(true, Color.FromArgb(150, Color.LightGreen)), (sender, args) => _deadDrawing = args.GetNewValue<Circle>()).ProcStoredValueChanged<Circle>();
+            drawingMenu.AddMItem("Damage indicator", new Circle(true, Color.FromArgb(150, Color.Goldenrod)), (sender, args) =>
+            {
+                DamageIndicator.Enabled = args.GetNewValue<Circle>().Active;
+                DamageIndicator.Fill = true;
+                DamageIndicator.FillColor = Color.FromArgb(100, args.GetNewValue<Circle>().Color);
+                DamageIndicator.Color = Color.FromArgb(200, DamageIndicator.FillColor);
+                DamageIndicator.DamageToUnit = GetComboDamage;
+            }).ProcStoredValueChanged<Circle>();
+        }
+
+        public void CreateAutoLevelMenu(Menu autoLevelMenu, SpellOrder skillOrder, SpellOrder maxOrder)
+        {
+            autoLevelMenu.AddMItem("Enabled", true, (sender, args) => _autoLevelSpells = args.GetNewValue<bool>());
+            var possibleItems = Enum.GetValues(typeof(SpellOrder)).Cast<SpellOrder>().Select(item => String.Join<char>("-", item.ToString())).ToArray();
+
+            autoLevelMenu.AddMItem("Don't level at level 1", false, (sender, args) => _autoLevelNotOne = args.GetNewValue<bool>());
+            autoLevelMenu.AddMItem("Skill (start) order", new StringList(possibleItems, Array.FindIndex(possibleItems, item => item == (String.Join<char>("-", skillOrder.ToString())))), (sender, args) => _autoLevelSpellsSkillOrder = args.GetNewValue<StringList>().SelectedValue);
+            autoLevelMenu.AddMItem("Skill max order", new StringList(possibleItems, Array.FindIndex(possibleItems, item => item == (String.Join<char>("-", maxOrder.ToString())))), (sender, args) => _autoLevelSpellsMaxOrder = args.GetNewValue<StringList>().SelectedValue);
+            autoLevelMenu.ProcStoredValueChanged<bool>();
+            autoLevelMenu.ProcStoredValueChanged<StringList>();
+            Obj_AI_Base.OnLevelUp += OnLevelUp;
+            OnLevelUp(ObjectManager.Player, null);
+        }
+
+
+        private void OnLevelUp(Obj_AI_Base sender, EventArgs args)
+        {
+            if (!sender.IsMe || _autoLevelNotOne && ObjectManager.Player.Level == 1) return;
+
+            var skillOrder = _autoLevelSpellsSkillOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
+            var maxOrder = _autoLevelSpellsMaxOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
+
+            foreach (var spellSlot in skillOrder)
+                if (ObjectManager.Player.Spellbook.GetSpell(spellSlot).Level == 0)
+                    ObjectManager.Player.Spellbook.LevelSpell(spellSlot);
+
+            foreach (var spellSlot in maxOrder)
+                ObjectManager.Player.Spellbook.LevelSpell(spellSlot);
+        }
+
+
+
+        public void AddGapclosersToMenu(Menu menu)
+        {
+            GapcloserCancel.Keys.ToList().ForEach(item => menu.AddMItem(item, true, (sender, args) => GapcloserCancel[item] = args.GetNewValue<bool>()));
+        }
+
+        public void AddInterruptablesToMenu(Menu menu)
+        {
+            InterruptableSpells.ToList().ForEach(pair => pair.Value.ForEach(champSpell => menu.AddMItem(pair.Key + ": " + champSpell.Slot.ToString(), champSpell.FireEvent, (sender, args) => champSpell.FireEvent = args.GetNewValue<bool>())));
+        }
+        #endregion
+
+        #region Interruptables
         private void InitInterruptable()
         {
             //Interrupter2 contains the spells, but they are private. Can't use reflection cause of sandbox. GG WP
@@ -203,131 +302,127 @@ namespace TheTwitch.Commons.ComboSystem
                 InterruptableSpells[name].Add(spell);
         }
 
-        /// <summary>
-        /// Note: Do not use autoattacks as additionalSpellDamage!
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="additionalSpellDamage"></param>
-        /// <returns></returns>
-        public virtual bool ShouldBeDead(Obj_AI_Hero target, float additionalSpellDamage = 0f)
-        {
-            var healthPred = HealthPrediction.GetHealthPrediction(target, 1);
-            return healthPred - (IgniteManager.GetRemainingDamage(target) + additionalSpellDamage) < 0;
-        }
-
         private void OnInterrupter(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
         {
-            if (!Interrupter) return;
+            if (!Interrupter || sender.IsAlly) return;
             var interruptableSpell = InterruptableSpells[sender.ChampionName].FirstOrDefault(interruptable => interruptable.Slot == sender.Spellbook.ActiveSpellSlot || (sender.Spellbook.ActiveSpellSlot == SpellSlot.Unknown && interruptable.DangerLevel.ToString() == args.DangerLevel.ToString()));
             if (interruptableSpell == null || !interruptableSpell.FireEvent)
                 return;
 
             foreach (var skill in Skills)
-                skill.Interruptable(this, sender, interruptableSpell);
-        }
-
-        public void AddGapclosersToMenu(Menu menu)
-        {
-            GapcloserCancel.Keys.ToList().ForEach(item => menu.AddMItem(item, true, (sender, args) => GapcloserCancel[item] = args.GetNewValue<bool>()));
-        }
-
-        public void AddInterruptablesToMenu(Menu menu)
-        {
-            InterruptableSpells.ToList().ForEach(pair => pair.Value.ForEach(champSpell => menu.AddMItem(pair.Key + ": " + champSpell.Slot.ToString(), champSpell.FireEvent, (sender, args) => champSpell.FireEvent = args.GetNewValue<bool>())));
+                skill.Interruptable(this, sender, interruptableSpell, args.EndTime);
         }
 
         private void OnGapcloser(ActiveGapcloser gapcloser)
         {
             //            Game.PrintChat("try " + gapcloser.Sender.ChampionName + " have: " + GapcloserCancel.FirstOrDefault().Key);
 
-            if (!AntiGapcloser || !GapcloserCancel[gapcloser.Sender.ChampionName]) return;
+            if (!AntiGapcloser || !GapcloserCancel[gapcloser.Sender.ChampionName] || gapcloser.Sender.IsAlly) return;
             foreach (var skill in Skills)
                 skill.Gapcloser(this, gapcloser);
         }
+        #endregion
 
+        #region Core routines
         /// <summary>
-        /// call to init all stuffs. Menu has to exist at that time
+        /// Call to initialize all stuffs. If skills access the menu, this should be called after the menu creation
         /// </summary>
         public virtual void Initialize()
         {
             Skills.ForEach(skill => skill.Initialize(this));
         }
 
-        public float GetComboDamage(Obj_AI_Hero enemy)
+        /// <summary>
+        /// Call to initialize all stuffs. If skills access the menu, this should be called after the menu creation
+        /// </summary>
+        public virtual void Initialize(TargetSelector.DamageType damageType)
+        {
+            DamageType = damageType;
+            Initialize();
+        }
+
+        public virtual void Update()
+        {
+            Target = TargetSelector.GetTarget(TargetRange, DamageType);
+
+            for (int i = 0; i < _queuedCasts.Count; i++)
+            {
+                if (_queuedCasts[i].Item1.HasBeenCast())
+                    _queuedCasts.RemoveAt(i);
+                else
+                {
+                    try
+                    {
+                        _queuedCasts[i].Item2();
+                    }
+                    catch
+                    {
+                        _queuedCasts.RemoveAt(i);
+                    }
+                    break;
+                }
+            }
+
+
+            if (!ObjectManager.Player.Spellbook.IsCastingSpell)
+            {
+                Skills.Sort(); //Checked: this is not expensive
+                foreach (var item in Skills)
+                {
+                    item.Update(Orbwalker.ActiveMode, this, Target);
+                    if (_cancelSpellUpdates)
+                    {
+                        _cancelSpellUpdates = false;
+                        break;
+                    }
+                }
+            }
+
+        }
+        #endregion
+
+        #region API
+        public void CancelSpellUpdates()
+        {
+            _cancelSpellUpdates = true;
+        }
+
+        /// <summary>
+        /// Note: Do not use autoattacks as additionalSpellDamage!
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="additionalSpellDamage"></param>
+        /// <returns></returns>
+        public virtual bool ShouldBeDead(Obj_AI_Base target, float additionalSpellDamage = 0f)
+        {
+            var healthPred = HealthPrediction.GetHealthPrediction(target, 1000);
+            return healthPred - (target.GetRemainingIgniteDamage() + additionalSpellDamage) <= 0;
+        }
+
+        /// <summary>
+        /// Estimates the damage the combo could do in it's current state
+        /// </summary>
+        /// <param name="enemy"></param>
+        /// <returns></returns>
+        public virtual float GetComboDamage(Obj_AI_Hero enemy)
         {
             return Skills.Sum(skill => skill.ComboEnabled ? skill.GetDamage(enemy) : 0);
         }
 
-        public Obj_AI_Hero GetTarget()
+        public void RemoveTopQueuedCast()
         {
-            return Target;
+            if (_queuedCasts.Count > 0) _queuedCasts.RemoveAt(_queuedCasts.Count - 1);
         }
 
         /// <summary>
-        /// override in sub class to add champion combo logic. for example Garen has a fixed combo, but wants to do W not in order, but when he gets damage.
-        /// In this example you would override Update and have a seperate logic for W instead of adding it to the skill routines.
+        /// Adds a cast to the cast-queue. The added castActions will be cast in the same order as they were added
         /// </summary>
-        public virtual void Update()
+        /// <param name="skill"></param>
+        /// <param name="castAction"></param>
+        public void AddQueuedCast(Skill skill, Action castAction)
         {
-            Target = TargetSelector.GetTarget(TargetRange, DamageType);
-            Skills.Sort(); //Checked: this is not expensive
-
-            if (_totalControl)
-            {
-                TotalControl.Update(Orbwalker.ActiveMode, this, Target);
-
-                if (!TotalControl.NeedsControl())
-                {
-                    TotalControl.TryTerminate();
-                    _totalControl = false;
-                    Update();
-                    return;
-                }
-
-                // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var skill in Skills.Where(item => item.GetPriority() > TotalControl.GetPriority()))
-                {
-                    skill.Update(Orbwalker.ActiveMode, this, Target);
-                }
-            }
-            else
-            {
-                foreach (var item in Skills)
-                {
-                    if (_cancelUpdate)
-                    {
-                        _cancelUpdate = false;
-                        return;
-                    }
-                    item.Update(Orbwalker.ActiveMode, this, Target);
-                }
-            }
-
-        }
-
-        public bool GrabControl(Skill skill)
-        {
-            if (_totalControl && TotalControl == skill)
-                return true;
-            if (_totalControl && TotalControl.GetPriority() < skill.GetPriority())
-            {
-                TotalControl.TryTerminate();
-                TotalControl = skill;
-                _cancelUpdate = true;
-                return true;
-            }
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var currentSkill in Skills)
-            {
-                if (skill != currentSkill && currentSkill.NeedsControl() && currentSkill.GetEnabled(Orbwalker.ActiveMode) && currentSkill.GetPriority() >= skill.GetPriority())
-                {
-                    return false;
-                }
-            }
-            _totalControl = true;
-            TotalControl = skill;
-            _cancelUpdate = true;
-            return true;
+            if (_queuedCasts.Any(t => t.Item1 == skill)) return;
+            _queuedCasts.Add(new Tuple<Skill, Action>(skill, castAction));
         }
 
         public void SetEnabled(Skill skill, Orbwalking.OrbwalkingMode mode, bool enabled)
@@ -343,14 +438,34 @@ namespace TheTwitch.Commons.ComboSystem
             }
         }
 
+        /// <summary>
+        /// Returns the first skill of type Ts
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T GetSkill<T>() where T : Skill
         {
             return (T)Skills.FirstOrDefault(skill => skill is T);
         }
 
+        /// <summary>
+        /// returns all skills
+        /// </summary>
+        /// <returns></returns>
         public Skill[] GetSkills()
         {
             return Skills.ToArray();
         }
+
+        public void SetMarked(GameObject obj, float time = 1f)
+        {
+            _marks[obj.NetworkId] = Game.Time + time;
+        }
+
+        public bool IsMarked(GameObject obj)
+        {
+            return _marks.ContainsKey(obj.NetworkId) && _marks[obj.NetworkId] > Game.Time;
+        }
+        #endregion
     }
 }

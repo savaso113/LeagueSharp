@@ -11,19 +11,19 @@ namespace TheTwitch
 {
     class TwitchR : Skill
     {
-        public bool OnlyInTeamfight;
+        public int MinEnemies;
         public Circle DrawRange;
 
-        public TwitchR(Spell spell)
+        public TwitchR(SpellSlot spell)
             : base(spell)
         {
             HarassEnabled = false;
         }
 
-        public override void Cast(Obj_AI_Hero target, bool force = false)
+        public override void Execute(Obj_AI_Hero target)
         {
-            if (OnlyInTeamfight && !(HeroManager.AllHeroes.Count(hero => hero.Distance(ObjectManager.Player) < 2500) > HeroManager.AllHeroes.Count / 2f) && !force) return;
-            SafeCast();
+            if (HeroManager.Enemies.Count(hero => hero.Distance(ObjectManager.Player) < 1000) >= MinEnemies)
+                Cast();
         }
 
         public override int GetPriority()
