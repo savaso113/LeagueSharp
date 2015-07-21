@@ -50,10 +50,15 @@ namespace TheTwitch
             combo.CreateLaneclearMenu(laneclearMenu, true, SpellSlot.Q);
             combo.CreateAutoLevelMenu(autoLevelSpells, ComboProvider.SpellOrder.REWQ, ComboProvider.SpellOrder.REQW);
 
-            comboMenu.AddMItem("Min Enemies for R", new Slider(2, 1, HeroManager.Enemies.Count), (sender, args) => combo.GetSkill<TwitchR>().MinEnemies = args.GetNewValue<Slider>().Value);
-            comboMenu.AddMItem("Custom E calculation", true, (sender, args) => combo.GetSkill<TwitchE>().CustomCalculation = args.GetNewValue<bool>());
+            comboMenu.Item("Combo.UseQ").DisplayName += " (for attackspeed)";
 
-            harassMenu.AddMItem("E after trade", true, (sender, args) => combo.GetSkill<TwitchE>().HarassActivateWhenLeaving = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
+            comboMenu.AddMItem("Min Enemies near for R", new Slider(2, 1, HeroManager.Enemies.Count), (sender, args) => combo.GetSkill<TwitchR>().MinEnemies = args.GetNewValue<Slider>().Value);
+            comboMenu.AddMItem("E at full stacks", true, (sender, args) => combo.GetSkill<TwitchE>().AlwaysExecuteAtFullStacks = args.GetNewValue<bool>());
+            comboMenu.AddMItem("Custom E calculation", true, (sender, args) => combo.GetSkill<TwitchE>().CustomCalculation = args.GetNewValue<bool>());
+            comboMenu.ProcStoredValueChanged<Slider>();
+            comboMenu.ProcStoredValueChanged<bool>();
+
+            harassMenu.AddMItem("E after trade if >= X stacks", new Slider(3,1,6), (sender, args) => combo.GetSkill<TwitchE>().HarassActivateWhenLeaving = args.GetNewValue<Slider>()).ProcStoredValueChanged<Slider>();
 
             antigapcloserMenu.AddMItem("Uses W if enabled");
 
@@ -70,7 +75,9 @@ namespace TheTwitch
             miscMenu.AddMItem("Don't W during R", false, (sender, args) => combo.GetSkill<TwitchW>().NotDuringR = args.GetNewValue<bool>());
             miscMenu.ProcStoredValueChanged<bool>();
 
-            drawingMenu.AddMItem("Draw Q Range", new Circle(true, Color.Gray), (sender, args) => combo.GetSkill<TwitchQ>().DrawRange = args.GetNewValue<Circle>());
+            //drawingMenu.AddMItem("Draw Q Range", new Circle(true, Color.Gray), (sender, args) => combo.GetSkill<TwitchQ>().DrawRange = args.GetNewValue<Circle>());
+            combo.GetSkill<TwitchQ>().DrawRange = new Circle(true, Color.Gray);
+            
             drawingMenu.AddMItem("Draw W Range", new Circle(false, Color.LightGreen), (sender, args) => combo.GetSkill<TwitchW>().DrawRange = args.GetNewValue<Circle>());
             drawingMenu.AddMItem("Draw E Range", new Circle(true, Color.DarkGreen), (sender, args) => combo.GetSkill<TwitchE>().DrawRange = args.GetNewValue<Circle>());
             drawingMenu.AddMItem("Draw R Range", new Circle(false, Color.Goldenrod), (sender, args) => combo.GetSkill<TwitchR>().DrawRange = args.GetNewValue<Circle>());

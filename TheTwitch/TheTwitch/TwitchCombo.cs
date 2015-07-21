@@ -21,7 +21,7 @@ namespace TheTwitch
 
         public override bool ShouldBeDead(LeagueSharp.Obj_AI_Base target, float additionalSpellDamage = 0f)
         {
-            return base.ShouldBeDead(target, TwitchE.GetRemainingPoisonDamage(target));
+            return base.ShouldBeDead(target, TwitchE.GetRemainingPoisonDamageMinusRegeneration(target));
         }
     }
 }

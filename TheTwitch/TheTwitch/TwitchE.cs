@@ -15,11 +15,12 @@ namespace TheTwitch
     {
         public bool Killsteal;
         public bool FarmAssist;
-        public bool HarassActivateWhenLeaving;
+        public Slider HarassActivateWhenLeaving;
         public int MinFarmMinions;
         public int MinFarmDamageMinions;
         public Circle DrawRange;
         public bool CustomCalculation;
+        public bool AlwaysExecuteAtFullStacks;
 
         private static readonly float[] BaseDamage = { 20, 35, 50, 65, 80 };
         private static readonly float[] StackDamage = { 15, 20, 25, 30, 35 };
@@ -58,14 +59,14 @@ namespace TheTwitch
         public override void Harass(ComboProvider combo, Obj_AI_Hero target)
         {
             base.Harass(combo, target);
-            if (HarassActivateWhenLeaving && target.HasBuff("twitchdeadlyvenom") && target.Distance(ObjectManager.Player) > Orbwalking.GetRealAutoAttackRange(target))
+            if (HarassActivateWhenLeaving.Value >= target.GetBuffCount("twitchdeadlyvenom") && target.Distance(ObjectManager.Player) > Orbwalking.GetRealAutoAttackRange(target))
                 Cast();
         }
 
         private float GetPassiveAndActivateDamage(Obj_AI_Base target, int targetBuffCount = 0)
         {
             if (targetBuffCount == 0) return 0;
-            return (float)(ObjectManager.Player.CalcDamage(target, Damage.DamageType.True, GetRemainingPoisonDamage(target)) + GetActivateDamage(target, targetBuffCount));
+            return (float)GetRemainingPoisonDamageMinusRegeneration(target) + GetActivateDamage(target, targetBuffCount);
         }
 
         private float GetActivateDamage(Obj_AI_Base target, int targetBuffCount = 0)
@@ -74,11 +75,11 @@ namespace TheTwitch
             return (float)ObjectManager.Player.CalcDamage(target, Damage.DamageType.Physical, Math.Min(MaxDamage[Level - 1] + ObjectManager.Player.TotalAttackDamage * 1.5f, targetBuffCount * (StackDamage[Level - 1] + ObjectManager.Player.TotalAttackDamage * 0.15f) + BaseDamage[Level - 1]));
         }
 
-        public static float GetRemainingPoisonDamage(Obj_AI_Base target)
+        public static float GetRemainingPoisonDamageMinusRegeneration(Obj_AI_Base target)
         {
             var buff = target.GetBuff("twitchdeadlyvenom");
             if (buff == null) return 0f;
-            return ((int)(buff.EndTime - Game.Time) + 1) * GetPoisonTickDamage() * buff.Count;
+            return (float)(ObjectManager.Player.CalcDamage(target, Damage.DamageType.True, ((int)(buff.EndTime - Game.Time) + 1) * GetPoisonTickDamage() * buff.Count)) - ((int)(buff.EndTime - Game.Time)) * target.HPRegenRate;
         }
 
         private static int GetPoisonTickDamage()

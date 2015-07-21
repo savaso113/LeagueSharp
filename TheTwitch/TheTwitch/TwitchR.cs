@@ -22,7 +22,7 @@ namespace TheTwitch
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if (HeroManager.Enemies.Count(hero => hero.Distance(ObjectManager.Player) < 1000) >= MinEnemies)
+            if (HeroManager.Enemies.Count(hero => hero.IsValidTarget(1000)) >= MinEnemies)
                 Cast();
         }
 
