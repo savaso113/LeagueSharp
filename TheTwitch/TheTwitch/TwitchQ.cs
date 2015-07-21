@@ -14,7 +14,7 @@ namespace TheTwitch
     class TwitchQ : Skill
     {
         public Circle DrawRange;
-        public bool StealthRecall;
+        public MenuItem StealthRecall;
         private float _stealthRecallTime;
 
         public TwitchQ(SpellSlot spell)
@@ -37,16 +37,21 @@ namespace TheTwitch
 
         private void OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
         {
-            if (sender.Owner.IsMe && ObjectManager.Player.GetSpell(args.Slot).Name == "recall")
+            if (sender.Owner.IsMe && ObjectManager.Player.GetSpell(args.Slot).Name == "recall" && StealthRecall.GetValue<KeyBind>().Active && _stealthRecallTime + 5 < Game.Time)
             {
-                if (StealthRecall && Game.Time - _stealthRecallTime > 10 && CanBeCast())
-                {
-                    args.Process = false;
-                    _stealthRecallTime = Game.Time;
-                    Cast();
-                    ObjectManager.Player.Spellbook.CastSpell(ObjectManager.Player.Spellbook.Spells.First(spell => spell.Name == "recall").Slot);
-                }
+                args.Process = false;
             }
+        }
+
+        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
+        {
+            if (StealthRecall.GetValue<KeyBind>().Active && _stealthRecallTime + 5 < Game.Time)
+            {
+                _stealthRecallTime = Game.Time;
+                Cast();
+                ObjectManager.Player.Spellbook.CastSpell(ObjectManager.Player.Spellbook.Spells.First(spell => spell.Name == "recall").Slot);
+            }
+            base.Update(mode, combo, target);
         }
 
         public override void Execute(Obj_AI_Hero target)

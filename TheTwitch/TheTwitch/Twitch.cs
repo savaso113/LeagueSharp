@@ -71,7 +71,7 @@ namespace TheTwitch
             miscMenu.AddMItem("E Killsteal", true, (sender, args) => combo.GetSkill<TwitchE>().Killsteal = args.GetNewValue<bool>());
             miscMenu.AddMItem("E farm assist", false, (sender, args) => combo.GetSkill<TwitchE>().FarmAssist = args.GetNewValue<bool>());
             miscMenu.AddMItem("W AOE prediction", true, (sender, args) => combo.GetSkill<TwitchW>().IsAreaOfEffect = args.GetNewValue<bool>());
-            miscMenu.AddMItem("Stealh recall", true, (sender, args) => combo.GetSkill<TwitchQ>().StealthRecall = args.GetNewValue<bool>());
+            combo.GetSkill<TwitchQ>().StealthRecall = miscMenu.AddMItem("Stealh recall", new KeyBind(66, KeyBindType.Press));
             miscMenu.AddMItem("Don't W during R", false, (sender, args) => combo.GetSkill<TwitchW>().NotDuringR = args.GetNewValue<bool>());
             miscMenu.ProcStoredValueChanged<bool>();
 

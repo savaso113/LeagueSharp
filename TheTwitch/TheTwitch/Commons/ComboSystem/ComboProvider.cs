@@ -239,7 +239,7 @@ namespace TheTwitch.Commons.ComboSystem
 
         private void OnLevelUp(Obj_AI_Base sender, EventArgs args)
         {
-            if (!sender.IsMe || _autoLevelNotOne && ObjectManager.Player.Level == 1) return;
+            if (!sender.IsMe || _autoLevelNotOne && ObjectManager.Player.Level == 1 || !_autoLevelSpells) return;
 
             var skillOrder = _autoLevelSpellsSkillOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
             var maxOrder = _autoLevelSpellsMaxOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
