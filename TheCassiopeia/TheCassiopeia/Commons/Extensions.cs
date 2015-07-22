@@ -51,5 +51,17 @@ namespace TheCassiopeia.Commons
         {
             return entity.HasBuffOfType(BuffType.Poison);
         }
+
+        public static float GetIgniteDamage(Obj_AI_Base source)
+        {
+            return 50 + ObjectManager.Player.Level * 20;
+        }
+
+        public static float GetRemainingIgniteDamage(this Obj_AI_Base target)
+        {
+            var ignitebuff = target.GetBuff("summonerdot");
+            if (ignitebuff == null) return 0;
+            return (float)ObjectManager.Player.CalcDamage(target, Damage.DamageType.True, ((int)(ignitebuff.EndTime - Game.Time) + 1) * GetIgniteDamage(ignitebuff.Caster as Obj_AI_Base) / 5);
+        }
     }
 }

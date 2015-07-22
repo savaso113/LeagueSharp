@@ -1,7 +1,7 @@
 ﻿using LeagueSharp;
 using LeagueSharp.Common;
 
-namespace TheCassiopeia.Commons
+namespace TheCassiopeia.Commons.Items
 {
     public interface IActivateableItem
     {
@@ -9,5 +9,7 @@ namespace TheCassiopeia.Commons
         string GetDisplayName();
         void Update(Obj_AI_Hero target);
         void Use(Obj_AI_Base target);
+        int GetRange();
+        TargetSelector.DamageType GetDamageType();
     }
 }

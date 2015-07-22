@@ -40,5 +40,15 @@ namespace TheCassiopeia.Commons.Items
             var itemSpell = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "ItemTiamatCleave");
             if (itemSpell != null && itemSpell.GetState() == SpellState.Ready) ObjectManager.Player.Spellbook.CastSpell(itemSpell.Slot, target);
         }
+
+        public int GetRange()
+        {
+            return 400;
+        }
+
+        public TargetSelector.DamageType GetDamageType()
+        {
+            return TargetSelector.DamageType.Physical;
+        }
     }
 }

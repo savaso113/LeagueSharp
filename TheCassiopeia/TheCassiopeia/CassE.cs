@@ -55,7 +55,7 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if (Provider.IsMarked(target) || target.IsPoisoned() || IsKillable(target))
+            if ((Provider.IsMarked(target) || target.IsPoisoned() || IsKillable(target)) && !target.HasSpellShield())
             {
                 Cast(target);
             }

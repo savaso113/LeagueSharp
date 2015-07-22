@@ -32,5 +32,15 @@ namespace TheCassiopeia.Commons.Items
             var itemSpell = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "BilgewaterCutlass");
             if (itemSpell != null && itemSpell.GetState() == SpellState.Ready) ObjectManager.Player.Spellbook.CastSpell(itemSpell.Slot, target);
         }
+
+        public int GetRange()
+        {
+            return 600;
+        }
+
+        public TargetSelector.DamageType GetDamageType()
+        {
+            return TargetSelector.DamageType.Magical;
+        }
     }
 }

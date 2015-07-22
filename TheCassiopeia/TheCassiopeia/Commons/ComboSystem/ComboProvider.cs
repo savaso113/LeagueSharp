@@ -114,7 +114,7 @@ namespace TheCassiopeia.Commons.ComboSystem
             : this(targetSelectorRange, skills.ToList(), orbwalker) { }
 
         #region Menu creators
-        public void CreateBasicMenu(Menu comboMenu, Menu harassMenu, Menu laneclearMenu, Menu antiGapcloserMenu, Menu interrupterMenu, Menu manamanagerMenu, Menu ignitemanagerMenu, Menu itemMenu, Menu drawingMenu, bool laneclearHarassSwitch = true /*bool healmanager = true,*/)
+        public void CreateBasicMenu(Menu comboMenu, Menu harassMenu, Menu laneclearMenu, Menu antiGapcloserMenu, Menu interrupterMenu, Menu manamanagerMenu, Menu summonerMenu, Menu itemMenu, Menu drawingMenu, bool laneclearHarassSwitch = true /*bool healmanager = true,*/)
         {
             if (comboMenu != null)
             {
@@ -152,19 +152,14 @@ namespace TheCassiopeia.Commons.ComboSystem
                 ManaManager.Initialize(manamanagerMenu);
             }
 
-            if (ignitemanagerMenu != null)
+            if (summonerMenu != null)
             {
-                IgniteManager.Initialize(ignitemanagerMenu, this, true);
+                new SummonerManager().Attach(summonerMenu, this);
             }
-
-            //if (healmanager)
-            //{
-            //    HealManager.Initialize(healMenu, this);
-            //}
 
             if (itemMenu != null)
             {
-                ItemManager.Initialize(itemMenu, this);
+                new ItemManager().Attach(itemMenu, this);
             }
 
             if (drawingMenu != null)
@@ -244,7 +239,7 @@ namespace TheCassiopeia.Commons.ComboSystem
 
         private void OnLevelUp(Obj_AI_Base sender, EventArgs args)
         {
-            if (!sender.IsMe || _autoLevelNotOne && ObjectManager.Player.Level == 1) return;
+            if (!sender.IsMe || _autoLevelNotOne && ObjectManager.Player.Level == 1 || !_autoLevelSpells) return;
 
             var skillOrder = _autoLevelSpellsSkillOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
             var maxOrder = _autoLevelSpellsMaxOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
@@ -401,7 +396,7 @@ namespace TheCassiopeia.Commons.ComboSystem
         public virtual bool ShouldBeDead(Obj_AI_Base target, float additionalSpellDamage = 0f)
         {
             var healthPred = HealthPrediction.GetHealthPrediction(target, 1000);
-            return healthPred - (IgniteManager.GetRemainingDamage(target) + additionalSpellDamage) <= 0;
+            return healthPred - (target.GetRemainingIgniteDamage() + additionalSpellDamage) <= 0;
         }
 
         /// <summary>

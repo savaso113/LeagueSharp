@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheTwitch.Commons.ComboSystem;
-using TheTwitch.Commons.Summoners;
+using TheCassiopeia.Commons.ComboSystem;
+using TheCassiopeia.Commons.Summoners;
 
-namespace TheTwitch.Commons
+namespace TheCassiopeia.Commons
 {
     public class SummonerManager : IManager
     {

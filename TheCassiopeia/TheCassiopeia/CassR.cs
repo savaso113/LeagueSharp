@@ -15,41 +15,33 @@ namespace TheCassiopeia
     {
         public bool UltOnKillable;
         public int MinTargets;
-        private Vector3 _ultPos;
-        private float _ultPosTime;
 
         public CassR(SpellSlot slot)
             : base(slot)
         {
+            
+        }
+
+        public override void Initialize(ComboProvider combo)
+        {
+            Range = 825f;
             SetSkillshot(0.3f, (float)(80 * Math.PI / 180), float.MaxValue, false, SkillshotType.SkillshotCone);
+            base.Initialize(combo);
         }
 
         public override void Execute(Obj_AI_Hero target)
         {
-            var pred = GetPrediction(target, true, Range);
+            var pred = GetPrediction(target, true);
+            if (!WillHit(target, pred.CastPosition)) return;
             var targetsLooking = pred.AoeTargetsHit.Count(enemy => enemy.IsFacing(ObjectManager.Player));
 
-            if (targetsLooking >= MinTargets)
+            if (targetsLooking >= MinTargets || Provider.GetComboDamage(target) > target.Health && target.IsFacing(ObjectManager.Player))
             {
-                _ultPos = pred.CastPosition;
-                _ultPosTime = Game.Time;
-            }
-            else if (Provider.GetComboDamage(target) > target.Health && target.IsFacing(ObjectManager.Player))
-            {
-                _ultPos = pred.CastPosition;
-                _ultPosTime = Game.Time;
+                Console.WriteLine(pred.CastPosition+" "+ObjectManager.Player.Position.Distance(pred.CastPosition));
+                Cast(pred.CastPosition);
             }
 
-            if (Game.Time - _ultPosTime < 0.5f)
-                Cast(_ultPos);
-        }
-
-        public override void Draw()
-        {
-            if (Game.Time - _ultPosTime < 10)
-                Render.Circle.DrawCircle(_ultPos, 200, Color.Pink);
-
-            Drawing.DrawText(500, 500, Color.Red, (_ultPos.X - Game.CursorPos.X) + " / " + (_ultPos.Y - Game.CursorPos.Y) + " / " + (_ultPos.Z - Game.CursorPos.Z) + " / ");
+                
         }
 
         public override int GetPriority()

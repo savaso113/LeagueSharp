@@ -6,12 +6,12 @@ using TheCassiopeia.Commons.Items;
 
 namespace TheCassiopeia.Commons
 {
-    public static class ItemManager
+    public class ItemManager : IManager
     {
-        private static Dictionary<IActivateableItem, bool> _items;
-        private static bool _combo, _harass;
+        private Dictionary<IActivateableItem, bool> _items;
+        private bool _combo;
 
-        public static void Initialize(Menu menu, ComboProvider combo)
+        public void Attach(Menu menu, ComboProvider provider)
         {
             _items = new Dictionary<IActivateableItem, bool>();
             var items = new IActivateableItem[] { new BilgewaterCutlass(), new Botrk(), new YoumusBlade(), new RavenousHydra() };
@@ -19,6 +19,7 @@ namespace TheCassiopeia.Commons
             foreach (var activateableItem in items)
             {
                 IActivateableItem item = activateableItem;
+                if (item.GetRange() != int.MaxValue && item.GetRange() != 0 && item.GetRange() + 100 < ObjectManager.Player.AttackRange) continue;
 
                 var itemMenu = new Menu(item.GetDisplayName(), item.GetDisplayName());
                 item.Initialize(itemMenu);
@@ -26,23 +27,20 @@ namespace TheCassiopeia.Commons
                 itemMenu.AddMItem("Enabled", true, (sender, agrs) => _items[item] = agrs.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
                 menu.AddSubMenu(itemMenu);
             }
-            menu.AddMItem("Use in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
-            menu.AddMItem("Use in harass", false, (sender, args) => _harass = args.GetNewValue<bool>());
+            menu.AddMItem("Only in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
             menu.ProcStoredValueChanged<bool>();
-            Game.OnUpdate += _ => Update(combo);
+            Game.OnUpdate += _ => Update(provider);
         }
 
-        private static void Update(ComboProvider combo)
+        private void Update(ComboProvider provider)
         {
-            var target = combo.Target;
-            if (!target.IsValidTarget()) return;
-            if (combo.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && !_combo || combo.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed && !_harass || (combo.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo && combo.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Mixed)) return;
+            if (provider.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo && _combo) return;
             foreach (var item in _items)
-                if (item.Value)
-                    item.Key.Update(target);
+                if (item.Value && provider.Target.IsValidTarget())
+                    item.Key.Update(provider.Target);
         }
 
-        public static T GetItem<T>() where T : IActivateableItem
+        public T GetItem<T>() where T : IActivateableItem
         {
             foreach (var item in _items.Keys)
                 if (item is T)

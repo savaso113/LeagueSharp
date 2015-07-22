@@ -31,7 +31,7 @@ namespace TheCassiopeia
             var drawingMenu = mainMenu.CreateSubmenu("Drawing");
             var autolevelMenu = mainMenu.CreateSubmenu("Auto level spells");
 
-
+            Console.WriteLine("iksde");
 
             var orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
             TargetSelector.AddToMenu(targetselectorMenu);

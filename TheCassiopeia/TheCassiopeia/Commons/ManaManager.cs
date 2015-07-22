@@ -25,7 +25,8 @@ namespace TheCassiopeia.Commons
             Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.Mixed, "Harass");
             Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.LaneClear);
             Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.LastHit, "Lasthit (skill farm assist)");
-            manamanagerMenu.AddMItem("Enabled", true, (sender, args) => EnableLimitations = args.GetNewValue<bool>());
+            manamanagerMenu.AddMItem("Enabled", false, (sender, args) => EnableLimitations = args.GetNewValue<bool>());
+            manamanagerMenu.ProcStoredValueChanged<bool>();
         }
 
         public static void Initialize(Menu menu, Orbwalking.OrbwalkingMode mode)

@@ -39,12 +39,6 @@ namespace TheCassiopeia
                 base.Update();
             }
           
-
-            var target = TargetSelector.GetTarget(600, TargetSelector.DamageType.True);
-            if (target.IsValidTarget())
-                IgniteManager.Update(this, GetRemainingCassDamage(target));
-            else
-                IgniteManager.Update(this); // maybe should use GetTarget!?
         }
 
         public override bool ShouldBeDead(Obj_AI_Base target, float additionalSpellDamage = 0f)

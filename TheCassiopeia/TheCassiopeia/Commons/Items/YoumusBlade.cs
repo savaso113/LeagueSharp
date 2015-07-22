@@ -36,5 +36,15 @@ namespace TheCassiopeia.Commons.Items
             var itemSpell = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "YoumusBlade");
             if (itemSpell != null && itemSpell.GetState() == SpellState.Ready) ObjectManager.Player.Spellbook.CastSpell(itemSpell.Slot, target);
         }
+
+        public int GetRange()
+        {
+            return int.MaxValue;
+        }
+
+        public TargetSelector.DamageType GetDamageType()
+        {
+            return TargetSelector.DamageType.True;
+        }
     }
 }
