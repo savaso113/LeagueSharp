@@ -12,45 +12,34 @@ namespace TheCassiopeia
 {
     class CassE : Skill
     {
-        public bool WaveclearPush;
         public bool Farm;
-        public bool FarmAssist;
         public int FarmNonPoisonedPercent;
-
+        private int _recentAttacked;
 
         public CassE(SpellSlot slot)
             : base(slot)
         {
             SetTargetted(0.2f, float.MaxValue);
+            Orbwalking.AfterAttack += AfterAutoAttack;
             UseManaManager = false;
         }
 
-        public override void Initialize(ComboProvider combo)
+        private void AfterAutoAttack(AttackableUnit unit, AttackableUnit target)
         {
-            Orbwalking.OnNonKillableMinion += OnMinionUnkillable;
-            base.Initialize(combo);
+            _recentAttacked = unit.NetworkId;
         }
 
-        private void OnMinionUnkillable(AttackableUnit minion)
+        public override void Lasthit()
         {
-            if (!FarmAssist) return;
-            if (((Obj_AI_Base)minion).IsPoisoned() || ObjectManager.Player.ManaPercent < FarmNonPoisonedPercent)
-                Cast((Obj_AI_Base)minion);
-        }
+            var killableMinion = MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).Where(minion => minion.IsPoisoned()).FirstOrDefault(minion => IsKillable(minion) || minion.Team == GameObjectTeam.Neutral);
+            if (killableMinion == null && FarmNonPoisonedPercent > ObjectManager.Player.ManaPercent)
+                killableMinion = MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion => IsKillable(minion));
 
-        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
-        {
-            if ((mode == Orbwalking.OrbwalkingMode.LastHit || mode == Orbwalking.OrbwalkingMode.Mixed || (mode == Orbwalking.OrbwalkingMode.LaneClear && !ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LaneClear))) && Farm)
-            {
-                var killableMinion = MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).Where(minion => minion.IsPoisoned()).FirstOrDefault(minion => IsKillable(minion));
-                if (killableMinion == null && FarmNonPoisonedPercent > ObjectManager.Player.ManaPercent)
-                    killableMinion = MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion => IsKillable(minion));
+            if (killableMinion == null) return;
 
-                if (killableMinion != null)
-                    Cast(killableMinion);
-            }
-
-            base.Update(mode, combo, target);
+            var hPred = HealthPrediction.GetHealthPrediction(killableMinion, (int)(Delay * 2000), 0);
+            if ((killableMinion.NetworkId != _recentAttacked || hPred - ObjectManager.Player.GetAutoAttackDamage(killableMinion) > 0) && hPred > 0)
+                Cast(killableMinion);
         }
 
         public override void Execute(Obj_AI_Hero target)
@@ -61,12 +50,20 @@ namespace TheCassiopeia
             }
         }
 
-        public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
+        public override void Harass(Obj_AI_Hero target)
         {
-            var killableMinion = WaveclearPush && ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LaneClear) ? MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion => minion.IsPoisoned()) : MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).Where(minion => minion.IsPoisoned()).FirstOrDefault(minion => IsKillable(minion));
+            if (ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.Mixed))
+                base.Harass(target);
+        }
 
-            if (killableMinion != null)
-                Cast(killableMinion);
+        public override void LaneClear()
+        {
+            if(!ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LaneClear)) return;
+
+            var clearMinion = MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion => minion.IsPoisoned());
+
+            if (clearMinion != null)
+                Cast(clearMinion);
         }
 
         public override float GetDamage(Obj_AI_Hero enemy)

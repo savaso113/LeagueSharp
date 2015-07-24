@@ -10,6 +10,7 @@ namespace TheCassiopeia.Commons
     {
         private Dictionary<ISummonerSpell, bool> _summs;
         private bool _combo;
+        private bool Enabled;
 
         public void Attach(Menu menu, ComboProvider provider)
         {
@@ -29,13 +30,14 @@ namespace TheCassiopeia.Commons
                 menu.AddSubMenu(itemMenu);
             }
             menu.AddMItem("Only in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
+            menu.AddMItem("Enabled", true, (sender, args) => Enabled = args.GetNewValue<bool>());
             menu.ProcStoredValueChanged<bool>();
             Game.OnUpdate += _ => Update(provider);
         }
 
         private void Update(ComboProvider provider)
         {
-            if (provider.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo && _combo) return;
+            if (provider.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo && _combo || !Enabled) return;
             foreach (var summ in _summs)
                 if (summ.Value)
                     summ.Key.Update();

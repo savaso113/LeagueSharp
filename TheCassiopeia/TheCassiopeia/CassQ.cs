@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using TheCassiopeia.Commons;
 using TheCassiopeia.Commons.ComboSystem;
+using Color = System.Drawing.Color;
 
 namespace TheCassiopeia
 {
@@ -16,6 +18,11 @@ namespace TheCassiopeia
         private Vector3 _castPosition;
         public bool FastCombo;
         public bool RiskyCombo;
+        public MenuItem StackTear;
+        public int MinTearStackMana;
+        public int FarmIfHigherThan;
+        public int FarmIfMoreOrEqual;
+        public bool Farm;
 
         public CassQ(SpellSlot slot)
             : base(slot)
@@ -28,6 +35,25 @@ namespace TheCassiopeia
             GameObject.OnCreate += OnCreateGameObject;
             Obj_AI_Base.OnProcessSpellCast += OnSpellCast;
             base.Initialize(combo);
+
+            float tickLimiter = 0;
+            Game.OnUpdate += (args) =>
+            {
+                if (tickLimiter > Game.Time) return;
+                tickLimiter = Game.Time + 0.25f;
+
+                if (ObjectManager.Player.Spellbook.Spells.Any(spell => spell.Name == "ItemSeraphsEmbrace")) return;
+                if (combo.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.None && CanBeCast() && ObjectManager.Player.CountEnemiesInRange(2000) == 0 && MinTearStackMana < ObjectManager.Player.ManaPercent && !ObjectManager.Player.IsRecalling() && StackTear.IsActive())
+                {
+                    if (ObjectManager.Get<Obj_AI_Turret>().Any(turret => turret.IsAlly && turret.Distance(ObjectManager.Player) < 1000) || ObjectManager.Player.NearFountain(3500))
+                    {
+                        var tear = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "TearsDummySpell" || spell.Name == "ArchAngelsDummySpell");
+                        if (tear != null && tear.CooldownExpires < Game.Time)
+                            Cast(ObjectManager.Player.Position.Extend(Game.CursorPos, 500));
+                    }
+                }
+
+            };
         }
 
         private void OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -36,17 +62,34 @@ namespace TheCassiopeia
                 _castPosition = args.End;
         }
 
-        
+        public override void Lasthit()
+        {
+            if (!Farm) return;
+            var farmLocation = MinionManager.GetBestCircularFarmLocation(MinionManager.GetMinions(900, MinionTypes.All, MinionTeam.NotAlly).Select(minion => minion.Position.To2D()).ToList(), Instance.SData.CastRadius, 850);
+            if (farmLocation.MinionsHit >= FarmIfMoreOrEqual && ObjectManager.Player.ManaPercent > FarmIfHigherThan)
+            {
+                Cast(farmLocation.Position);
+            }
+        }
+
+        public override void LaneClear()
+        {
+            var farmLocation = MinionManager.GetBestCircularFarmLocation(MinionManager.GetMinions(900, MinionTypes.All, MinionTeam.NotAlly).Select(minion => minion.Position.To2D()).ToList(), Instance.SData.CastRadius, 850);
+            if (farmLocation.MinionsHit > 0)
+            {
+                Cast(farmLocation.Position);
+            }
+        }
+
+
         private void OnCreateGameObject(GameObject sender, EventArgs args)
         {
             if (sender.Name == "Cassiopeia_Base_Q_Hit_Green.troy" && sender.Position.Distance(_castPosition) < 10 && FastCombo)
             {
-                Console.WriteLine("hit");
                 foreach (var enemy in HeroManager.Enemies)
                 {
                     if (enemy.ServerPosition.Distance(sender.Position) < Instance.SData.CastRadius + enemy.BoundingRadius - (RiskyCombo ? 0 : (enemy.MoveSpeed * 0.5f)))
                     {
-                        Console.WriteLine("marked");
                         Provider.SetMarked(enemy, 0.5f);
                     }
                 }
@@ -55,26 +98,10 @@ namespace TheCassiopeia
 
         }
 
-        public override float GetDamage(Obj_AI_Hero enemy)
+        public bool OnCooldown()
         {
-            return base.GetDamage(enemy);
+            return Instance.CooldownExpires - Game.Time < Instance.Cooldown - Delay;
         }
-
-        public override void Draw()
-        {
-
-        }
-
-        public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
-        {
-            var farmLocation = MinionManager.GetBestCircularFarmLocation(MinionManager.GetMinions(900, MinionTypes.All, MinionTeam.NotAlly).Select(minion => minion.Position.To2D()).ToList(), Instance.SData.CastRadius, 850);
-            if (farmLocation.MinionsHit > 0)
-            {
-                Cast(farmLocation.Position);
-            }
-            base.LaneClear(combo, target);
-        }
-
 
         public override void Execute(Obj_AI_Hero target)
         {

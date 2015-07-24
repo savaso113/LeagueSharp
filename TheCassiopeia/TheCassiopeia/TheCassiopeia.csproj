@@ -92,9 +92,11 @@
     <Compile Include="Commons\Items\Botrk.cs" />
     <Compile Include="Commons\Items\IActivateableItem.cs" />
     <Compile Include="Commons\Items\RavenousHydra.cs" />
+    <Compile Include="Commons\Items\SeraphsEmbrace.cs" />
     <Compile Include="Commons\Items\YoumusBlade.cs" />
     <Compile Include="Commons\ManaManager.cs" />
     <Compile Include="Commons\MenuExtensions.cs" />
+    <Compile Include="Commons\Prediction\Prediction.cs" />
     <Compile Include="Commons\SummonerManager.cs" />
     <Compile Include="Commons\Summoners\Cleanse.cs" />
     <Compile Include="Commons\Summoners\Heal.cs" />

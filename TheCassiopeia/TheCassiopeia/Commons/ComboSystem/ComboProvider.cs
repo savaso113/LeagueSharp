@@ -341,9 +341,14 @@ namespace TheCassiopeia.Commons.ComboSystem
             Initialize();
         }
 
+        protected virtual Obj_AI_Hero SelectTarget()
+        {
+            return TargetSelector.GetTarget(TargetRange, DamageType);
+        }
+
         public virtual void Update()
         {
-            Target = TargetSelector.GetTarget(TargetRange, DamageType);
+            Target = SelectTarget();
 
             for (int i = 0; i < _queuedCasts.Count; i++)
             {

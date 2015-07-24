@@ -54,26 +54,33 @@ namespace TheCassiopeia.Commons.ComboSystem
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     if (ComboEnabled)
-                        Combo(combo, target);
+                        Combo(target);
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     if (LaneclearEnabled)
-                        LaneClear(combo, target);
+                        LaneClear();
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     if (HarassEnabled)
-                        Harass(combo, target);
+                    {
+                        Harass(target);
+                        Lasthit();
+                    }
+                    break;
+                case Orbwalking.OrbwalkingMode.LastHit:
+                    Lasthit();
                     break;
             }
         }
 
         public abstract void Execute(Obj_AI_Hero target);
-        public virtual void Combo(ComboProvider combo, Obj_AI_Hero target)
+        public virtual void Combo(Obj_AI_Hero target)
         {
             Execute(target);
         }
-        public virtual void LaneClear(ComboProvider combo, Obj_AI_Hero target) { }
-        public virtual void Harass(ComboProvider combo, Obj_AI_Hero target)
+        public virtual void LaneClear() { }
+        public virtual void Lasthit() { }
+        public virtual void Harass(Obj_AI_Hero target)
         {
             Execute(target);
         }

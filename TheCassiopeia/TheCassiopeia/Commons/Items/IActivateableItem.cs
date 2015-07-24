@@ -5,7 +5,7 @@ namespace TheCassiopeia.Commons.Items
 {
     public interface IActivateableItem
     {
-        void Initialize(Menu menu);
+        void Initialize(Menu menu, ItemManager itemManager);
         string GetDisplayName();
         void Update(Obj_AI_Hero target);
         void Use(Obj_AI_Base target);

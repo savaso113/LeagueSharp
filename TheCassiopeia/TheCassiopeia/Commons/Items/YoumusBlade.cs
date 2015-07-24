@@ -9,7 +9,7 @@ namespace TheCassiopeia.Commons.Items
         private int _minEnemyHealth;
         private bool _onlyTwitchUlt;
 
-        public void Initialize(Menu menu)
+        public void Initialize(Menu menu, ItemManager itemManager)
         {
             menu.AddMItem("Enemy min HP %", new Slider(20), (sender, args) => _minEnemyHealth = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
             if (ObjectManager.Player.ChampionName == "Twitch")

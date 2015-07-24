@@ -9,7 +9,7 @@ namespace TheCassiopeia.Commons.Items
         private bool _afterAttack;
         private bool _justAttacked;
 
-        public void Initialize(Menu menu)
+        public void Initialize(Menu menu, ItemManager itemManager)
         {
             menu.AddMItem("After attack", true, (sender, args) => _afterAttack = args.GetNewValue<bool>());
             menu.ProcStoredValueChanged<bool>();
