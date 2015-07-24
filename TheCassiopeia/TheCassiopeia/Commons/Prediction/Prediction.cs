@@ -651,7 +651,7 @@ namespace TheCassiopeia.Commons.Prediction
 
             public static PredictionOutput GetPrediction(PredictionInput input)
             {
-                var mainTargetPrediction = Prediction.GetStandardPrediction(input);// Prediction.GetPrediction(input, false, true);
+                var mainTargetPrediction = Prediction.GetStandardPrediction(input);//Prediction.GetPrediction(input, false, true);
                 var posibleTargets = new List<PossibleTarget>
                 {
                     new PossibleTarget { Position = mainTargetPrediction.UnitPosition.To2D(), Unit = input.Unit }
