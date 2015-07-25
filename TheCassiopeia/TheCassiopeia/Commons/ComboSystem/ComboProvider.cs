@@ -202,7 +202,7 @@ namespace TheCassiopeia.Commons.ComboSystem
                 if (forbiddenSlots.Contains(currentSkill.Slot) || currentSkill.Slot == SpellSlot.R) continue;
                 laneclearMenu.AddMItem("Use " + skill.Slot, skill.LaneclearEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.LaneClear, args.GetNewValue<bool>()));
             }
-            if (harassSwitch) laneclearMenu.AddMItem("Harass instead if enemy near", false, (sender, args) => GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));
+            if (harassSwitch) laneclearMenu.AddMItem("Use mixed mode instead if enemy near", false, (sender, args) => GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));
 
             laneclearMenu.ProcStoredValueChanged<bool>();
         }
@@ -346,8 +346,14 @@ namespace TheCassiopeia.Commons.ComboSystem
             return TargetSelector.GetTarget(TargetRange, DamageType);
         }
 
-        public virtual void Update()
+        public void Update()
         {
+            OnUpdate(Orbwalker.ActiveMode);
+        }
+
+        protected virtual void OnUpdate(Orbwalking.OrbwalkingMode mode)
+        {
+            //Console.WriteLine(mode);
             Target = SelectTarget();
 
             for (int i = 0; i < _queuedCasts.Count; i++)
@@ -374,7 +380,7 @@ namespace TheCassiopeia.Commons.ComboSystem
                 Skills.Sort(); //Checked: this is not expensive
                 foreach (var item in Skills)
                 {
-                    item.Update(Orbwalker.ActiveMode, this, Target);
+                    item.Update(mode, this, Target);
                     if (_cancelSpellUpdates)
                     {
                         _cancelSpellUpdates = false;

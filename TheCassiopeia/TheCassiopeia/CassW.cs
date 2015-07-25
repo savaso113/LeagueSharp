@@ -60,7 +60,6 @@ namespace TheCassiopeia
 
             if (farmLocation.MinionsHit > 0)
             {
-                Console.WriteLine(_q.OnCooldown());
                 Cast(farmLocation.Position);
             }
             base.LaneClear();

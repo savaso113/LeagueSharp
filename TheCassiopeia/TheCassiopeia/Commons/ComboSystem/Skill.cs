@@ -45,7 +45,8 @@ namespace TheCassiopeia.Commons.ComboSystem
                 mode = Orbwalking.OrbwalkingMode.Mixed;
             if (UseManaManager && !ManaManager.CanUseMana(mode)) return;
 
-            if (OnlyUpdateIfTargetValid && (mode == Orbwalking.OrbwalkingMode.Combo || mode == Orbwalking.OrbwalkingMode.Mixed) && !target.IsValidTarget()) return;
+            var targetIsValid = target.IsValidTarget();
+            if (OnlyUpdateIfTargetValid && mode == Orbwalking.OrbwalkingMode.Combo && !targetIsValid) return;
             if (OnlyUpdateIfCastable && !CanBeCast()) return; //Todo: check if nessecary with new comboSystem
 
             MinHitChance = mode == Orbwalking.OrbwalkingMode.Combo ? MinComboHitchance : MinHarassHitchance;
@@ -63,7 +64,8 @@ namespace TheCassiopeia.Commons.ComboSystem
                 case Orbwalking.OrbwalkingMode.Mixed:
                     if (HarassEnabled)
                     {
-                        Harass(target);
+                        if (targetIsValid || !OnlyUpdateIfTargetValid)
+                            Harass(target);
                         Lasthit();
                     }
                     break;

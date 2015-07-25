@@ -15,7 +15,6 @@ namespace TheCassiopeia
 {
     class CassQ : Skill
     {
-        private Vector3 _castPosition;
         public bool FastCombo;
         public bool RiskyCombo;
         public MenuItem StackTear;
@@ -23,17 +22,18 @@ namespace TheCassiopeia
         public int FarmIfHigherThan;
         public int FarmIfMoreOrEqual;
         public bool Farm;
+        private CassE _e;
 
         public CassQ(SpellSlot slot)
             : base(slot)
         {
+            Range = 850;
             SetSkillshot(0.75f, Instance.SData.CastRadius, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
 
         public override void Initialize(ComboProvider combo)
         {
-            GameObject.OnCreate += OnCreateGameObject;
-            Obj_AI_Base.OnProcessSpellCast += OnSpellCast;
+            _e = combo.GetSkill<CassE>();
             base.Initialize(combo);
 
             float tickLimiter = 0;
@@ -56,15 +56,11 @@ namespace TheCassiopeia
             };
         }
 
-        private void OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-            if (sender.IsMe && args.SData.Name == "CassiopeiaNoxiousBlast")
-                _castPosition = args.End;
-        }
+
 
         public override void Lasthit()
         {
-            if (!Farm) return;
+            if (!Farm || !_e.CanBeCast()) return;
             var farmLocation = MinionManager.GetBestCircularFarmLocation(MinionManager.GetMinions(900, MinionTypes.All, MinionTeam.NotAlly).Select(minion => minion.Position.To2D()).ToList(), Instance.SData.CastRadius, 850);
             if (farmLocation.MinionsHit >= FarmIfMoreOrEqual && ObjectManager.Player.ManaPercent > FarmIfHigherThan)
             {
@@ -82,21 +78,7 @@ namespace TheCassiopeia
         }
 
 
-        private void OnCreateGameObject(GameObject sender, EventArgs args)
-        {
-            if (sender.Name == "Cassiopeia_Base_Q_Hit_Green.troy" && sender.Position.Distance(_castPosition) < 10 && FastCombo)
-            {
-                foreach (var enemy in HeroManager.Enemies)
-                {
-                    if (enemy.ServerPosition.Distance(sender.Position) < Instance.SData.CastRadius + enemy.BoundingRadius - (RiskyCombo ? 0 : (enemy.MoveSpeed * 0.5f)))
-                    {
-                        Provider.SetMarked(enemy, 0.5f);
-                    }
-                }
-            }
 
-
-        }
 
         public bool OnCooldown()
         {

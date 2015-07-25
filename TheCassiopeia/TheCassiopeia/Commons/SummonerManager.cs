@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 using TheCassiopeia.Commons.ComboSystem;
@@ -29,8 +30,21 @@ namespace TheCassiopeia.Commons
                 itemMenu.AddMItem("Enabled", true, (sender, agrs) => _summs[item] = agrs.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
                 menu.AddSubMenu(itemMenu);
             }
-            menu.AddMItem("Only in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
-            menu.AddMItem("Enabled", true, (sender, args) => Enabled = args.GetNewValue<bool>());
+
+            if (summs.All(sum => !sum.IsAvailable()))
+            {
+                menu.AddMItem("- No supported summoner spell available -");
+                menu.AddMItem("Supported spells:");
+                foreach (var summonerSpell in summs)
+                {
+                    menu.AddMItem("* "+summonerSpell.GetDisplayName());
+                }
+            }
+            else
+            {
+                menu.AddMItem("Only in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
+                menu.AddMItem("Enabled", true, (sender, args) => Enabled = args.GetNewValue<bool>());
+            }
             menu.ProcStoredValueChanged<bool>();
             Game.OnUpdate += _ => Update(provider);
         }

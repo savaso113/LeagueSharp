@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 using TheCassiopeia.Commons;
 using TheCassiopeia.Commons.ComboSystem;
 using TheCassiopeia.Commons.Debug;
+using Color = System.Drawing.Color;
 
 namespace TheCassiopeia
 {
@@ -27,6 +28,8 @@ namespace TheCassiopeia
             var harassMenu = mainMenu.CreateSubmenu("Harass");
             var laneclearMenu = mainMenu.CreateSubmenu("Laneclear");
             var lasthitMenu = mainMenu.CreateSubmenu("Lasthit");
+            var lanepressureMenu = mainMenu.CreateSubmenu("Special mode: Lanepressure");
+
             var gapcloserMenu = mainMenu.CreateSubmenu("Gapcloser");
             // var interrupterMenu = mainMenu.CreateSubmenu("Interrupter");
             var manamanagerMenu = mainMenu.CreateSubmenu("Manamanager");
@@ -35,13 +38,14 @@ namespace TheCassiopeia
             var itemMenu = mainMenu.CreateSubmenu("Items");
             var drawingMenu = mainMenu.CreateSubmenu("Drawing");
             var autolevelMenu = mainMenu.CreateSubmenu("Auto level spells");
+            var infoMenu = mainMenu.CreateSubmenu("Info");
 
             var orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
             TargetSelector.AddToMenu(targetselectorMenu);
 
             var provider = new CassioCombo(1000, orbwalker, new CassQ(SpellSlot.Q), new CassW(SpellSlot.W), new CassE(SpellSlot.E), new CassR(SpellSlot.R));
 
-            provider.CreateBasicMenu(comboMenu, harassMenu, laneclearMenu, gapcloserMenu, null, manamanagerMenu, summonerMenu, itemMenu, drawingMenu);
+            provider.CreateBasicMenu(comboMenu, harassMenu, laneclearMenu, gapcloserMenu, null, manamanagerMenu, summonerMenu, itemMenu, drawingMenu, false);
             provider.CreateAutoLevelMenu(autolevelMenu, ComboProvider.SpellOrder.RQEW, ComboProvider.SpellOrder.REQW);
 
             ultMenu.AddMItem("(Will ult if one condition is met)");
@@ -59,6 +63,7 @@ namespace TheCassiopeia
             ultMenu.ProcStoredValueChanged<Slider>();
             ultMenu.ProcStoredValueChanged<bool>();
 
+            comboMenu.AddMItem("Only kill non-poisoned with E if no other enemies near", false, (sender, args) => provider.GetSkill<CassE>().OnlyKillNonPIn1V1 = args.GetNewValue<bool>());
             comboMenu.AddMItem("Fast combo (small chance to E non-poisoned)", true, (sender, args) => provider.GetSkill<CassQ>().FastCombo = args.GetNewValue<bool>());
             comboMenu.AddMItem("Risky mode (uses fast combo often, but more fails)", false, (sender, args) => provider.GetSkill<CassQ>().RiskyCombo = args.GetNewValue<bool>());
             comboMenu.AddMItem("AA in combo", true, (sender, args) => provider.AutoInCombo = args.GetNewValue<bool>());
@@ -89,13 +94,26 @@ namespace TheCassiopeia
             gapcloserMenu.AddMItem("Otherwise use W", true, (sender, args) => provider.GetSkill<CassW>().UseOnGapcloser = args.GetNewValue<bool>());
 
             lasthitMenu.AddMItem("Use E", true, (sender, args) => provider.GetSkill<CassE>().Farm = args.GetNewValue<bool>());
-            lasthitMenu.AddMItem("Use Q", false, (sender, args) => provider.GetSkill<CassQ>().Farm = args.GetNewValue<bool>());
+            lasthitMenu.AddMItem("Use Q if E up", true, (sender, args) => provider.GetSkill<CassQ>().Farm = args.GetNewValue<bool>());
             lasthitMenu.AddMItem("Only Q if mana % > ", new Slider(60), (sender, args) => provider.GetSkill<CassQ>().FarmIfHigherThan = args.GetNewValue<Slider>().Value);
             lasthitMenu.AddMItem("Only Q if more or equal minions: ", new Slider(3, maxValue: 6), (sender, args) => provider.GetSkill<CassQ>().FarmIfMoreOrEqual = args.GetNewValue<Slider>().Value);
             //lasthitMenu.AddMItem("Lasthit assist", true, (sender, args) => provider.GetSkill<CassE>().FarmAssist = args.GetNewValue<bool>());
             lasthitMenu.AddMItem("Lasthit non-poisoned if mana < ? %", new Slider(0), (sender, args) => provider.GetSkill<CassE>().FarmNonPoisonedPercent = args.GetNewValue<Slider>().Value);
             lasthitMenu.ProcStoredValueChanged<bool>();
             lasthitMenu.ProcStoredValueChanged<Slider>();
+
+
+            var lanepressureEnabled = lanepressureMenu.AddMItem("Enabled", new KeyBind(84, KeyBindType.Toggle));
+            provider.LanepressureMenu = lanepressureEnabled;
+            lanepressureEnabled.Permashow(customdisplayname: "Lanepressure mode");
+            lanepressureMenu.AddMItem("Override Laneclear when active");
+            lanepressureMenu.AddMItem("It uses Harass + Lasthit while pushing with AA");
+            lanepressureMenu.AddMItem("All Harass + Lasthit settings apply to it!");
+
+
+            infoMenu.AddMItem("TheCassiopeia - by TheNinow");
+            infoMenu.AddMItem("Please give me feedback (on joduska.me) so I can improve this assembly!");
+            infoMenu.AddMItem("Also, if you like this assembly, feel free to reward me with an upvote :)");
 
             mainMenu.AddToMainMenu();
             provider.Initialize();
@@ -104,13 +122,14 @@ namespace TheCassiopeia
 
             Game.OnUpdate += (args) => provider.Update();
 
-            Drawing.OnEndScene += (args) =>
+            Drawing.OnDraw += (args) =>
             {
                 if (q.Active)
                     Render.Circle.DrawCircle(ObjectManager.Player.Position, 850, q.Color);
                 if (e.Active)
                     Render.Circle.DrawCircle(ObjectManager.Player.Position, 700, e.Color);
 
+                //Drawing.DrawText(200, 200, Color.Red, Game.CursorPos.ToString());
             };
         }
 

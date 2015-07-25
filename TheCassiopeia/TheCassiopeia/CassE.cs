@@ -15,10 +15,12 @@ namespace TheCassiopeia
         public bool Farm;
         public int FarmNonPoisonedPercent;
         private int _recentAttacked;
+        public bool OnlyKillNonPIn1V1;
 
         public CassE(SpellSlot slot)
             : base(slot)
         {
+            Range = 700;
             SetTargetted(0.2f, float.MaxValue);
             Orbwalking.AfterAttack += AfterAutoAttack;
             UseManaManager = false;
@@ -44,7 +46,7 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if ((Provider.IsMarked(target) || target.IsPoisoned() || IsKillable(target)) && !target.HasSpellShield())
+            if ((Provider.IsMarked(target) || target.IsPoisoned() || (IsKillable(target) && (!OnlyKillNonPIn1V1 || ObjectManager.Player.CountEnemiesInRange(1500) == 1) )) && !target.HasSpellShield())
             {
                 Cast(target);
             }

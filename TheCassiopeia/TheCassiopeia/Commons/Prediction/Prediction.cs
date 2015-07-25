@@ -657,6 +657,8 @@ namespace TheCassiopeia.Commons.Prediction
                     new PossibleTarget { Position = mainTargetPrediction.UnitPosition.To2D(), Unit = input.Unit }
                 };
 
+              //  Console.WriteLine(posibleTargets.First().Unit.Name);
+
 
                 if (mainTargetPrediction.Hitchance >= HitChance.Medium)
                 {
@@ -666,7 +668,11 @@ namespace TheCassiopeia.Commons.Prediction
 
                 if (posibleTargets.Count > 1)
                 {
-
+                    foreach (var possibleTarget in posibleTargets)
+                    {
+                        Console.WriteLine(possibleTarget.Unit.Name + " - p");
+                    }
+                    Console.WriteLine();
 
                     var candidates = new List<Vector2>();
 
@@ -708,12 +714,14 @@ namespace TheCassiopeia.Commons.Prediction
 
                     if (bestCandidateHits > 1 && input.From.To2D().Distance(bestCandidate, true) > 50 * 50)
                     {
+                        Console.WriteLine(bestCandidateHits + " = best hits");
+
                         return new PredictionOutput
                         {
                             Hitchance = mainTargetPrediction.Hitchance,
                             _aoeTargetsHitCount = bestCandidateHits,
                             UnitPosition = mainTargetPrediction.UnitPosition,
-                            CastPosition = bestCandidate.To3D2(),
+                            CastPosition = (bestCandidate + input.From.To2D()).To3D(),
                             Input = input
                         };
                     }

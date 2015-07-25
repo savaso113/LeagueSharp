@@ -25,6 +25,7 @@ namespace TheCassiopeia
         public CassR(SpellSlot slot)
             : base(slot)
         {
+            
         }
 
 
@@ -37,7 +38,7 @@ namespace TheCassiopeia
 
         public Commons.Prediction.PredictionOutput GetPrediction(Obj_AI_Hero target)
         {
-            return Commons.Prediction.Prediction.GetPrediction(new Commons.Prediction.PredictionInput() { Aoe = true, Collision = false, Delay = Delay, From = ObjectManager.Player.ServerPosition, Radius = (float)(80 * Math.PI / 180), Range = Range, Type = Commons.Prediction.SkillshotType.SkillshotCone, Unit = target });
+            return Commons.Prediction.Prediction.GetPrediction(new Commons.Prediction.PredictionInput() { Aoe = true, Collision = false, Delay = Delay, From = ObjectManager.Player.ServerPosition, Radius = (float)(80 * Math.PI / 180), Range = 825f, Type = Commons.Prediction.SkillshotType.SkillshotCone, Unit = target, RangeCheckFrom = ObjectManager.Player.ServerPosition });
         }
 
         public override void Execute(Obj_AI_Hero target)
@@ -54,22 +55,22 @@ namespace TheCassiopeia
             }
         }
 
-        public override void Draw()
-        {
-            if (!Provider.Target.IsValidTarget(Range))
-            {
-                Drawing.DrawText(200, 200, Color.Red, 0 + " / " + 0);
-                return;
-            }
+        //public override void Draw()
+        //{
+        //    if (!Provider.Target.IsValidTarget(Range))
+        //    {
+        //        Drawing.DrawText(200, 200, Color.Red, 0 + " / " + 0);
+        //        return;
+        //    }
 
-            var pred = GetPrediction(Provider.Target);
-            if (pred.Hitchance < Commons.Prediction.HitChance.Low) return;
+        //    var pred = GetPrediction(Provider.Target);
+        //    if (pred.Hitchance < Commons.Prediction.HitChance.Low) return;
 
-            var targets = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(Range) && WillHit(enemy.Position, pred.CastPosition));
-            var looking = targets.Count(trgt => trgt.IsFacingMe());
+        //    var targets = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(Range) && WillHit(enemy.Position, pred.CastPosition));
+        //    var looking = targets.Count(trgt => trgt.IsFacingMe());
 
-            Drawing.DrawText(200, 200, Color.Red, targets.Count() + " / " + looking);
-        }
+        //    Drawing.DrawText(200, 200, Color.Red, targets.Count() + " / " + looking);
+        //}
 
         public override void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser)
         {
