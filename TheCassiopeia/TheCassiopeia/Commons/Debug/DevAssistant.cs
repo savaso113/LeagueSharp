@@ -13,8 +13,8 @@ namespace TheCassiopeia.Commons.Debug
             var drawSpells = true;
             var drawBuffs = true;
 
-            mainMenu.AddMItem("Draw Spells", true, (sender, args) => drawSpells = args.GetNewValue<bool>());
-            mainMenu.AddMItem("Draw Buffs", true, (sender, args) => drawBuffs = args.GetNewValue<bool>());
+            mainMenu.AddMItem("Draw Spells", false, (sender, args) => drawSpells = args.GetNewValue<bool>());
+            mainMenu.AddMItem("Draw Buffs", false, (sender, args) => drawBuffs = args.GetNewValue<bool>());
             mainMenu.ProcStoredValueChanged<bool>();
             mainMenu.AddToMainMenu();
             
