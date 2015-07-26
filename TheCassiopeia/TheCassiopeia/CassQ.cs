@@ -16,7 +16,7 @@ namespace TheCassiopeia
     class CassQ : Skill
     {
         public bool FastCombo;
-        public bool RiskyCombo;
+        //public bool RiskyCombo;
         public MenuItem StackTear;
         public int MinTearStackMana;
         public int FarmIfHigherThan;
@@ -37,19 +37,29 @@ namespace TheCassiopeia
             base.Initialize(combo);
 
             float tickLimiter = 0;
+            //float mana = 0;
             Game.OnUpdate += (args) =>
             {
                 if (tickLimiter > Game.Time) return;
                 tickLimiter = Game.Time + 0.25f;
 
                 if (ObjectManager.Player.Spellbook.Spells.Any(spell => spell.Name == "ItemSeraphsEmbrace")) return;
+                //if (mana == ObjectManager.Player.MaxMana)
+                //{
+                //    StackTear.SetValue(new KeyBind(StackTear.GetValue<KeyBind>().Key, KeyBindType.Toggle));
+                //    mana = 0f;
+                //}
+
+
                 if (combo.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.None && CanBeCast() && ObjectManager.Player.CountEnemiesInRange(2000) == 0 && MinTearStackMana < ObjectManager.Player.ManaPercent && !ObjectManager.Player.IsRecalling() && StackTear.IsActive())
                 {
                     if (ObjectManager.Get<Obj_AI_Turret>().Any(turret => turret.IsAlly && turret.Distance(ObjectManager.Player) < 1000) || ObjectManager.Player.NearFountain(3500))
                     {
                         var tear = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "TearsDummySpell" || spell.Name == "ArchAngelsDummySpell");
+
                         if (tear != null && tear.CooldownExpires < Game.Time)
                             Cast(ObjectManager.Player.Position.Extend(Game.CursorPos, 500));
+                        //mana = ObjectManager.Player.MaxMana;
                     }
                 }
 

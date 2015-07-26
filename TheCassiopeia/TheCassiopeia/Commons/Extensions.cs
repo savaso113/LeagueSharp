@@ -59,16 +59,16 @@ namespace TheCassiopeia.Commons
             return entity.Buffs.Where(buff => buff.Type == BuffType.Poison).OrderByDescending(poison => poison.EndTime).First().EndTime - Game.Time;
         }
 
-        public static float GetIgniteDamage(Obj_AI_Base source)
+        public static float GetIgniteDamage(this Obj_AI_Hero souce)
         {
-            return 50 + ObjectManager.Player.Level * 20;
+            return 50 + souce.Level * 20;
         }
 
         public static float GetRemainingIgniteDamage(this Obj_AI_Base target)
         {
             var ignitebuff = target.GetBuff("summonerdot");
             if (ignitebuff == null) return 0;
-            return (float)ObjectManager.Player.CalcDamage(target, Damage.DamageType.True, ((int)(ignitebuff.EndTime - Game.Time) + 1) * GetIgniteDamage(ignitebuff.Caster as Obj_AI_Base) / 5);
+            return (float)ObjectManager.Player.CalcDamage(target, Damage.DamageType.True, ((int)(ignitebuff.EndTime - Game.Time) + 1) * GetIgniteDamage(ignitebuff.Caster as Obj_AI_Hero) / 5);
         }
 
         public static bool IsFacingMe(this Obj_AI_Base source, float angle = 80)

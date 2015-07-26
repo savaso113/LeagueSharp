@@ -51,22 +51,25 @@ namespace TheCassiopeia
             ultMenu.AddMItem("(Will ult if one condition is met)");
             ultMenu.AddMItem("Min Enemies (facing)", new Slider(2, 1, HeroManager.Enemies.Count), (sender, args) => provider.GetSkill<CassR>().MinTargetsFacing = args.GetNewValue<Slider>().Value);
             ultMenu.AddMItem("Min Enemies (not facing)", new Slider(HeroManager.Enemies.Count - 1, 1, HeroManager.Enemies.Count), (sender, args) => provider.GetSkill<CassR>().MinTargetsNotFacing = args.GetNewValue<Slider>().Value);
+            ultMenu.AddMItem("Do above only in combo", true, (sender, args) => provider.GetSkill<CassR>().MinEnemiesOnlyInCombo = args.GetNewValue<bool>());
             ultMenu.AddMItem("Ult if target killable with combo", true, (sender, args) => provider.GetSkill<CassR>().UltOnKillable = args.GetNewValue<bool>());
             ultMenu.AddMItem("Only ult if target has more health % than", new Slider(30), (sender, args) => provider.GetSkill<CassR>().MinHealth = args.GetNewValue<Slider>().Value);
-            var burstMode = ultMenu.AddMItem("Burst mode enabled", new KeyBind(78, KeyBindType.Toggle, true));
+            var burstMode = provider.BurstMode = ultMenu.AddMItem("Burst mode enabled", new KeyBind(78, KeyBindType.Toggle, true));
             provider.GetSkill<CassR>().BurstMode = burstMode;
             burstMode.Permashow(customdisplayname: "Burst mode");
             ultMenu.AddMItem("Go burst mode if my health % < ", new Slider(20), (sender, args) => provider.GetSkill<CassR>().PanicModeHealth = args.GetNewValue<Slider>().Value);
             ultMenu.AddMItem("Block ults that wouldn't hit", false, (sender, args) => provider.BlockBadUlts = args.GetNewValue<bool>());
             ultMenu.AddMItem("Range", new Slider(825, 400, 825), (sender, args) => provider.GetSkill<CassR>().Range = args.GetNewValue<Slider>().Value);
             provider.AssistedUltMenu = ultMenu.AddMItem("Assisted Ult", new KeyBind(82, KeyBindType.Press));
+            ultMenu.AddMItem("Use ignite in burst mode", false, (sender, args) => provider.IgniteInBurstMode = args.GetNewValue<bool>());
+
             ultMenu.ProcStoredValueChanged<Slider>();
             ultMenu.ProcStoredValueChanged<bool>();
-
+            
             comboMenu.AddMItem("Only kill non-poisoned with E if no other enemies near", false, (sender, args) => provider.GetSkill<CassE>().OnlyKillNonPIn1V1 = args.GetNewValue<bool>());
             comboMenu.AddMItem("Fast combo (small chance to E non-poisoned)", true, (sender, args) => provider.GetSkill<CassQ>().FastCombo = args.GetNewValue<bool>());
-            comboMenu.AddMItem("Risky mode (uses fast combo often, but more fails)", false, (sender, args) => provider.GetSkill<CassQ>().RiskyCombo = args.GetNewValue<bool>());
-            comboMenu.AddMItem("AA in combo", true, (sender, args) => provider.AutoInCombo = args.GetNewValue<bool>());
+            //comboMenu.AddMItem("Risky mode (uses fast combo often, but more fails)", false, (sender, args) => provider.GetSkill<CassQ>().RiskyCombo = args.GetNewValue<bool>());
+            comboMenu.AddMItem("AA in combo (disable for better kiting!)", true, (sender, args) => provider.AutoInCombo = args.GetNewValue<bool>());
             comboMenu.ProcStoredValueChanged<bool>();
 
             var stackTearItem = miscMenu.AddMItem("Stack tear", new KeyBind(77, KeyBindType.Toggle, true));
@@ -118,7 +121,7 @@ namespace TheCassiopeia
             mainMenu.AddToMainMenu();
             provider.Initialize();
 
-            DevAssistant.Init();
+            //DevAssistant.Init();
 
             Game.OnUpdate += (args) => provider.Update();
 

@@ -26,6 +26,8 @@ namespace TheCassiopeia
         private Vector3 _castPosition;
         private Vector3 _objectPosition;
         private float _objectTime;
+        public MenuItem BurstMode;
+        public bool IgniteInBurstMode;
 
         public CassioCombo(float targetSelectorRange, IEnumerable<Skill> skills, Orbwalking.Orbwalker orbwalker)
             : base(targetSelectorRange, skills, orbwalker)
@@ -58,7 +60,6 @@ namespace TheCassiopeia
         {
             if (sender.Name == "CassNoxious_tar.troy")
             {
-                Console.WriteLine((Game.Time - _objectTime) + " = time");
                 _objectTime = 0f;
             }
 
@@ -96,18 +97,15 @@ namespace TheCassiopeia
             if (sender.Owner.IsMe && args.Slot == SpellSlot.R && HeroManager.Enemies.All(enemy => !enemy.IsValidTarget(_r.Range) || !_r.WillHit(enemy, args.StartPosition)))
             {
                 args.Process = false;
-                Console.WriteLine("blocking bad ult: ");
             }
         }
 
         private void CastAssistedUlt()
         {
-            //Console.WriteLine("casting assisted ult1");
             if (!_r.CanCast(Target)) return;
             var pred = _r.GetPrediction(Target);
             if (pred.Hitchance >= Commons.Prediction.HitChance.Low)
             {
-                Console.WriteLine("casting assisted ult: " + pred.CastPosition);
                 _assistedUltTime = Game.Time;
                 _r.Cast(pred.CastPosition);
             }
@@ -119,27 +117,26 @@ namespace TheCassiopeia
                 CastAssistedUlt();
 
             if (Game.Time - _objectTime < 0.5f)
-            {
                 foreach (var enemy in HeroManager.Enemies)
-                {
-                    if (enemy.IsValidTarget() && enemy.ServerPosition.Distance(_objectPosition) < _q.Instance.SData.CastRadius + enemy.BoundingRadius - (_q.RiskyCombo ? 0 : (enemy.MoveSpeed * (0.5f - (Game.Time - _objectTime)))))
-                    {
-                        SetMarked(enemy, 0.5f);
-                        Console.WriteLine("marking: "+(0.5f - (Game.Time - _objectTime))+" "+enemy.Name);
-                    }
-                    else
-                        Console.WriteLine("NOT marking: "+(0.5f - (Game.Time - _objectTime))+" "+enemy.Name);
-                }
-                Console.WriteLine("-");
-            }
+                    if (enemy.IsValidTarget() && enemy.ServerPosition.Distance(_objectPosition) < _q.Instance.SData.CastRadius + enemy.BoundingRadius - (enemy.MoveSpeed * (0.5f - (Game.Time - _objectTime))))
+                        SetMarked(enemy, 0.25f);
 
 
             if (mode == Orbwalking.OrbwalkingMode.LaneClear && LanepressureMenu.IsActive())
                 mode = Orbwalking.OrbwalkingMode.Mixed;
 
+
+
             base.OnUpdate(mode);
 
-            if (!_gaveAutoWarning && Game.Time > 0 * 60f)
+            if (mode == Orbwalking.OrbwalkingMode.Combo && IgniteInBurstMode && BurstMode.IsActive() && Target.IsValidTarget(600) && ObjectManager.Player.CalcDamage(Target, Damage.DamageType.True, ObjectManager.Player.GetIgniteDamage()) > Target.Health + Target.HPRegenRate * 5)
+            {
+                var ignite = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "summonerdot");
+                if (ignite != null && ignite.IsReady())
+                    ObjectManager.Player.Spellbook.CastSpell(ignite.Slot, Target);
+            }
+
+            if (!_gaveAutoWarning && Game.Time > 30 * 60f)
             {
                 _gaveAutoWarning = true;
                 Notifications.AddNotification(new Notification("Tipp: Disable AA in combo\nfor better lategame kiting!", 6000) { BorderColor = new SharpDX.Color(154, 205, 50) });

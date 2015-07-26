@@ -28,7 +28,8 @@ namespace TheCassiopeia
 
         private void AfterAutoAttack(AttackableUnit unit, AttackableUnit target)
         {
-            _recentAttacked = unit.NetworkId;
+            if(unit.IsMe)
+            _recentAttacked = target.NetworkId;
         }
 
         public override void Lasthit()
@@ -46,7 +47,7 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if ((Provider.IsMarked(target) || target.IsPoisoned() || (IsKillable(target) && (!OnlyKillNonPIn1V1 || ObjectManager.Player.CountEnemiesInRange(1500) == 1) )) && !target.HasSpellShield())
+            if ((Provider.IsMarked(target) || target.IsPoisoned() && target.GetPoisonedTime() > Delay || (IsKillable(target) && (!OnlyKillNonPIn1V1 || ObjectManager.Player.CountEnemiesInRange(1500) == 1) )) && !target.HasSpellShield())
             {
                 Cast(target);
             }

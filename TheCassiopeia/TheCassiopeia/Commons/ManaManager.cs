@@ -24,7 +24,7 @@ namespace TheCassiopeia.Commons
             //Only using this three, because a manamanager on Combo or None wouldn't make sense
             Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.Mixed, "Harass");
             Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.LaneClear);
-            Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.LastHit, "Lasthit (skill farm assist)");
+            //Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.LastHit, "Lasthit (skill farm assist)");
             manamanagerMenu.AddMItem("Enabled", false, (sender, args) => EnableLimitations = args.GetNewValue<bool>());
             manamanagerMenu.ProcStoredValueChanged<bool>();
         }

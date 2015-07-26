@@ -668,11 +668,6 @@ namespace TheCassiopeia.Commons.Prediction
 
                 if (posibleTargets.Count > 1)
                 {
-                    foreach (var possibleTarget in posibleTargets)
-                    {
-                        Console.WriteLine(possibleTarget.Unit.Name + " - p");
-                    }
-                    Console.WriteLine();
 
                     var candidates = new List<Vector2>();
 
@@ -714,8 +709,6 @@ namespace TheCassiopeia.Commons.Prediction
 
                     if (bestCandidateHits > 1 && input.From.To2D().Distance(bestCandidate, true) > 50 * 50)
                     {
-                        Console.WriteLine(bestCandidateHits + " = best hits");
-
                         return new PredictionOutput
                         {
                             Hitchance = mainTargetPrediction.Hitchance,

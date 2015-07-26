@@ -26,7 +26,7 @@ namespace TheCassiopeia.Commons.ComboSystem
         private string _autoLevelSpellsMaxOrder;
 
         // ReSharper disable InconsistentNaming
-        public enum SpellOrder { RQWE, RQEW, RWQE, RWEQ, REQW, REWQ }
+        public enum SpellOrder { RQWE, RQEW, RQEEW, RWQE, RWEQ, REQW, REWQ }
         // ReSharper restore InconsistentNaming
 
         private bool _drawingsEnabled;
@@ -245,7 +245,7 @@ namespace TheCassiopeia.Commons.ComboSystem
             var maxOrder = _autoLevelSpellsMaxOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
 
             foreach (var spellSlot in skillOrder)
-                if (ObjectManager.Player.Spellbook.GetSpell(spellSlot).Level == 0)
+                if (ObjectManager.Player.Spellbook.GetSpell(spellSlot).Level < skillOrder.Count(slot => slot == spellSlot))
                     ObjectManager.Player.Spellbook.LevelSpell(spellSlot);
 
             foreach (var spellSlot in maxOrder)

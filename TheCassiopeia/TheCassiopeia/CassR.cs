@@ -21,17 +21,18 @@ namespace TheCassiopeia
         public int MinHealth;
         public int PanicModeHealth;
         public MenuItem BurstMode;
+        public bool MinEnemiesOnlyInCombo;
 
         public CassR(SpellSlot slot)
             : base(slot)
         {
-            
+            Range = 825f;
         }
 
 
         public override void Initialize(ComboProvider combo)
         {
-            Range = 825f;
+            
             SetSkillshot(0.3f, (float)(80 * Math.PI / 180), float.MaxValue, false, SkillshotType.SkillshotCone);
             base.Initialize(combo);
         }
@@ -41,36 +42,37 @@ namespace TheCassiopeia
             return Commons.Prediction.Prediction.GetPrediction(new Commons.Prediction.PredictionInput() { Aoe = true, Collision = false, Delay = Delay, From = ObjectManager.Player.ServerPosition, Radius = (float)(80 * Math.PI / 180), Range = 825f, Type = Commons.Prediction.SkillshotType.SkillshotCone, Unit = target, RangeCheckFrom = ObjectManager.Player.ServerPosition });
         }
 
+        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
+        {
+            if (!MinEnemiesOnlyInCombo && CanBeCast())
+            {
+                var pred = GetPrediction(target);
+                if (pred.Hitchance < Commons.Prediction.HitChance.Low) return;
+
+                var targets = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(Range) && WillHit(enemy.Position, pred.CastPosition));
+                var looking = targets.Count(trgt => trgt.IsFacingMe());
+                if (looking >= MinTargetsFacing || targets.Count() >= MinTargetsNotFacing)
+                    Cast(pred.CastPosition);
+
+            }
+
+            base.Update(mode, combo, target);
+        }
+
         public override void Execute(Obj_AI_Hero target)
         {
+
             var pred = GetPrediction(target);
             if (pred.Hitchance < Commons.Prediction.HitChance.Low) return;
 
             var targets = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(Range) && WillHit(enemy.Position, pred.CastPosition));
             var looking = targets.Count(trgt => trgt.IsFacingMe());
 
-            if (looking >= MinTargetsFacing || targets.Count() >= MinTargetsNotFacing || UltOnKillable && Provider.GetComboDamage(target) > target.Health && target.IsFacingMe() && target.HealthPercent > MinHealth || PanicModeHealth > ObjectManager.Player.HealthPercent || BurstMode.IsActive())
+            if (looking >= MinTargetsFacing || targets.Count() >= MinTargetsNotFacing || UltOnKillable && Provider.GetComboDamage(target) > target.Health && target.IsFacingMe() && target.HealthPercent > MinHealth && target.IsValidTarget(Range) || PanicModeHealth > ObjectManager.Player.HealthPercent || BurstMode.IsActive())
             {
                 Cast(pred.CastPosition);
             }
         }
-
-        //public override void Draw()
-        //{
-        //    if (!Provider.Target.IsValidTarget(Range))
-        //    {
-        //        Drawing.DrawText(200, 200, Color.Red, 0 + " / " + 0);
-        //        return;
-        //    }
-
-        //    var pred = GetPrediction(Provider.Target);
-        //    if (pred.Hitchance < Commons.Prediction.HitChance.Low) return;
-
-        //    var targets = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(Range) && WillHit(enemy.Position, pred.CastPosition));
-        //    var looking = targets.Count(trgt => trgt.IsFacingMe());
-
-        //    Drawing.DrawText(200, 200, Color.Red, targets.Count() + " / " + looking);
-        //}
 
         public override void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser)
         {
