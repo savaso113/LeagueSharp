@@ -63,7 +63,7 @@ namespace TheCassiopeia
             ultMenu.ProcStoredValueChanged<bool>();
 
             burstmodeMenu.AddMItem("(Burstmode = going full ham, replaces combo when enabled)");
-            var burstMode = provider.BurstMode = burstmodeMenu.AddMItem("Burst mode enabled", new KeyBind(78, KeyBindType.Toggle, true));
+            var burstMode = provider.BurstMode = burstmodeMenu.AddMItem("Burst mode enabled", new KeyBind(78, KeyBindType.Toggle));
             provider.GetSkill<CassR>().BurstMode = burstMode;
             burstMode.Permashow(customdisplayname: "Burst mode");
             burstmodeMenu.AddMItem("Automatically go burst mode if my health % < ", new Slider(25), (sender, args) => provider.GetSkill<CassR>().PanicModeHealth = args.GetNewValue<Slider>().Value);
