@@ -76,7 +76,7 @@ namespace TheCassiopeia
 
         public override void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser)
         {
-            if (ObjectManager.Player.HealthPercent < GapcloserUltHp)
+            if (ObjectManager.Player.HealthPercent < GapcloserUltHp && gapcloser.Sender.IsValidTarget(Range))
             {
                 var pred = GetPrediction(gapcloser.Sender);
                 if (pred.Hitchance < Commons.Prediction.HitChance.Low) return;

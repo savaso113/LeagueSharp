@@ -16,13 +16,13 @@ namespace TheCassiopeia
     class CassQ : Skill
     {
         public bool FastCombo;
-        //public bool RiskyCombo;
         public MenuItem StackTear;
         public int MinTearStackMana;
         public int FarmIfHigherThan;
         public int FarmIfMoreOrEqual;
         public bool Farm;
         private CassE _e;
+        public MenuItem LanepressureMenu;
 
         public CassQ(SpellSlot slot)
             : base(slot)
@@ -70,7 +70,7 @@ namespace TheCassiopeia
 
         public override void Lasthit()
         {
-            if (!Farm || !_e.CanBeCast()) return;
+            if (!Farm || !_e.CanBeCast() || !LanepressureMenu.IsActive()) return;
             var farmLocation = MinionManager.GetBestCircularFarmLocation(MinionManager.GetMinions(900, MinionTypes.All, MinionTeam.NotAlly).Select(minion => minion.Position.To2D()).ToList(), Instance.SData.CastRadius, 850);
             if (farmLocation.MinionsHit >= FarmIfMoreOrEqual && ObjectManager.Player.ManaPercent > FarmIfHigherThan)
             {
@@ -86,8 +86,6 @@ namespace TheCassiopeia
                 Cast(farmLocation.Position);
             }
         }
-
-
 
 
         public bool OnCooldown()

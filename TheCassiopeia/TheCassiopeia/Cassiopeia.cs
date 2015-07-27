@@ -28,6 +28,7 @@ namespace TheCassiopeia
             var harassMenu = mainMenu.CreateSubmenu("Harass");
             var laneclearMenu = mainMenu.CreateSubmenu("Laneclear");
             var lasthitMenu = mainMenu.CreateSubmenu("Lasthit");
+            var burstmodeMenu = mainMenu.CreateSubmenu("Special mode: Burstmode");
             var lanepressureMenu = mainMenu.CreateSubmenu("Special mode: Lanepressure");
 
             var gapcloserMenu = mainMenu.CreateSubmenu("Gapcloser");
@@ -46,7 +47,7 @@ namespace TheCassiopeia
             var provider = new CassioCombo(1000, orbwalker, new CassQ(SpellSlot.Q), new CassW(SpellSlot.W), new CassE(SpellSlot.E), new CassR(SpellSlot.R));
 
             provider.CreateBasicMenu(comboMenu, harassMenu, laneclearMenu, gapcloserMenu, null, manamanagerMenu, summonerMenu, itemMenu, drawingMenu, false);
-            provider.CreateAutoLevelMenu(autolevelMenu, ComboProvider.SpellOrder.RQEW, ComboProvider.SpellOrder.REQW);
+            provider.CreateAutoLevelMenu(autolevelMenu, ComboProvider.SpellOrder.RQEEW, ComboProvider.SpellOrder.REQW);
 
             ultMenu.AddMItem("(Will ult if one condition is met)");
             ultMenu.AddMItem("Min Enemies (facing)", new Slider(2, 1, HeroManager.Enemies.Count), (sender, args) => provider.GetSkill<CassR>().MinTargetsFacing = args.GetNewValue<Slider>().Value);
@@ -54,17 +55,22 @@ namespace TheCassiopeia
             ultMenu.AddMItem("Do above only in combo", true, (sender, args) => provider.GetSkill<CassR>().MinEnemiesOnlyInCombo = args.GetNewValue<bool>());
             ultMenu.AddMItem("Ult if target killable with combo", true, (sender, args) => provider.GetSkill<CassR>().UltOnKillable = args.GetNewValue<bool>());
             ultMenu.AddMItem("Only ult if target has more health % than", new Slider(30), (sender, args) => provider.GetSkill<CassR>().MinHealth = args.GetNewValue<Slider>().Value);
-            var burstMode = provider.BurstMode = ultMenu.AddMItem("Burst mode enabled", new KeyBind(78, KeyBindType.Toggle, true));
-            provider.GetSkill<CassR>().BurstMode = burstMode;
-            burstMode.Permashow(customdisplayname: "Burst mode");
-            ultMenu.AddMItem("Go burst mode if my health % < ", new Slider(20), (sender, args) => provider.GetSkill<CassR>().PanicModeHealth = args.GetNewValue<Slider>().Value);
             ultMenu.AddMItem("Block ults that wouldn't hit", false, (sender, args) => provider.BlockBadUlts = args.GetNewValue<bool>());
-            ultMenu.AddMItem("Range", new Slider(825, 400, 825), (sender, args) => provider.GetSkill<CassR>().Range = args.GetNewValue<Slider>().Value);
+            ultMenu.AddMItem("Range", new Slider(700, 400, 825), (sender, args) => provider.GetSkill<CassR>().Range = args.GetNewValue<Slider>().Value);
             provider.AssistedUltMenu = ultMenu.AddMItem("Assisted Ult", new KeyBind(82, KeyBindType.Press));
-            ultMenu.AddMItem("Use ignite in burst mode", false, (sender, args) => provider.IgniteInBurstMode = args.GetNewValue<bool>());
 
             ultMenu.ProcStoredValueChanged<Slider>();
             ultMenu.ProcStoredValueChanged<bool>();
+
+            burstmodeMenu.AddMItem("(Burstmode = going full ham, replaces combo when enabled)");
+            var burstMode = provider.BurstMode = burstmodeMenu.AddMItem("Burst mode enabled", new KeyBind(78, KeyBindType.Toggle, true));
+            provider.GetSkill<CassR>().BurstMode = burstMode;
+            burstMode.Permashow(customdisplayname: "Burst mode");
+            burstmodeMenu.AddMItem("Automatically go burst mode if my health % < ", new Slider(25), (sender, args) => provider.GetSkill<CassR>().PanicModeHealth = args.GetNewValue<Slider>().Value);
+            burstmodeMenu.AddMItem("Use ignite in burst mode", false, (sender, args) => provider.IgniteInBurstMode = args.GetNewValue<bool>());
+            burstmodeMenu.AddMItem("Ignite only when E on cooldown", false, (sender, args) => provider.OnlyIgniteWhenNoE = args.GetNewValue<bool>());
+            burstmodeMenu.ProcStoredValueChanged<Slider>();
+            burstmodeMenu.ProcStoredValueChanged<bool>();
             
             comboMenu.AddMItem("Only kill non-poisoned with E if no other enemies near", false, (sender, args) => provider.GetSkill<CassE>().OnlyKillNonPIn1V1 = args.GetNewValue<bool>());
             comboMenu.AddMItem("Fast combo (small chance to E non-poisoned)", true, (sender, args) => provider.GetSkill<CassQ>().FastCombo = args.GetNewValue<bool>());
@@ -87,31 +93,33 @@ namespace TheCassiopeia
                 Utility.DelayAction.Add(1000, () => Game.Say("/laugh"));
             });
 
-            Circle q = new Circle(false, Color.GreenYellow), e = new Circle(false, Color.Red);
+            Circle q = new Circle(true, Color.GreenYellow), e = new Circle(false, Color.Red);
 
             drawingMenu.AddMItem("Q Range", q, (sender, args) => q = args.GetNewValue<Circle>());
             drawingMenu.AddMItem("E Range", e, (sender, args) => e = args.GetNewValue<Circle>());
             drawingMenu.ProcStoredValueChanged<Circle>();
+            drawingMenu.ProcStoredValueChanged<bool>();
 
-            gapcloserMenu.AddMItem("Ult if my HP % <", new Slider(25), (sender, args) => provider.GetSkill<CassR>().GapcloserUltHp = args.GetNewValue<Slider>().Value);
+            gapcloserMenu.AddMItem("Ult if my HP % <", new Slider(40), (sender, args) => provider.GetSkill<CassR>().GapcloserUltHp = args.GetNewValue<Slider>().Value);
             gapcloserMenu.AddMItem("Otherwise use W", true, (sender, args) => provider.GetSkill<CassW>().UseOnGapcloser = args.GetNewValue<bool>());
 
-            lasthitMenu.AddMItem("Use E", true, (sender, args) => provider.GetSkill<CassE>().Farm = args.GetNewValue<bool>());
-            lasthitMenu.AddMItem("Use Q if E up", true, (sender, args) => provider.GetSkill<CassQ>().Farm = args.GetNewValue<bool>());
-            lasthitMenu.AddMItem("Only Q if mana % > ", new Slider(60), (sender, args) => provider.GetSkill<CassQ>().FarmIfHigherThan = args.GetNewValue<Slider>().Value);
-            lasthitMenu.AddMItem("Only Q if more or equal minions: ", new Slider(3, maxValue: 6), (sender, args) => provider.GetSkill<CassQ>().FarmIfMoreOrEqual = args.GetNewValue<Slider>().Value);
+            lasthitMenu.AddMItem("Use E on poisoned", true, (sender, args) => provider.GetSkill<CassE>().Farm = args.GetNewValue<bool>());
             //lasthitMenu.AddMItem("Lasthit assist", true, (sender, args) => provider.GetSkill<CassE>().FarmAssist = args.GetNewValue<bool>());
-            lasthitMenu.AddMItem("Lasthit non-poisoned if mana < ? %", new Slider(0), (sender, args) => provider.GetSkill<CassE>().FarmNonPoisonedPercent = args.GetNewValue<Slider>().Value);
+            lasthitMenu.AddMItem("Use E on non-poisoned if mana % <", new Slider(50), (sender, args) => provider.GetSkill<CassE>().FarmNonPoisonedPercent = args.GetNewValue<Slider>().Value);
             lasthitMenu.ProcStoredValueChanged<bool>();
             lasthitMenu.ProcStoredValueChanged<Slider>();
 
 
             var lanepressureEnabled = lanepressureMenu.AddMItem("Enabled", new KeyBind(84, KeyBindType.Toggle));
             provider.LanepressureMenu = lanepressureEnabled;
+            provider.GetSkill<CassQ>().LanepressureMenu = lanepressureEnabled;
             lanepressureEnabled.Permashow(customdisplayname: "Lanepressure mode");
             lanepressureMenu.AddMItem("Override Laneclear when active");
             lanepressureMenu.AddMItem("It uses Harass + Lasthit while pushing with AA");
             lanepressureMenu.AddMItem("All Harass + Lasthit settings apply to it!");
+            lanepressureMenu.AddMItem("Use Q on minions if E up", true, (sender, args) => provider.GetSkill<CassQ>().Farm = args.GetNewValue<bool>());
+            lanepressureMenu.AddMItem("Only Q if mana % > ", new Slider(60), (sender, args) => provider.GetSkill<CassQ>().FarmIfHigherThan = args.GetNewValue<Slider>().Value);
+            lanepressureMenu.AddMItem("Only Q if min. minions: ", new Slider(3, maxValue: 6), (sender, args) => provider.GetSkill<CassQ>().FarmIfMoreOrEqual = args.GetNewValue<Slider>().Value);
 
 
             infoMenu.AddMItem("TheCassiopeia - by TheNinow");
@@ -120,7 +128,8 @@ namespace TheCassiopeia
 
             mainMenu.AddToMainMenu();
             provider.Initialize();
-
+            provider.GetSkill<CassQ>().GetPrediction(ObjectManager.Player); // Initializing the new prediction settings
+           
             //DevAssistant.Init();
 
             Game.OnUpdate += (args) => provider.Update();

@@ -211,7 +211,7 @@ namespace TheCassiopeia.Commons.ComboSystem
         {
             _drawingsEnabled = true;
             drawingMenu.AddMItem("Target", new Circle(true, Color.FromArgb(150, Color.OrangeRed)), (sender, args) => _targetDrawing = args.GetNewValue<Circle>()).ProcStoredValueChanged<Circle>();
-            drawingMenu.AddMItem("Draw 100% dead enemies", new Circle(true, Color.FromArgb(150, Color.LightGreen)), (sender, args) => _deadDrawing = args.GetNewValue<Circle>()).ProcStoredValueChanged<Circle>();
+            drawingMenu.AddMItem("Draw 100% dead enemies (WIP)", new Circle(false, Color.FromArgb(150, Color.LightGreen)), (sender, args) => _deadDrawing = args.GetNewValue<Circle>()).ProcStoredValueChanged<Circle>();
             drawingMenu.AddMItem("Damage indicator", new Circle(true, Color.FromArgb(150, Color.Goldenrod)), (sender, args) =>
             {
                 DamageIndicator.Enabled = args.GetNewValue<Circle>().Active;

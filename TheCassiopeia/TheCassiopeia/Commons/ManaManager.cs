@@ -13,9 +13,9 @@ namespace TheCassiopeia.Commons
         static ManaManager()
         {
             ManaSettings.Add(Orbwalking.OrbwalkingMode.Combo, 0);
-            ManaSettings.Add(Orbwalking.OrbwalkingMode.LaneClear, 90);
+            ManaSettings.Add(Orbwalking.OrbwalkingMode.LaneClear, 0);
             ManaSettings.Add(Orbwalking.OrbwalkingMode.LastHit, 60);
-            ManaSettings.Add(Orbwalking.OrbwalkingMode.Mixed, 75);
+            ManaSettings.Add(Orbwalking.OrbwalkingMode.Mixed, 50);
             ManaSettings.Add(Orbwalking.OrbwalkingMode.None, 0);
         }
 

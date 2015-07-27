@@ -18,6 +18,7 @@ namespace TheCassiopeia
         public MenuItem AssistedUltMenu;
         private CassR _r;
         private CassQ _q;
+        private CassE _e;
         public bool BlockBadUlts;
         public bool EnablePoisonTargetSelection;
         private float _assistedUltTime;
@@ -28,6 +29,7 @@ namespace TheCassiopeia
         private float _objectTime;
         public MenuItem BurstMode;
         public bool IgniteInBurstMode;
+        public bool OnlyIgniteWhenNoE;
 
         public CassioCombo(float targetSelectorRange, IEnumerable<Skill> skills, Orbwalking.Orbwalker orbwalker)
             : base(targetSelectorRange, skills, orbwalker)
@@ -43,6 +45,7 @@ namespace TheCassiopeia
         {
             _r = GetSkill<CassR>();
             _q = GetSkill<CassQ>();
+            _e = GetSkill<CassE>();
             Spellbook.OnCastSpell += OnCastSpell;
             Obj_AI_Base.OnProcessSpellCast += OnSpellCast;
             Orbwalking.BeforeAttack += OrbwalkerBeforeAutoAttack;
@@ -129,7 +132,7 @@ namespace TheCassiopeia
 
             base.OnUpdate(mode);
 
-            if (mode == Orbwalking.OrbwalkingMode.Combo && IgniteInBurstMode && BurstMode.IsActive() && Target.IsValidTarget(600) && ObjectManager.Player.CalcDamage(Target, Damage.DamageType.True, ObjectManager.Player.GetIgniteDamage()) > Target.Health + Target.HPRegenRate * 5)
+            if (mode == Orbwalking.OrbwalkingMode.Combo && IgniteInBurstMode && BurstMode.IsActive() && Target.IsValidTarget(600) && ObjectManager.Player.CalcDamage(Target, Damage.DamageType.True, ObjectManager.Player.GetIgniteDamage()) > Target.Health + Target.HPRegenRate * 5 && (_e.Instance.CooldownExpires > Game.Time + 0.5f || !OnlyIgniteWhenNoE))
             {
                 var ignite = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "summonerdot");
                 if (ignite != null && ignite.IsReady())
