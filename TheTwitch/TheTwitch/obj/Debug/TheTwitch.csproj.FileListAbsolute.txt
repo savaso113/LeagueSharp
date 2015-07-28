@@ -8,6 +8,5 @@ C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\Sharp
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\clipper_library.dll
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\LeagueSharp.Sandbox.dll
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\LeagueSharp.xml
-C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\obj\Debug\TheTwitch.csprojResolveAssemblyReference.cache
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\obj\Debug\TheTwitch.exe
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\obj\Debug\TheTwitch.pdb

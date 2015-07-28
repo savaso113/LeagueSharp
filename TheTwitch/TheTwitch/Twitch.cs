@@ -73,7 +73,10 @@ namespace TheTwitch
             miscMenu.AddMItem("W AOE prediction", true, (sender, args) => combo.GetSkill<TwitchW>().IsAreaOfEffect = args.GetNewValue<bool>());
             combo.GetSkill<TwitchQ>().StealthRecall = miscMenu.AddMItem("Stealh recall", new KeyBind(66, KeyBindType.Press));
             miscMenu.AddMItem("Don't W during R", false, (sender, args) => combo.GetSkill<TwitchW>().NotDuringR = args.GetNewValue<bool>());
+            miscMenu.AddMItem("Auto buy blue trinket", true, (sender, args) => combo.AutoBuyBlueTrinket = args.GetNewValue<bool>());
+            miscMenu.AddMItem("Blue trinket when level:", new Slider(6, 1, 18), (sender, args) => combo.BlueTrinketLevel = args.GetNewValue<Slider>().Value);
             miscMenu.ProcStoredValueChanged<bool>();
+            miscMenu.ProcStoredValueChanged<Slider>();
 
             //drawingMenu.AddMItem("Draw Q Range", new Circle(true, Color.Gray), (sender, args) => combo.GetSkill<TwitchQ>().DrawRange = args.GetNewValue<Circle>());
             combo.GetSkill<TwitchQ>().DrawRange = new Circle(true, Color.Gray);
