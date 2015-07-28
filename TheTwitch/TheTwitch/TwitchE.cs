@@ -15,7 +15,7 @@ namespace TheTwitch
     {
         public bool Killsteal;
         public bool FarmAssist;
-        public Slider HarassActivateWhenLeaving;
+        public int HarassActivateWhenLeaving;
         public int MinFarmMinions;
         public int MinFarmDamageMinions;
         public Circle DrawRange;
@@ -59,7 +59,7 @@ namespace TheTwitch
         public override void Harass(ComboProvider combo, Obj_AI_Hero target)
         {
             base.Harass(combo, target);
-            if (HarassActivateWhenLeaving.Value >= target.GetBuffCount("twitchdeadlyvenom") && target.Distance(ObjectManager.Player) > Orbwalking.GetRealAutoAttackRange(target))
+            if (HarassActivateWhenLeaving <= target.GetBuffCount("twitchdeadlyvenom") && target.Distance(ObjectManager.Player) > Orbwalking.GetRealAutoAttackRange(target))
                 Cast();
         }
 

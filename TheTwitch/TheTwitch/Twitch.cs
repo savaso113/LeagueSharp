@@ -58,7 +58,7 @@ namespace TheTwitch
             comboMenu.ProcStoredValueChanged<Slider>();
             comboMenu.ProcStoredValueChanged<bool>();
 
-            harassMenu.AddMItem("E after trade if >= X stacks", new Slider(3,1,6), (sender, args) => combo.GetSkill<TwitchE>().HarassActivateWhenLeaving = args.GetNewValue<Slider>()).ProcStoredValueChanged<Slider>();
+            harassMenu.AddMItem("E after trade if >= X stacks", new Slider(3,1,6), (sender, args) => combo.GetSkill<TwitchE>().HarassActivateWhenLeaving = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
 
             antigapcloserMenu.AddMItem("Uses W if enabled");
 
