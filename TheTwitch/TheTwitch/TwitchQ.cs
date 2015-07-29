@@ -39,13 +39,13 @@ namespace TheTwitch
         {
             if (sender.Owner.IsMe && ObjectManager.Player.GetSpell(args.Slot).Name == "recall" && StealthRecall.GetValue<KeyBind>().Active && _stealthRecallTime + 5 < Game.Time)
             {
-                args.Process = false;
+                args.Process = ObjectManager.Player.InFountain();
             }
         }
 
         public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
         {
-            if (StealthRecall.GetValue<KeyBind>().Active && _stealthRecallTime + 5 < Game.Time)
+            if (StealthRecall.GetValue<KeyBind>().Active && _stealthRecallTime + 5 < Game.Time && !ObjectManager.Player.InFountain())
             {
                 _stealthRecallTime = Game.Time;
                 Cast();

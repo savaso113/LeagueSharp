@@ -16,6 +16,7 @@ namespace TheTwitch
         private bool _afterAttack;
         public bool IsAreaOfEffect;
         public bool NotDuringR;
+        public int HarassAfterStacks;
 
         public TwitchW(SpellSlot slot)
             : base(slot)
@@ -45,6 +46,11 @@ namespace TheTwitch
             {
                 Cast(target, aoe: IsAreaOfEffect);
             }
+        }
+        public override void Harass(ComboProvider combo, Obj_AI_Hero target)
+        {
+            if(((target.GetBuffCount("twitchdeadlyvenom") >= HarassAfterStacks || HarassAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
+                Cast(target, aoe: IsAreaOfEffect);
         }
 
         public override void Draw()
