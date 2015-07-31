@@ -62,6 +62,12 @@ namespace TheCassiopeia
             ultMenu.ProcStoredValueChanged<Slider>();
             ultMenu.ProcStoredValueChanged<bool>();
 
+            harassMenu.AddMItem("Auto harass", false, (sender, args) => provider.GetSkill<CassQ>().AutoHarass = args.GetNewValue<bool>());
+            harassMenu.AddMItem("Min mana %", new Slider(60), (sender, args) => provider.GetSkill<CassQ>().AutoHarassMana = args.GetNewValue<Slider>().Value);
+            harassMenu.ProcStoredValueChanged<bool>();
+            harassMenu.ProcStoredValueChanged<Slider>();
+
+
             burstmodeMenu.AddMItem("(Burstmode = going full ham, replaces combo when enabled)");
             var burstMode = provider.BurstMode = burstmodeMenu.AddMItem("Burst mode enabled", new KeyBind(78, KeyBindType.Toggle));
             provider.GetSkill<CassR>().BurstMode = burstMode;
@@ -71,7 +77,7 @@ namespace TheCassiopeia
             burstmodeMenu.AddMItem("Ignite only when E on cooldown", false, (sender, args) => provider.OnlyIgniteWhenNoE = args.GetNewValue<bool>());
             burstmodeMenu.ProcStoredValueChanged<Slider>();
             burstmodeMenu.ProcStoredValueChanged<bool>();
-            
+
             comboMenu.AddMItem("Only kill non-poisoned with E if no other enemies near", false, (sender, args) => provider.GetSkill<CassE>().OnlyKillNonPIn1V1 = args.GetNewValue<bool>());
             comboMenu.AddMItem("Fast combo (small chance to E non-poisoned)", true, (sender, args) => provider.GetSkill<CassQ>().FastCombo = args.GetNewValue<bool>());
             //comboMenu.AddMItem("Risky mode (uses fast combo often, but more fails)", false, (sender, args) => provider.GetSkill<CassQ>().RiskyCombo = args.GetNewValue<bool>());
@@ -129,7 +135,7 @@ namespace TheCassiopeia
             mainMenu.AddToMainMenu();
             provider.Initialize();
             provider.GetSkill<CassQ>().GetPrediction(ObjectManager.Player); // Initializing the new prediction settings
-           
+
             //DevAssistant.Init();
 
             Game.OnUpdate += (args) => provider.Update();

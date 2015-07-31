@@ -23,6 +23,8 @@ namespace TheCassiopeia
         public bool Farm;
         private CassE _e;
         public MenuItem LanepressureMenu;
+        public bool AutoHarass;
+        public int AutoHarassMana;
 
         public CassQ(SpellSlot slot)
             : base(slot)
@@ -64,6 +66,16 @@ namespace TheCassiopeia
                 }
 
             };
+        }
+
+        public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
+        {
+            if (AutoHarass && ObjectManager.Player.ManaPercent > AutoHarassMana && target.IsValidTarget(Range))
+            {
+                Cast(target);
+            }
+
+            base.Update(mode, combo, target);
         }
 
 
