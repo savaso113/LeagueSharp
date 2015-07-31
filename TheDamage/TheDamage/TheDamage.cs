@@ -38,7 +38,7 @@ namespace TheDamage
 
             CustomEvents.Game.OnGameLoad += _ =>
             {
-                _menu = new Menu("The Damage", "TheDamage12233222", true);
+                _menu = new Menu("The Damage", "Thedamage", true);
                 _enemiesMenu = new Menu("Enemies", _menu.Name + ".Enemies");
 
                 foreach (var enemy in HeroManager.Enemies)
