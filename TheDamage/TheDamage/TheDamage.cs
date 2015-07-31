@@ -62,7 +62,7 @@ namespace TheDamage
                 _menu.AddItem(new MenuItem(_menu.Name + ".dontdrawoncd", "Don't draw when on cooldown").SetValue(true));
                 _menu.AddItem(new MenuItem(_menu.Name + ".DrawAsOneOnClutter", "Draw only one bar when small").SetValue(true));
                 _menu.AddItem(new MenuItem(_menu.Name + ".GeneralColor", "General Color").SetValue(Color.FromArgb(150, Color.OrangeRed)));
-
+                _menu.AddItem(new MenuItem(_menu.Name + ".Enabled", "Enabled").SetValue(true));
                 _menu.AddToMainMenu();
 
                 _permashow = new MenuItem(_menu.Name + ".Target", "The Damage").SetValue(new StringList(new[] { "None" }));
@@ -74,6 +74,12 @@ namespace TheDamage
 
         private static void Draw(EventArgs args)
         {
+            if (!_menu.Item(_menu.Name + ".Enabled").GetValue<bool>())
+            {
+                DisableText();
+                return;
+            }
+
             var target = TargetSelector.GetSelectedTarget();
             if (!target.IsValidTarget())
                 target = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget()).MinOrDefault(hero => hero.Distance(ObjectManager.Player, true));
