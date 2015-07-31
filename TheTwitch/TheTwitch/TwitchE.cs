@@ -52,7 +52,7 @@ namespace TheTwitch
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if (CanKill(target) || target.GetBuffCount("twitchdeadlyvenom") == 6)
+            if (CanKill(target) || target.GetBuffCount("twitchdeadlyvenom") == 6 && AlwaysExecuteAtFullStacks)
                 Cast();
         }
 
