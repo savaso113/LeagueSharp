@@ -55,6 +55,8 @@ namespace TheTwitch
             comboMenu.AddMItem("Min Enemies near for R", new Slider(2, 1, HeroManager.Enemies.Count), (sender, args) => combo.GetSkill<TwitchR>().MinEnemies = args.GetNewValue<Slider>().Value);
             comboMenu.AddMItem("E at full stacks", true, (sender, args) => combo.GetSkill<TwitchE>().AlwaysExecuteAtFullStacks = args.GetNewValue<bool>());
             comboMenu.AddMItem("Custom E calculation", true, (sender, args) => combo.GetSkill<TwitchE>().CustomCalculation = args.GetNewValue<bool>());
+            comboMenu.AddMItem("Only W after if >= X stacks", new Slider(0, 0, 6), (sender, args) => combo.GetSkill<TwitchW>().ComboAfterStacks = args.GetNewValue<Slider>().Value);
+            comboMenu.AddMItem("(W dmg scales on stacks)");
             comboMenu.ProcStoredValueChanged<Slider>();
             comboMenu.ProcStoredValueChanged<bool>();
 
