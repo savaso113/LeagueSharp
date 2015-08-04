@@ -24,12 +24,14 @@ namespace TheCassiopeia
             SetTargetted(0.2f, float.MaxValue);
             Orbwalking.AfterAttack += AfterAutoAttack;
             UseManaManager = false;
+
+
         }
 
         private void AfterAutoAttack(AttackableUnit unit, AttackableUnit target)
         {
-            if(unit.IsMe)
-            _recentAttacked = target.NetworkId;
+            if (unit.IsMe)
+                _recentAttacked = target.NetworkId;
         }
 
         public override void Lasthit()
@@ -47,11 +49,14 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if ((Provider.IsMarked(target) || target.IsPoisoned() && target.GetPoisonedTime() > Delay || (IsKillable(target) && (!OnlyKillNonPIn1V1 || ObjectManager.Player.CountEnemiesInRange(1500) == 1) )) && !target.HasSpellShield())
+            if ((Provider.IsMarked(target) || target.IsPoisoned() && target.GetPoisonedTime() > Delay || (IsKillable(target) && (!OnlyKillNonPIn1V1 || ObjectManager.Player.CountEnemiesInRange(1500) == 1))) && !target.HasSpellShield())
             {
+                GetPrediction(target); //todo: delete
                 Cast(target);
             }
         }
+
+
 
         public override void Harass(Obj_AI_Hero target)
         {
@@ -61,7 +66,7 @@ namespace TheCassiopeia
 
         public override void LaneClear()
         {
-            if(!ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LaneClear)) return;
+            if (!ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LaneClear)) return;
 
             var clearMinion = MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion => minion.IsPoisoned());
 

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
+using Collision = LeagueSharp.Common.Collision;
 
 namespace TheCassiopeia.Commons
 {
@@ -89,5 +92,22 @@ namespace TheCassiopeia.Commons
                    ObjectManager.Get<Obj_SpawnPoint>()
                        .Any(sp => sp.Team == hero.Team && hero.Distance(sp.Position, true) < distance * distance);
         }
+
+        public static bool IsBehindWindWall(this Obj_AI_Hero target, float delay = 0f, float radiusOrWidth = 0f, float speed = float.MaxValue, Prediction.SkillshotType testType = Prediction.SkillshotType.SkillshotLine)
+        {
+            return Prediction.Prediction.GetPrediction(new Prediction.PredictionInput
+            {
+                Collision = true,
+                CollisionObjects = new[] { Prediction.CollisionableObjects.YasuoWall },
+                Aoe = false,
+                Delay = delay,
+                From = ObjectManager.Player.ServerPosition,
+                Radius = radiusOrWidth,
+                Speed = speed,
+                Type = testType,
+                Unit = target
+            }, true, true).Hitchance == Prediction.HitChance.Collision;
+        }
+
     }
 }

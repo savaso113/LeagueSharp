@@ -9,6 +9,7 @@ using LeagueSharp.Common;
 using SharpDX;
 using TheCassiopeia.Commons;
 using TheCassiopeia.Commons.ComboSystem;
+using Collision = LeagueSharp.Common.Collision;
 
 namespace TheCassiopeia
 {
@@ -170,9 +171,14 @@ namespace TheCassiopeia
         protected override Obj_AI_Hero SelectTarget()
         {
             var target = base.SelectTarget();
-            if (EnablePoisonTargetSelection && target.IsValidTarget(TargetRange) && !target.IsPoisoned())
+            if (!target.IsValidTarget() || target.IsBehindWindWall())
             {
-                var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && enemy.IsPoisoned()).MaxOrDefault(TargetSelector.GetPriority);
+                target = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall()).MaxOrDefault(TargetSelector.GetPriority);
+            }
+
+            if (EnablePoisonTargetSelection && target.IsValidTarget() && !target.IsPoisoned())
+            {
+                var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall() && enemy.IsPoisoned()).MaxOrDefault(TargetSelector.GetPriority);
                 if (newTarget != null && TargetSelector.GetPriority(target) - TargetSelector.GetPriority(newTarget) < 0.5f)
                     return newTarget;
             }

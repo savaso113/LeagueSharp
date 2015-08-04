@@ -50,8 +50,19 @@ namespace TheCassiopeia
             provider.CreateAutoLevelMenu(autolevelMenu, ComboProvider.SpellOrder.RQEEW, ComboProvider.SpellOrder.REQW);
 
             ultMenu.AddMItem("(Will ult if one condition is met)");
-            ultMenu.AddMItem("Min Enemies (facing)", new Slider(2, 1, HeroManager.Enemies.Count), (sender, args) => provider.GetSkill<CassR>().MinTargetsFacing = args.GetNewValue<Slider>().Value);
-            ultMenu.AddMItem("Min Enemies (not facing)", new Slider(HeroManager.Enemies.Count - 1, 1, HeroManager.Enemies.Count), (sender, args) => provider.GetSkill<CassR>().MinTargetsNotFacing = args.GetNewValue<Slider>().Value);
+
+            if (HeroManager.Enemies.Count >= 3)
+            {
+                ultMenu.AddMItem("Min Enemies (facing)", new Slider(2, 1, HeroManager.Enemies.Count), (sender, args) => provider.GetSkill<CassR>().MinTargetsFacing = args.GetNewValue<Slider>().Value);
+                ultMenu.AddMItem("Min Enemies (not facing)", new Slider(HeroManager.Enemies.Count - 1, 1, HeroManager.Enemies.Count), (sender, args) => provider.GetSkill<CassR>().MinTargetsNotFacing = args.GetNewValue<Slider>().Value);
+
+            }
+            else
+            {
+                ultMenu.AddMItem("Min Enemies (facing)", new Slider(1, 1, HeroManager.Enemies.Count), (sender, args) => provider.GetSkill<CassR>().MinTargetsFacing = args.GetNewValue<Slider>().Value);
+                ultMenu.AddMItem("Min Enemies (not facing)", new Slider(1, 1, HeroManager.Enemies.Count), (sender, args) => provider.GetSkill<CassR>().MinTargetsNotFacing = args.GetNewValue<Slider>().Value);
+            }
+
             ultMenu.AddMItem("Do above only in combo", true, (sender, args) => provider.GetSkill<CassR>().MinEnemiesOnlyInCombo = args.GetNewValue<bool>());
             ultMenu.AddMItem("Ult if target killable with combo", true, (sender, args) => provider.GetSkill<CassR>().UltOnKillable = args.GetNewValue<bool>());
             ultMenu.AddMItem("Only ult if target has more health % than", new Slider(30), (sender, args) => provider.GetSkill<CassR>().MinHealth = args.GetNewValue<Slider>().Value);
@@ -136,7 +147,7 @@ namespace TheCassiopeia
             provider.Initialize();
             provider.GetSkill<CassQ>().GetPrediction(ObjectManager.Player); // Initializing the new prediction settings
 
-            //DevAssistant.Init();
+            DevAssistant.Init();
 
             Game.OnUpdate += (args) => provider.Update();
 
@@ -147,7 +158,8 @@ namespace TheCassiopeia
                 if (e.Active)
                     Render.Circle.DrawCircle(ObjectManager.Player.Position, 700, e.Color);
 
-                //Drawing.DrawText(200, 200, Color.Red, Game.CursorPos.ToString());
+
+                Drawing.DrawText(200, 600, Color.Green, HeroManager.Enemies.FirstOrDefault().IsBehindWindWall().ToString());
             };
         }
 

@@ -354,7 +354,17 @@ namespace TheCassiopeia.Commons.ComboSystem
         protected virtual void OnUpdate(Orbwalking.OrbwalkingMode mode)
         {
             //Console.WriteLine(mode);
-            Target = SelectTarget();
+            try
+            {
+                Target = SelectTarget();
+            }
+            catch
+            {
+                if (Game.Time % 1f < 0.05f)
+                    Console.WriteLine("[TheNinow.ComboSystem] Error during custom target selection");
+                Target = TargetSelector.GetTarget(TargetRange, DamageType);
+            }
+
 
             for (int i = 0; i < _queuedCasts.Count; i++)
             {

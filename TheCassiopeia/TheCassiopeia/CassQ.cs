@@ -29,6 +29,7 @@ namespace TheCassiopeia
         public CassQ(SpellSlot slot)
             : base(slot)
         {
+            
             Range = 850;
             SetSkillshot(0.75f, Instance.SData.CastRadius, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
