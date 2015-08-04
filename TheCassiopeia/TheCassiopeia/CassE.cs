@@ -49,14 +49,11 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if ((Provider.IsMarked(target) || target.IsPoisoned() && target.GetPoisonedTime() > Delay || (IsKillable(target) && (!OnlyKillNonPIn1V1 || ObjectManager.Player.CountEnemiesInRange(1500) == 1))) && !target.HasSpellShield())
+            if ((Provider.IsMarked(target) || target.IsPoisoned() && target.GetPoisonedTime() > Delay || (IsKillable(target) && (!OnlyKillNonPIn1V1 || ObjectManager.Player.CountEnemiesInRange(1500) == 1))) && !target.HasSpellShield() && !target.IsBehindWindWall())
             {
-                GetPrediction(target); //todo: delete
                 Cast(target);
             }
         }
-
-
 
         public override void Harass(Obj_AI_Hero target)
         {

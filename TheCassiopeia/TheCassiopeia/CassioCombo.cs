@@ -173,7 +173,9 @@ namespace TheCassiopeia
             var target = base.SelectTarget();
             if (!target.IsValidTarget() || target.IsBehindWindWall())
             {
-                target = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall()).MaxOrDefault(TargetSelector.GetPriority);
+                var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall()).MaxOrDefault(TargetSelector.GetPriority);
+                if (newTarget != null)
+                    target = newTarget;
             }
 
             if (EnablePoisonTargetSelection && target.IsValidTarget() && !target.IsPoisoned())
