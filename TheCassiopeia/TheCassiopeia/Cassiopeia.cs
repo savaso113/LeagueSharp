@@ -147,7 +147,7 @@ namespace TheCassiopeia
             provider.Initialize();
             provider.GetSkill<CassQ>().GetPrediction(ObjectManager.Player); // Initializing the new prediction settings
 
-            DevAssistant.Init();
+         //   DevAssistant.Init();
 
             Game.OnUpdate += (args) => provider.Update();
 
@@ -159,7 +159,7 @@ namespace TheCassiopeia
                     Render.Circle.DrawCircle(ObjectManager.Player.Position, 700, e.Color);
 
 
-                Drawing.DrawText(200, 600, Color.Green, HeroManager.Enemies.FirstOrDefault().IsBehindWindWall().ToString());
+               // Drawing.DrawText(200, 600, Color.Green, HeroManager.Enemies.FirstOrDefault().IsBehindWindWall().ToString());
             };
         }
 
