@@ -65,6 +65,11 @@ namespace TheDamage
                 miscMenu.AddItem(new MenuItem(_menu.Name + ".dontdrawoncd", "Don't draw when on cooldown").SetValue(true));
                 miscMenu.AddItem(new MenuItem(_menu.Name + ".DrawAsOneOnClutter", "Draw only one bar when small").SetValue(true));
                 miscMenu.AddItem(new MenuItem(_menu.Name + ".GeneralColor", "General Color").SetValue(Color.FromArgb(150, Color.OrangeRed)));
+                var hidePermeshow = miscMenu.AddItem(new MenuItem(_menu.Name + ".showPermashow", "Hide Permashow").SetValue(false));
+
+                hidePermeshow.ValueChanged += (sender, sargs) => _permashow.Permashow(!sargs.GetNewValue<bool>());
+
+
                 var upvoted = miscMenu.AddItem(new MenuItem(_menu.Name + ".upvotedasmdb", "Upvoted on assemblydb").SetValue(false));
                 _menu.AddSubMenu(miscMenu);
 
@@ -72,7 +77,7 @@ namespace TheDamage
                 _menu.AddToMainMenu();
 
                 _permashow = new MenuItem(_menu.Name + ".Target", "The Damage").SetValue(new StringList(new[] { "None" }));
-                _permashow.Permashow();
+                _permashow.Permashow(!hidePermeshow.GetValue<bool>());
 
 
                 upvoted.ValueChanged += (sender, changedArgs) =>
