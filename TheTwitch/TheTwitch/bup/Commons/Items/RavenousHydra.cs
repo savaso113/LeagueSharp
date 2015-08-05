@@ -9,7 +9,7 @@ namespace TheTwitch.Commons.Items
         private bool _afterAttack;
         private bool _justAttacked;
 
-        public void Initialize(Menu menu, ItemManager itemManager)
+        public void Initialize(Menu menu)
         {
             menu.AddMItem("After attack", true, (sender, args) => _afterAttack = args.GetNewValue<bool>());
             menu.ProcStoredValueChanged<bool>();

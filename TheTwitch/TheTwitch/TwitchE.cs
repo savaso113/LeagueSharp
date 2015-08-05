@@ -56,9 +56,9 @@ namespace TheTwitch
                 Cast();
         }
 
-        public override void Harass(ComboProvider combo, Obj_AI_Hero target)
+        public override void Harass(Obj_AI_Hero target)
         {
-            base.Harass(combo, target);
+            base.Harass(target);
             if (HarassActivateWhenLeaving <= target.GetBuffCount("twitchdeadlyvenom") && target.Distance(ObjectManager.Player) > Orbwalking.GetRealAutoAttackRange(target))
                 Cast();
         }
@@ -91,7 +91,7 @@ namespace TheTwitch
             return 2;
         }
 
-        public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
+        public override void LaneClear()
         {
             var killable = 0;
             var poison = 0;
@@ -108,7 +108,7 @@ namespace TheTwitch
             {
                 Cast();
             }
-            base.LaneClear(combo, target);
+            base.LaneClear();
         }
 
         public override void Draw()

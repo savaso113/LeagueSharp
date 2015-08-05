@@ -13,9 +13,9 @@ namespace TheTwitch.Commons
         static ManaManager()
         {
             ManaSettings.Add(Orbwalking.OrbwalkingMode.Combo, 0);
-            ManaSettings.Add(Orbwalking.OrbwalkingMode.LaneClear, 0);
+            ManaSettings.Add(Orbwalking.OrbwalkingMode.LaneClear, 90);
             ManaSettings.Add(Orbwalking.OrbwalkingMode.LastHit, 60);
-            ManaSettings.Add(Orbwalking.OrbwalkingMode.Mixed, 50);
+            ManaSettings.Add(Orbwalking.OrbwalkingMode.Mixed, 75);
             ManaSettings.Add(Orbwalking.OrbwalkingMode.None, 0);
         }
 
@@ -24,7 +24,7 @@ namespace TheTwitch.Commons
             //Only using this three, because a manamanager on Combo or None wouldn't make sense
             Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.Mixed, "Harass");
             Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.LaneClear);
-            //Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.LastHit, "Lasthit (skill farm assist)");
+            Initialize(manamanagerMenu, Orbwalking.OrbwalkingMode.LastHit, "Lasthit (skill farm assist)");
             manamanagerMenu.AddMItem("Enabled", false, (sender, args) => EnableLimitations = args.GetNewValue<bool>());
             manamanagerMenu.ProcStoredValueChanged<bool>();
         }

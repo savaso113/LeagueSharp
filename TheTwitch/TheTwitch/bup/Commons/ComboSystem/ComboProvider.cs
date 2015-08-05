@@ -26,7 +26,7 @@ namespace TheTwitch.Commons.ComboSystem
         private string _autoLevelSpellsMaxOrder;
 
         // ReSharper disable InconsistentNaming
-        public enum SpellOrder { RQWE, RQEW, RQEEW, RWQE, RWEQ, REQW, REWQ }
+        public enum SpellOrder { RQWE, RQEW, RWQE, RWEQ, REQW, REWQ }
         // ReSharper restore InconsistentNaming
 
         private bool _drawingsEnabled;
@@ -202,7 +202,7 @@ namespace TheTwitch.Commons.ComboSystem
                 if (forbiddenSlots.Contains(currentSkill.Slot) || currentSkill.Slot == SpellSlot.R) continue;
                 laneclearMenu.AddMItem("Use " + skill.Slot, skill.LaneclearEnabled, (sender, args) => SetEnabled(currentSkill, Orbwalking.OrbwalkingMode.LaneClear, args.GetNewValue<bool>()));
             }
-            if (harassSwitch) laneclearMenu.AddMItem("Use mixed mode instead if enemy near", false, (sender, args) => GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));
+            if (harassSwitch) laneclearMenu.AddMItem("Harass instead if enemy near", false, (sender, args) => GetSkills().ToList().ForEach(skill => skill.SwitchClearToHarassOnTarget = args.GetNewValue<bool>()));
 
             laneclearMenu.ProcStoredValueChanged<bool>();
         }
@@ -245,7 +245,7 @@ namespace TheTwitch.Commons.ComboSystem
             var maxOrder = _autoLevelSpellsMaxOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
 
             foreach (var spellSlot in skillOrder)
-                if (ObjectManager.Player.Spellbook.GetSpell(spellSlot).Level < skillOrder.Count(slot => slot == spellSlot))
+                if (ObjectManager.Player.Spellbook.GetSpell(spellSlot).Level == 0)
                     ObjectManager.Player.Spellbook.LevelSpell(spellSlot);
 
             foreach (var spellSlot in maxOrder)
@@ -341,30 +341,9 @@ namespace TheTwitch.Commons.ComboSystem
             Initialize();
         }
 
-        protected virtual Obj_AI_Hero SelectTarget()
+        public virtual void Update()
         {
-            return TargetSelector.GetTarget(TargetRange, DamageType);
-        }
-
-        public void Update()
-        {
-            OnUpdate(Orbwalker.ActiveMode);
-        }
-
-        protected virtual void OnUpdate(Orbwalking.OrbwalkingMode mode)
-        {
-            //Console.WriteLine(mode);
-            try
-            {
-                Target = SelectTarget();
-            }
-            catch
-            {
-                if (Game.Time % 1f < 0.05f)
-                    Console.WriteLine("[TheNinow.ComboSystem] Error during custom target selection");
-                Target = TargetSelector.GetTarget(TargetRange, DamageType);
-            }
-
+            Target = TargetSelector.GetTarget(TargetRange, DamageType);
 
             for (int i = 0; i < _queuedCasts.Count; i++)
             {
@@ -390,7 +369,7 @@ namespace TheTwitch.Commons.ComboSystem
                 Skills.Sort(); //Checked: this is not expensive
                 foreach (var item in Skills)
                 {
-                    item.Update(mode, this, Target);
+                    item.Update(Orbwalker.ActiveMode, this, Target);
                     if (_cancelSpellUpdates)
                     {
                         _cancelSpellUpdates = false;

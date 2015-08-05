@@ -16,7 +16,7 @@ namespace TheCassiopeia.Commons
         public void Attach(Menu menu, ComboProvider provider)
         {
             _summs = new Dictionary<ISummonerSpell, bool>();
-            var summs = new ISummonerSpell[] { new Heal(), new Cleanse()};
+            var summs = new ISummonerSpell[] { new Heal(), new Cleanse() };
 
             foreach (var activateableItem in summs)
             {
@@ -37,13 +37,13 @@ namespace TheCassiopeia.Commons
                 menu.AddMItem("Supported spells:");
                 foreach (var summonerSpell in summs)
                 {
-                    menu.AddMItem("* "+summonerSpell.GetDisplayName());
+                    menu.AddMItem("* " + summonerSpell.GetDisplayName());
                 }
             }
             else
             {
                 menu.AddMItem("Only in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
-                menu.AddMItem("Enabled", true, (sender, args) => Enabled = args.GetNewValue<bool>());
+                menu.AddMItem("Enabled", false, (sender, args) => Enabled = args.GetNewValue<bool>());
             }
             menu.ProcStoredValueChanged<bool>();
             Game.OnUpdate += _ => Update(provider);

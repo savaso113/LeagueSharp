@@ -45,8 +45,7 @@ namespace TheTwitch.Commons.ComboSystem
                 mode = Orbwalking.OrbwalkingMode.Mixed;
             if (UseManaManager && !ManaManager.CanUseMana(mode)) return;
 
-            var targetIsValid = target.IsValidTarget();
-            if (OnlyUpdateIfTargetValid && mode == Orbwalking.OrbwalkingMode.Combo && !targetIsValid) return;
+            if (OnlyUpdateIfTargetValid && (mode == Orbwalking.OrbwalkingMode.Combo || mode == Orbwalking.OrbwalkingMode.Mixed) && !target.IsValidTarget()) return;
             if (OnlyUpdateIfCastable && !CanBeCast()) return; //Todo: check if nessecary with new comboSystem
 
             MinHitChance = mode == Orbwalking.OrbwalkingMode.Combo ? MinComboHitchance : MinHarassHitchance;
@@ -55,34 +54,26 @@ namespace TheTwitch.Commons.ComboSystem
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     if (ComboEnabled)
-                        Combo(target);
+                        Combo(combo, target);
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     if (LaneclearEnabled)
-                        LaneClear();
+                        LaneClear(combo, target);
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     if (HarassEnabled)
-                    {
-                        if (targetIsValid || !OnlyUpdateIfTargetValid)
-                            Harass(target);
-                        Lasthit();
-                    }
-                    break;
-                case Orbwalking.OrbwalkingMode.LastHit:
-                    Lasthit();
+                        Harass(combo, target);
                     break;
             }
         }
 
         public abstract void Execute(Obj_AI_Hero target);
-        public virtual void Combo(Obj_AI_Hero target)
+        public virtual void Combo(ComboProvider combo, Obj_AI_Hero target)
         {
             Execute(target);
         }
-        public virtual void LaneClear() { }
-        public virtual void Lasthit() { }
-        public virtual void Harass(Obj_AI_Hero target)
+        public virtual void LaneClear(ComboProvider combo, Obj_AI_Hero target) { }
+        public virtual void Harass(ComboProvider combo, Obj_AI_Hero target)
         {
             Execute(target);
         }

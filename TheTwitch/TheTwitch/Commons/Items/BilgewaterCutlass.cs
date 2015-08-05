@@ -9,7 +9,7 @@ namespace TheTwitch.Commons.Items
         private int _minEnemyHealth;
 
 
-        public void Initialize(Menu menu)
+        public void Initialize(Menu menu, ItemManager itemManager)
         {
             menu.AddMItem("Enemy min HP %", new Slider(20), (sender, args) => _minEnemyHealth = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
         }

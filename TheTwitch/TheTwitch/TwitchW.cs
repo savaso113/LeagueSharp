@@ -43,14 +43,14 @@ namespace TheTwitch
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if (((target.GetBuffCount("twitchdeadlyvenom") >= ComboAfterStacks || HarassAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
+            if (((target.GetBuffCount("twitchdeadlyvenom") >= ComboAfterStacks || ComboAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
             {
                 Cast(target, aoe: IsAreaOfEffect);
             }
         }
-        public override void Harass(ComboProvider combo, Obj_AI_Hero target)
+        public override void Harass(Obj_AI_Hero target)
         {
-            if(((target.GetBuffCount("twitchdeadlyvenom") >= HarassAfterStacks || HarassAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
+            if (((target.GetBuffCount("twitchdeadlyvenom") >= HarassAfterStacks || HarassAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
                 Cast(target, aoe: IsAreaOfEffect);
         }
 
@@ -60,7 +60,7 @@ namespace TheTwitch
                 Render.Circle.DrawCircle(ObjectManager.Player.Position, 950, DrawRange.Color);
         }
 
-        public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
+        public override void LaneClear()
         {
             var location = GetCircularFarmLocation(MinionManager.GetMinions(950, MinionTypes.All, MinionTeam.NotAlly));
             if (location.MinionsHit >= MinFarmMinions)

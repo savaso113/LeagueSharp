@@ -12,11 +12,9 @@ namespace TheTwitch.Commons.Debug
 
             var drawSpells = true;
             var drawBuffs = true;
-            bool drawItems = true;
 
-            mainMenu.AddMItem("Draw Spells", false, (sender, args) => drawSpells = args.GetNewValue<bool>());
-            mainMenu.AddMItem("Draw Buffs", false, (sender, args) => drawBuffs = args.GetNewValue<bool>());
-            mainMenu.AddMItem("Draw Items", false, (sender, args) => drawItems= args.GetNewValue<bool>());
+            mainMenu.AddMItem("Draw Spells", true, (sender, args) => drawSpells = args.GetNewValue<bool>());
+            mainMenu.AddMItem("Draw Buffs", true, (sender, args) => drawBuffs = args.GetNewValue<bool>());
             mainMenu.ProcStoredValueChanged<bool>();
             mainMenu.AddToMainMenu();
             
@@ -47,19 +45,11 @@ namespace TheTwitch.Commons.Debug
                 if (drawSpells)
                     foreach (var buff in ObjectManager.Player.Spellbook.Spells)
                     {
-                        Drawing.DrawText(600, i += 20, Color.Red, buff.Name+" / "+buff.Ammo+" / "+buff.Level+" / ");
-                    }
-
-                i = 50;
-                if (drawItems)
-                    foreach (var buff in ObjectManager.Player.InventoryItems)
-                    {
-                        Drawing.DrawText(1000, i += 20, Color.Red, buff.Id+" / "+buff.IData.DisplayName+" / "+buff.IData.SpellName+" / "+buff.IData.EffectAmount[1]+" / ");
+                        Drawing.DrawText(600, i += 20, Color.Red, buff.Name);
                     }
             };
         }
-        //Tear_of_the_Goddess
-        //Archangels_Staff
+
 
     }
 }

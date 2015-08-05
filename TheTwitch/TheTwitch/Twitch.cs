@@ -52,7 +52,7 @@ namespace TheTwitch
 
             comboMenu.Item("Combo.UseQ").DisplayName += " (for attackspeed)";
 
-            comboMenu.AddMItem("Min Enemies near for R", new Slider(2, 1, HeroManager.Enemies.Count), (sender, args) => combo.GetSkill<TwitchR>().MinEnemies = args.GetNewValue<Slider>().Value);
+            comboMenu.AddMItem("Min Enemies near for R", new Slider(Math.Min(2, HeroManager.Enemies.Count), 1, Math.Max(2, HeroManager.Enemies.Count)), (sender, args) => combo.GetSkill<TwitchR>().MinEnemies = args.GetNewValue<Slider>().Value);
             comboMenu.AddMItem("E at full stacks", true, (sender, args) => combo.GetSkill<TwitchE>().AlwaysExecuteAtFullStacks = args.GetNewValue<bool>());
             comboMenu.AddMItem("Custom E calculation", true, (sender, args) => combo.GetSkill<TwitchE>().CustomCalculation = args.GetNewValue<bool>());
             comboMenu.AddMItem("Only W after if >= X stacks", new Slider(0, 0, 6), (sender, args) => combo.GetSkill<TwitchW>().ComboAfterStacks = args.GetNewValue<Slider>().Value);
@@ -84,7 +84,7 @@ namespace TheTwitch
 
             //drawingMenu.AddMItem("Draw Q Range", new Circle(true, Color.Gray), (sender, args) => combo.GetSkill<TwitchQ>().DrawRange = args.GetNewValue<Circle>());
             combo.GetSkill<TwitchQ>().DrawRange = new Circle(true, Color.Gray);
-            
+
             drawingMenu.AddMItem("Draw W Range", new Circle(false, Color.LightGreen), (sender, args) => combo.GetSkill<TwitchW>().DrawRange = args.GetNewValue<Circle>());
             drawingMenu.AddMItem("Draw E Range", new Circle(true, Color.DarkGreen), (sender, args) => combo.GetSkill<TwitchE>().DrawRange = args.GetNewValue<Circle>());
             drawingMenu.AddMItem("Draw R Range", new Circle(false, Color.Goldenrod), (sender, args) => combo.GetSkill<TwitchR>().DrawRange = args.GetNewValue<Circle>());
