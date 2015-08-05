@@ -10,3 +10,4 @@ C:\Users\Nino\Documents\GitHub\LeagueSharp\TheCassiopeia\TheCassiopeia\bin\x86\D
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheCassiopeia\TheCassiopeia\bin\x86\Debug\LeagueSharp.xml
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheCassiopeia\TheCassiopeia\obj\x86\Debug\TheCassiopeia.exe
 C:\Users\Nino\Documents\GitHub\LeagueSharp\TheCassiopeia\TheCassiopeia\obj\x86\Debug\TheCassiopeia.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheCassiopeia\TheCassiopeia\obj\x86\Debug\TheCassiopeia.csprojResolveAssemblyReference.cache

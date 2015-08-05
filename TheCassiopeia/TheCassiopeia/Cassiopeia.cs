@@ -159,7 +159,7 @@ namespace TheCassiopeia
                     Render.Circle.DrawCircle(ObjectManager.Player.Position, 700, e.Color);
 
 
-                Drawing.DrawText(200, 600, Color.Green, "Valid target: " + HeroManager.Enemies.FirstOrDefault().IsValidTarget().ToString() + " invulnerable: " + TargetSelector.IsInvulnerable(HeroManager.Enemies.FirstOrDefault(), TargetSelector.DamageType.Magical));
+             //   Drawing.DrawText(200, 600, Color.Green, "Valid target: " + HeroManager.Enemies.FirstOrDefault().IsValidTarget().ToString() + " invulnerable: " + TargetSelector.IsInvulnerable(HeroManager.Enemies.FirstOrDefault(), TargetSelector.DamageType.Magical));
             };
         }
 
