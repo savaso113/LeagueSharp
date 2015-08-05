@@ -171,16 +171,21 @@ namespace TheCassiopeia
         protected override Obj_AI_Hero SelectTarget()
         {
             var target = base.SelectTarget();
-            if (!target.IsValidTarget() || target.IsBehindWindWall())
+            var valid = target.IsValidTarget();
+            bool invulnerable = false;
+            if (valid)
+                invulnerable = TargetSelector.IsInvulnerable(target, TargetSelector.DamageType.Magical);
+
+            if (!valid || target.IsBehindWindWall() || invulnerable)
             {
-                var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall()).MaxOrDefault(TargetSelector.GetPriority);
+                var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall() && !TargetSelector.IsInvulnerable(enemy, TargetSelector.DamageType.Magical)).MaxOrDefault(TargetSelector.GetPriority);
                 if (newTarget != null)
                     target = newTarget;
             }
 
             if (EnablePoisonTargetSelection && target.IsValidTarget() && !target.IsPoisoned())
             {
-                var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall() && enemy.IsPoisoned()).MaxOrDefault(TargetSelector.GetPriority);
+                var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall() && enemy.IsPoisoned() && !TargetSelector.IsInvulnerable(enemy, TargetSelector.DamageType.Magical)).MaxOrDefault(TargetSelector.GetPriority);
                 if (newTarget != null && TargetSelector.GetPriority(target) - TargetSelector.GetPriority(newTarget) < 0.5f)
                     return newTarget;
             }
