@@ -33,8 +33,8 @@ namespace TheCassiopeia.Commons
 
             if (summs.All(sum => !sum.IsAvailable()))
             {
-                menu.AddMItem("- No supported summoner spell available -");
-                menu.AddMItem("Supported spells:");
+                menu.AddMItem("No supported Summoner Spell available");
+                menu.AddMItem("Supported Spells:");
                 foreach (var summonerSpell in summs)
                 {
                     menu.AddMItem("* " + summonerSpell.GetDisplayName());
@@ -42,7 +42,7 @@ namespace TheCassiopeia.Commons
             }
             else
             {
-                menu.AddMItem("Only in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
+                menu.AddMItem("Only in Combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
                 menu.AddMItem("Enabled", false, (sender, args) => Enabled = args.GetNewValue<bool>());
             }
             menu.ProcStoredValueChanged<bool>();
