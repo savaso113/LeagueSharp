@@ -33,7 +33,7 @@ namespace TheCassiopeia.Commons
 
             if (summs.All(sum => !sum.IsAvailable()))
             {
-                menu.AddMItem("No supported Summoner Spell available");
+                menu.AddMItem("No Supported Summoner Spell Available");
                 menu.AddMItem("Supported Spells:");
                 foreach (var summonerSpell in summs)
                 {
