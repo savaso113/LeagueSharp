@@ -30,7 +30,7 @@ namespace TheCassiopeia.Commons
                 itemMenu.AddMItem("Enabled", true, (sender, agrs) => _items[item] = agrs.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
                 menu.AddSubMenu(itemMenu);
             }
-            menu.AddMItem("Only in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
+            menu.AddMItem("Only in Combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
             menu.AddMItem("Enabled", true, (sender, args) => Enabled = args.GetNewValue<bool>());
             menu.ProcStoredValueChanged<bool>();
             Game.OnUpdate += _ => Update();
