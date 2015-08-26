@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E54626D8-C459-41CE-BE04-C599AEB5D103}</ProjectGuid>
+    <ProjectGuid>{D7469AE9-8105-4DAE-BDC9-42B58EBC3C52}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TheGaren</RootNamespace>
-    <AssemblyName>TheGaren</AssemblyName>
+    <RootNamespace>TheKalista</RootNamespace>
+    <AssemblyName>TheKalista</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PreBuildEvent />
     <PostBuildEvent />
     <OutputPath>bin\Release</OutputPath>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -25,7 +24,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -35,7 +33,27 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LeagueSharp">
@@ -58,40 +76,41 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AAHelper.cs" />
     <Compile Include="Commons\ComboSystem\ComboProvider.cs" />
     <Compile Include="Commons\ComboSystem\Skill.cs" />
+    <Compile Include="Commons\Debug\Profiler.cs" />
+    <Compile Include="Commons\MenuExtensions.cs" />
     <Compile Include="Commons\DamageIndicator.cs" />
     <Compile Include="Commons\Debug\DevAssistant.cs" />
-    <Compile Include="Commons\Debug\Profiler.cs" />
     <Compile Include="Commons\Extensions.cs" />
-    <Compile Include="Commons\IActivateableItem.cs" />
-    <Compile Include="Commons\ISummonerSpell.cs" />
     <Compile Include="Commons\ItemManager.cs" />
     <Compile Include="Commons\Items\BilgewaterCutlass.cs" />
     <Compile Include="Commons\Items\Botrk.cs" />
+    <Compile Include="Commons\IActivateableItem.cs" />
     <Compile Include="Commons\Items\RavenousHydra.cs" />
     <Compile Include="Commons\Items\SeraphsEmbrace.cs" />
     <Compile Include="Commons\Items\YoumusBlade.cs" />
-    <Compile Include="Commons\MenuExtensions.cs" />
     <Compile Include="Commons\Prediction\Prediction.cs" />
     <Compile Include="Commons\SummonerManager.cs" />
     <Compile Include="Commons\SummonerSpells\Cleanse.cs" />
     <Compile Include="Commons\SummonerSpells\Heal.cs" />
+    <Compile Include="Commons\ISummonerSpell.cs" />
     <Compile Include="Commons\TickLimiter.cs" />
-    <Compile Include="Garen.cs" />
-    <Compile Include="GarenE.cs" />
-    <Compile Include="GarenQ.cs" />
-    <Compile Include="GarenR.cs" />
-    <Compile Include="GarenW.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Kalista.cs" />
+    <Compile Include="KalistaCombo.cs" />
+    <Compile Include="KalistaE.cs" />
+    <Compile Include="KalistaQ.cs" />
+    <Compile Include="KalistaR.cs" />
+    <Compile Include="KalistaW.cs" />
+    <Compile Include="KalistaWalker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Commons\ComboSystem\Combo System thoughts.txt" />
+    <Content Include="todo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

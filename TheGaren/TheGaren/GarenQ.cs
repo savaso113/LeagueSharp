@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheGaren.Commons.ComboSystem;
+using TheKalista.Commons.ComboSystem;
 
 namespace TheGaren
 {
@@ -15,7 +15,7 @@ namespace TheGaren
         private bool _recentAutoattack;
         public bool UseWhenOutOfRange;
 
-        public GarenQ(Spell spell)
+        public GarenQ(SpellSlot spell)
             : base(spell)
         {
             Orbwalking.AfterAttack += OnAfterAttack;
@@ -35,35 +35,32 @@ namespace TheGaren
         }
 
 
-        public override void Cast(Obj_AI_Hero target, bool force = false)
+        public override void Execute(Obj_AI_Hero target)
         {
-            if (!force)
-            {
-                var buff = ObjectManager.Player.GetBuff("GarenE");
-                if (buff != null && buff.EndTime - Game.Time > 0.75f * (Spell.Level + 1) + 0.5f) return;
-            }
+            var buff = ObjectManager.Player.GetBuff("GarenE");
+            if (buff != null && buff.EndTime - Game.Time > 0.75f * (Level + 1) + 0.5f) return;
             var nearEnemyCount = ObjectManager.Player.CountEnemiesInRange(ObjectManager.Player.AttackRange * 2);
             if (nearEnemyCount > 0 && (!OnlyAfterAuto || _recentAutoattack) || nearEnemyCount == 0 && UseWhenOutOfRange)
             {
-                SafeCast();
+                Cast();
                 Orbwalking.ResetAutoAttackTimer();
             }
         }
 
-        public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
+        public override void LaneClear()
         {
             if (_recentAutoattack)
             {
-                SafeCast();
+               Cast();
                 Orbwalking.ResetAutoAttackTimer();
             }
         }
 
         public override void Interruptable(ComboProvider combo, Obj_AI_Hero sender, ComboProvider.InterruptableSpell interruptableSpell, float endTime)
         {
-            if (endTime - Game.Time > Math.Max(sender.Distance(ObjectManager.Player) - Orbwalking.GetRealAutoAttackRange(sender), 0)/ObjectManager.Player.MoveSpeed + 0.5f)
+            if (endTime - Game.Time > Math.Max(sender.Distance(ObjectManager.Player) - Orbwalking.GetRealAutoAttackRange(sender), 0) / ObjectManager.Player.MoveSpeed + 0.5f)
             {
-                SafeCast();
+                Cast();
                 Orbwalking.Orbwalk(sender, sender.Position);
             }
         }

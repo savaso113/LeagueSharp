@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using TheGaren.Commons;
-using TheGaren.Commons.ComboSystem;
-using TheGaren.Commons.Items;
+using TheKalista.Commons;
+using TheKalista.Commons.ComboSystem;
+using TheKalista.Commons.Items;
 
 namespace TheGaren
 {
@@ -21,8 +21,9 @@ namespace TheGaren
         private bool _resetOrbwalker;
         private GarenQ _q;
         private GarenR _r;
+        public ItemManager ItemManager;
 
-        public GarenE(Spell spell)
+        public GarenE(SpellSlot spell)
             : base(spell)
         {
             HarassEnabled = false;
@@ -54,28 +55,28 @@ namespace TheGaren
             }
         }
 
-        public override void Cast(Obj_AI_Hero target, bool force = false)
+        public override void Execute(Obj_AI_Hero target)
         {
             if (!CanBeCast()) return;
-            if (_r.CanBeCast() && Spell.Instance.Name != "GarenE" && target.IsValidTarget() && _r.Spell.IsKillable(target))
+            if (_r.CanBeCast() && Instance.Name != "GarenE" && target.IsValidTarget() && _r.IsKillable(target))
             {
-                SafeCast();
+                Cast();
                 return;
             }
-            if ((_q.Spell.GetState() == SpellState.Cooldown || _q.Spell.GetState() == SpellState.NotLearned) && !ObjectManager.Player.HasBuff("GarenQ") && (!OnlyAfterAuto || !AAHelper.WillAutoattackSoon || _recentAutoattack) && HeroManager.Enemies.Any(enemy => enemy.IsValidTarget() && Spell.Instance.Name == "GarenE" && enemy.Position.Distance(ObjectManager.Player.Position) < 325))
+            if ((_q.Instance.State == SpellState.Cooldown || _q.Instance.State == SpellState.NotLearned) && !ObjectManager.Player.HasBuff("GarenQ") && (!OnlyAfterAuto || !AAHelper.WillAutoattackSoon || _recentAutoattack) && HeroManager.Enemies.Any(enemy => enemy.IsValidTarget() && Instance.Name == "GarenE" && enemy.Position.Distance(ObjectManager.Player.Position) < 325))
             {
                 Provider.Orbwalker.SetAttack(false);
                 _resetOrbwalker = true;
-                SafeCast();
+                Cast();
             }
         }
 
-        public override void LaneClear(ComboProvider combo, Obj_AI_Hero target)
+        public override void LaneClear()
         {
             if (MinionManager.GetMinions(325, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).Count >= MinFarmMinions)
             {
-                if (!ObjectManager.Player.HasBuff("GarenQ") && Spell.Instance.Name == "GarenE")
-                    SafeCast();
+                if (!ObjectManager.Player.HasBuff("GarenQ") && Instance.Name == "GarenE")
+                    Cast();
                 if (UseHydra) ItemManager.GetItem<RavenousHydra>().Use(null);
             }
         }

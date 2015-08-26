@@ -1,0 +1,11 @@
+﻿auto w
+dragon/baron stuck w
+auto buy scrying orb
+auto use scrying orb when enemy walks in bush
+auto use pink ward on rengar
+jungle steal (check iKalista if only on key press)
+jungle clear : focus max hp mobs
+custom target selection depending on spear count
+combo: auto minions when faster than walking + enemies out of range + use e to kill the minion and slow the enemy
+balista 
+ks

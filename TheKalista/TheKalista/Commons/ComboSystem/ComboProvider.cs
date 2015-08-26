@@ -419,7 +419,9 @@ namespace TheKalista.Commons.ComboSystem
                 {
                     if (item.UseManaManager && ManaManager[mode] > ObjectManager.Player.ManaPercent) continue;
 
+                    Profiler.StartSection(mode + "/" + item.GetType().Name);
                     item.Update(mode, this, Target);
+                    Profiler.EndSection();
                     //Console.WriteLine(forthe.ElapsedTicks +" / "+item.GetType().Name);
                     if (_cancelSpellUpdates)
                     {

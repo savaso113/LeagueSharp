@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheGaren.Commons.ComboSystem;
+using TheKalista.Commons.ComboSystem;
 
 namespace TheGaren
 {
@@ -13,22 +13,22 @@ namespace TheGaren
     {
         public bool Killsteal;
 
-        public GarenR(Spell spell)
+        public GarenR(SpellSlot spell)
             : base(spell) { }
 
-        public override void Cast(Obj_AI_Hero target, bool force = false)
+        public override void Execute(Obj_AI_Hero target)
         {
             if (Killsteal)
             {
                 foreach (var enemy in HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(375)))
                 {
-                    if (Spell.IsKillable(enemy))
-                        SafeCast(enemy);
+                    if (IsKillable(enemy))
+                        Cast(enemy);
                 }
             }
-            else if (Spell.IsKillable(target) && HealthPrediction.GetHealthPrediction(target, 1000) > ObjectManager.Player.GetAutoAttackDamage(target) && !Provider.ShouldBeDead(target))
+            else if (IsKillable(target) && HealthPrediction.GetHealthPrediction(target, 1000) > ObjectManager.Player.GetAutoAttackDamage(target) && !Provider.ShouldBeDead(target))
             {
-                SafeCast(target);
+                Cast(target);
             }
         }
 

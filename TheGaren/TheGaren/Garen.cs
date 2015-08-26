@@ -5,8 +5,10 @@ using System.Text;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using TheGaren.Commons;
-using TheGaren.Commons.ComboSystem;
+using TheKalista.Commons;
+using TheKalista.Commons.ComboSystem;
+using TheKalista.Commons.Debug;
+using TheKalista.Commons.Items;
 using Color = System.Drawing.Color;
 
 namespace TheGaren
@@ -33,33 +35,33 @@ namespace TheGaren
             var items = mainMenu.CreateSubmenu("Items");
             var gapcloserMenu = mainMenu.CreateSubmenu("Gapcloser");
             var interrupterMenu = mainMenu.CreateSubmenu("Interrupter");
+            var autoLevel = mainMenu.CreateSubmenu("Auto level spells");
             var drawingMenu = mainMenu.CreateSubmenu("Drawing");
 
 
             var orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
-            TargetSelector.AddToMenu(targetSelectorMenu);
 
-            _comboProvider = new ComboProvider(500, new Skill[] { new GarenQ(new Spell(SpellSlot.Q)), new GarenW(new Spell(SpellSlot.W)), new GarenE(new Spell(SpellSlot.E)), new GarenR(new Spell(SpellSlot.R)) }.ToList(), orbwalker);
+            _comboProvider = new ComboProvider(500, new Skill[] { new GarenQ((SpellSlot.Q)), new GarenW((SpellSlot.W)), new GarenE((SpellSlot.E)), new GarenR((SpellSlot.R)) }.ToList(), orbwalker);
             _r = _comboProvider.GetSkill<GarenR>();
             _flash = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "summonerflash");
-            _comboProvider.CreateBasicMenu(comboMenu, null, null, gapcloserMenu, interrupterMenu, null, mainMenu.CreateSubmenu("Ignite"), items, false);
+            _comboProvider.CreateBasicMenu(targetSelectorMenu, comboMenu, null, null, null, gapcloserMenu, interrupterMenu, null, false);
             _comboProvider.CreateLaneclearMenu(laneClearMenu, false, SpellSlot.W);
+            _comboProvider.GetSkill<GarenE>().ItemManager = _comboProvider.CreateItemsMenu(items, new RavenousHydra(), new BilgewaterCutlass(), new YoumusBlade(), new Botrk());
+            _comboProvider.CreateAutoLevelMenu(autoLevel, ComboProvider.SpellOrder.REQW, ComboProvider.SpellOrder.REQW);
 
             comboMenu.AddMItem("Q After Auto Attack", true, (sender, args) => _comboProvider.GetSkill<GarenQ>().OnlyAfterAuto = args.GetNewValue<bool>());
             comboMenu.AddMItem("E After Auto Attack", true, (sender, args) => _comboProvider.GetSkill<GarenE>().OnlyAfterAuto = args.GetNewValue<bool>());
             comboMenu.AddMItem("R Killsteal", false, (sender, args) => _comboProvider.GetSkill<GarenR>().Killsteal = args.GetNewValue<bool>());
             comboMenu.AddMItem("Q if not in range", true, (sender, args) => _comboProvider.GetSkill<GarenQ>().UseWhenOutOfRange = args.GetNewValue<bool>());
-            comboMenu.ProcStoredValueChanged<bool>();
 
             miscMenu.AddMItem("Also W out of combo", true, (sender, args) => _comboProvider.GetSkill<GarenW>().UseAlways = args.GetNewValue<bool>());
-            miscMenu.AddMItem("Min incomming DPS for W in health %", new Slider(2, 1, 15), (sender, args) => _comboProvider.GetSkill<GarenW>().MinDamagePercent = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
+            miscMenu.AddMItem("Min incomming DPS for W in health %", new Slider(2, 1, 15), (sender, args) => _comboProvider.GetSkill<GarenW>().MinDamagePercent = args.GetNewValue<Slider>().Value);
             miscMenu.AddMItem("Always W enemy ults", true, (sender, args) => _comboProvider.GetSkill<GarenW>().UseOnUltimates = args.GetNewValue<bool>());
-            miscMenu.ProcStoredValueChanged<bool>();
 
             gapcloserMenu.AddMItem("(Using W if enabled)");
 
-            laneClearMenu.AddMItem("E min. minions", new Slider(1, 1, 8), (sender, args) => _comboProvider.GetSkill<GarenE>().MinFarmMinions = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
-            laneClearMenu.AddMItem("Use Hydra", true, (sender, args) => _comboProvider.GetSkill<GarenE>().UseHydra = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
+            laneClearMenu.AddMItem("E min. minions", new Slider(1, 1, 8), (sender, args) => _comboProvider.GetSkill<GarenE>().MinFarmMinions = args.GetNewValue<Slider>().Value);
+            laneClearMenu.AddMItem("Use Hydra", true, (sender, args) => _comboProvider.GetSkill<GarenE>().UseHydra = args.GetNewValue<bool>());
 
             drawingMenu.AddMItem("Damage Indicator", new Circle(true, Color.FromArgb(100, Color.Goldenrod)), (sender, args) =>
             {
@@ -71,13 +73,12 @@ namespace TheGaren
             });
             drawingMenu.AddMItem("R Range", new Circle(true, Color.Goldenrod), (sender, args) => _drawR = args.GetNewValue<Circle>());
             drawingMenu.AddMItem("Draw possible flash-ult", new Circle(true, Color.Red), (sender, args) => _drawFlashUlt = args.GetNewValue<Circle>());
-            drawingMenu.AddMItem("Damage Indicator by xSalice!");
-            drawingMenu.ProcStoredValueChanged<Circle>();
+            drawingMenu.AddMItem("Damage Indicator by xSalice / detuks!");
 
-            mainMenu.AddMItem("Max order: R > E > Q > W! Have fun!");
+            //mainMenu.AddMItem("Max order: R > E > Q > W! Have fun!");
             mainMenu.AddToMainMenu();
             _comboProvider.Initialize();
-
+            //DevAssistant.Init();
             Game.OnUpdate += Tick;
             Drawing.OnDraw += Draw;
         }
@@ -86,9 +87,9 @@ namespace TheGaren
         {
             if (_drawR.Active)
                 Render.Circle.DrawCircle(ObjectManager.Player.Position, 375, _drawR.Color);
-            if (_drawFlashUlt.Active && _r.Spell.IsReady())
+            if (_drawFlashUlt.Active && _r.IsReady())
             {
-                foreach (var enemy in HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(_flash != null && _flash.IsReady() ? 375 + 425 : 375) && _r.Spell.IsKillable(enemy)))
+                foreach (var enemy in HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(_flash != null && _flash.IsReady() ? 375 + 425 : 375) && _r.IsKillable(enemy)))
                 {
                     var screenPos = Drawing.WorldToScreen(enemy.Position);
                     Drawing.DrawText(screenPos.X - 50, screenPos.Y - 50, _drawFlashUlt.Color, "Possible (Flash) ult!");
@@ -108,7 +109,6 @@ namespace TheGaren
         private void Tick(EventArgs args)
         {
             _comboProvider.Update();
-            IgniteManager.Update(_comboProvider);
         }
     }
 }

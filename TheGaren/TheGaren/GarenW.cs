@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
-using TheGaren.Commons;
-using TheGaren.Commons.ComboSystem;
+using TheKalista.Commons.ComboSystem;
 
 namespace TheGaren
 {
@@ -19,7 +18,7 @@ namespace TheGaren
         private float _healthValue;
         private bool _shouldUse;
 
-        public GarenW(Spell spell)
+        public GarenW(SpellSlot spell)
             : base(spell)
         {
             Spellbook.OnCastSpell += OnSpellcast;
@@ -33,7 +32,7 @@ namespace TheGaren
                 var halfLineLength = (args.EndPosition - args.StartPosition).Length() / 2f;
                 if (ObjectManager.Player.Position.Distance(args.StartPosition) > halfLineLength && ObjectManager.Player.Position.Distance(args.EndPosition) > halfLineLength) return;
                 if (UseAlways)
-                    SafeCast();
+                    Cast();
                 else
                     _shouldUse = true;
             }
@@ -49,24 +48,24 @@ namespace TheGaren
 
             base.Update(mode, combo, target);
             if (UseAlways && ShouldUse())
-                SafeCast();
+                Cast();
             _shouldUse = false;
         }
 
-        public override void Cast(Obj_AI_Hero target, bool force = false)
+        public override void Execute(Obj_AI_Hero target)
         {
             if (!UseAlways && ShouldUse())
-                SafeCast();
+                Cast();
         }
 
         public override void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser)
         {
-            SafeCast();
+            Cast();
         }
 
         private bool ShouldUse()
         {
-            return ObjectManager.Player.GetHealthPercent(ObjectManager.Player.Health - HealthPrediction.GetHealthPrediction(ObjectManager.Player, 1000)) > MinDamagePercent || ObjectManager.Player.GetHealthPercent(_healthValue - ObjectManager.Player.Health) > MinDamagePercent || _shouldUse;
+            return (ObjectManager.Player.Health - HealthPrediction.GetHealthPrediction(ObjectManager.Player, 1000)) / ObjectManager.Player.MaxHealth * 100f > MinDamagePercent || (_healthValue - ObjectManager.Player.Health) / ObjectManager.Player.MaxHealth * 100f > MinDamagePercent || _shouldUse;
         }
 
         public override int GetPriority()
