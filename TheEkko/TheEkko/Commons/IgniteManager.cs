@@ -70,7 +70,7 @@ namespace TheBrand.Commons
         {
             var distance = ObjectManager.Player.Distance(target);
             if (distance > 600) return;
-            var enemyHealth = target.AttackShield + target.Health;
+            var enemyHealth = target.AllShield + target.Health;
             if (GetDamage() < enemyHealth + (target.HPRegenRate * 5)) return;
 
             if (_igniteSpellsCooldown.GetValue<bool>() && (ObjectManager.Player.GetSpell(SpellSlot.Q).State == SpellState.Ready || ObjectManager.Player.GetSpell(SpellSlot.W).State == SpellState.Ready || ObjectManager.Player.GetSpell(SpellSlot.E).State == SpellState.Ready || ObjectManager.Player.GetSpell(SpellSlot.R).State == SpellState.Ready))
@@ -107,8 +107,8 @@ namespace TheBrand.Commons
         /// <returns></returns>
         private static bool IsDeadForSure(Obj_AI_Hero target, float fleeRange = 550, float dangerousHealthPercent = 0.25f) //Todo: make better
         {
-            var myHealthPercent = ObjectManager.Player.Health + ObjectManager.Player.AttackShield / ObjectManager.Player.MaxHealth;
-            var enemyHealthPercent = target.Health + target.AttackShield / target.MaxHealth;
+            var myHealthPercent = ObjectManager.Player.Health + ObjectManager.Player.AllShield / ObjectManager.Player.MaxHealth;
+            var enemyHealthPercent = target.Health + target.AllShield / target.MaxHealth;
             if (myHealthPercent < enemyHealthPercent + dangerousHealthPercent)
                 return false;
 
