@@ -31,8 +31,8 @@ namespace TheKalista.Commons
 
             if (summs.All(sum => !sum.IsAvailable()))
             {
-                menu.AddMItem("- No supported summoner spell available -");
-                menu.AddMItem("Supported spells:");
+                menu.AddMItem("- No Supported Summoner Spell Available -");
+                menu.AddMItem("Supported Spells:");
                 foreach (var summonerSpell in summs)
                 {
                     menu.AddMItem("* " + summonerSpell.GetDisplayName());
@@ -40,7 +40,7 @@ namespace TheKalista.Commons
             }
             else
             {
-                menu.AddMItem("Only in combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
+                menu.AddMItem("Only in Combo", true, (sender, args) => _combo = args.GetNewValue<bool>());
                 menu.AddMItem("Enabled", false, (sender, args) => _enabled = args.GetNewValue<bool>());
             }
             Game.OnUpdate += _ => Update(provider);
