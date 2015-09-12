@@ -30,12 +30,12 @@ namespace TheGaren
             var orbwalkerMenu = mainMenu.CreateSubmenu("Orbwalker");
             var targetSelectorMenu = mainMenu.CreateSubmenu("Target Selector");
             var comboMenu = mainMenu.CreateSubmenu("Combo");
-            var laneClearMenu = mainMenu.CreateSubmenu("Laneclear");
+            var laneClearMenu = mainMenu.CreateSubmenu("Lane Clear");
             var miscMenu = mainMenu.CreateSubmenu("Misc");
             var items = mainMenu.CreateSubmenu("Items");
             var gapcloserMenu = mainMenu.CreateSubmenu("Gapcloser");
             var interrupterMenu = mainMenu.CreateSubmenu("Interrupter");
-            var autoLevel = mainMenu.CreateSubmenu("Auto level spells");
+            var autoLevel = mainMenu.CreateSubmenu("Auto-level Spells");
             var drawingMenu = mainMenu.CreateSubmenu("Drawing");
 
 
@@ -49,18 +49,18 @@ namespace TheGaren
             _comboProvider.GetSkill<GarenE>().ItemManager = _comboProvider.CreateItemsMenu(items, new RavenousHydra(), new BilgewaterCutlass(), new YoumusBlade(), new Botrk());
             _comboProvider.CreateAutoLevelMenu(autoLevel, ComboProvider.SpellOrder.REQW, ComboProvider.SpellOrder.REQW);
 
-            comboMenu.AddMItem("Q After Auto Attack", true, (sender, args) => _comboProvider.GetSkill<GarenQ>().OnlyAfterAuto = args.GetNewValue<bool>());
-            comboMenu.AddMItem("E After Auto Attack", true, (sender, args) => _comboProvider.GetSkill<GarenE>().OnlyAfterAuto = args.GetNewValue<bool>());
-            comboMenu.AddMItem("R Killsteal", false, (sender, args) => _comboProvider.GetSkill<GarenR>().Killsteal = args.GetNewValue<bool>());
-            comboMenu.AddMItem("Q if not in range", true, (sender, args) => _comboProvider.GetSkill<GarenQ>().UseWhenOutOfRange = args.GetNewValue<bool>());
+            comboMenu.AddMItem("Q after Auto Attack", true, (sender, args) => _comboProvider.GetSkill<GarenQ>().OnlyAfterAuto = args.GetNewValue<bool>());
+            comboMenu.AddMItem("E after Auto Attack", true, (sender, args) => _comboProvider.GetSkill<GarenE>().OnlyAfterAuto = args.GetNewValue<bool>());
+            comboMenu.AddMItem("Use R to KS", false, (sender, args) => _comboProvider.GetSkill<GarenR>().Killsteal = args.GetNewValue<bool>());
+            comboMenu.AddMItem("Q to Get in Range", true, (sender, args) => _comboProvider.GetSkill<GarenQ>().UseWhenOutOfRange = args.GetNewValue<bool>());
 
-            miscMenu.AddMItem("Also W out of combo", true, (sender, args) => _comboProvider.GetSkill<GarenW>().UseAlways = args.GetNewValue<bool>());
-            miscMenu.AddMItem("Min incomming DPS for W in health %", new Slider(2, 1, 15), (sender, args) => _comboProvider.GetSkill<GarenW>().MinDamagePercent = args.GetNewValue<Slider>().Value);
-            miscMenu.AddMItem("Always W enemy ults", true, (sender, args) => _comboProvider.GetSkill<GarenW>().UseOnUltimates = args.GetNewValue<bool>());
+            miscMenu.AddMItem("Use W Out of Combo", true, (sender, args) => _comboProvider.GetSkill<GarenW>().UseAlways = args.GetNewValue<bool>());
+            miscMenu.AddMItem("Min. Incoming Damage for W in %HP", new Slider(2, 1, 15), (sender, args) => _comboProvider.GetSkill<GarenW>().MinDamagePercent = args.GetNewValue<Slider>().Value);
+            miscMenu.AddMItem("Always W Enemy Ults", true, (sender, args) => _comboProvider.GetSkill<GarenW>().UseOnUltimates = args.GetNewValue<bool>());
 
-            gapcloserMenu.AddMItem("(Using W if enabled)");
+            gapcloserMenu.AddMItem("(Use W if Enabled)");
 
-            laneClearMenu.AddMItem("E min. minions", new Slider(1, 1, 8), (sender, args) => _comboProvider.GetSkill<GarenE>().MinFarmMinions = args.GetNewValue<Slider>().Value);
+            laneClearMenu.AddMItem("E if X Minions", new Slider(1, 1, 8), (sender, args) => _comboProvider.GetSkill<GarenE>().MinFarmMinions = args.GetNewValue<Slider>().Value);
             laneClearMenu.AddMItem("Use Hydra", true, (sender, args) => _comboProvider.GetSkill<GarenE>().UseHydra = args.GetNewValue<bool>());
 
             drawingMenu.AddMItem("Damage Indicator", new Circle(true, Color.FromArgb(100, Color.Goldenrod)), (sender, args) =>
@@ -71,8 +71,8 @@ namespace TheGaren
                 DamageIndicator.Fill = true;
                 DamageIndicator.Color = Color.FromArgb(255, DamageIndicator.FillColor);
             });
-            drawingMenu.AddMItem("R Range", new Circle(true, Color.Goldenrod), (sender, args) => _drawR = args.GetNewValue<Circle>());
-            drawingMenu.AddMItem("Draw possible flash-ult", new Circle(true, Color.Red), (sender, args) => _drawFlashUlt = args.GetNewValue<Circle>());
+            drawingMenu.AddMItem("Draw R Range", new Circle(true, Color.Goldenrod), (sender, args) => _drawR = args.GetNewValue<Circle>());
+            drawingMenu.AddMItem("Draw Flash-R Indicator", new Circle(true, Color.Red), (sender, args) => _drawFlashUlt = args.GetNewValue<Circle>());
             drawingMenu.AddMItem("Damage Indicator by xSalice / detuks!");
 
             //mainMenu.AddMItem("Max order: R > E > Q > W! Have fun!");
@@ -92,7 +92,7 @@ namespace TheGaren
                 foreach (var enemy in HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(_flash != null && _flash.IsReady() ? 375 + 425 : 375) && _r.IsKillable(enemy)))
                 {
                     var screenPos = Drawing.WorldToScreen(enemy.Position);
-                    Drawing.DrawText(screenPos.X - 50, screenPos.Y - 50, _drawFlashUlt.Color, "Possible (Flash) ult!");
+                    Drawing.DrawText(screenPos.X - 50, screenPos.Y - 50, _drawFlashUlt.Color, "Flash-R Possible!");
                 }
             }
 
