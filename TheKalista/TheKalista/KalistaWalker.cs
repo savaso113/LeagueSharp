@@ -22,9 +22,13 @@ namespace TheKalista
 
         public override LeagueSharp.AttackableUnit GetTarget()
         {
-            var target = base.GetTarget();
-            if (!_e.IsReady()) return target;
-            if ((target == null || !Orbwalking.InAutoAttackRange(target)) && HeroManager.Enemies.Any(enemy => enemy.IsValidTarget(2000)))
+            if (ActiveMode != Orbwalking.OrbwalkingMode.Combo)
+                return base.GetTarget();
+
+
+            var target = KalistaTargetSelector.GetTarget(-1, KalistaTargetSelector.DamageType.Physical);
+            //if (!_e.IsReady()) return target;
+            if (target == null && HeroManager.Enemies.Any(enemy => enemy.IsValidTarget(2000)))
             {
                 var minions = MinionManager.GetMinions(ObjectManager.Player.AttackRange, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None);
 
@@ -37,16 +41,18 @@ namespace TheKalista
                     return false;
                 });
 
-                
+
                 if (optimalMinion == null && ObjectManager.Player.AttackDelay < 1.10f)
                     return minions.FirstOrDefault();
             }
             return target;
         }
 
-        public static float GetDamageForOneAuto(Obj_AI_Base target, int eLevel)
+        public static float GetDamageForOneAuto(Obj_AI_Base target, int eLevel, bool isHurricane = false)
         {
             var aadmg = (float)ObjectManager.Player.GetAutoAttackDamage(target);
+            if (isHurricane)
+                aadmg /= 2;
             if (eLevel == 0) return aadmg;
             return aadmg + (float)ObjectManager.Player.CalcDamage(target, Damage.DamageType.Physical, Speerdmg[eLevel - 1] + Scaledmg[eLevel - 1] * ObjectManager.Player.TotalAttackDamage);
         }

@@ -26,10 +26,10 @@ namespace TheKalista.Commons.Debug
 
                 if (drawBuffs)
                 {
-                    if (TargetSelector.GetSelectedTarget().IsValidTarget())
+                    if (KalistaTargetSelector.GetSelectedTarget().IsValidTarget())
                     {
 
-                        foreach (var buff in TargetSelector.GetSelectedTarget().Buffs)
+                        foreach (var buff in KalistaTargetSelector.GetSelectedTarget().Buffs)
                         {
                             Drawing.DrawText(200, i += 20, Color.Red, buff.Name);
                         }

@@ -29,7 +29,7 @@ namespace TheKalista
 
         public override void Initialize(ComboProvider combo)
         {
-            SetSkillshot(0.25f, 40f, 1200f, true, SkillshotType.SkillshotLine);
+            SetSkillshot(0.25f, 40f, 1200f, true, SkillshotType.SkillshotLine); // orig width : 40
 
             base.Initialize(combo);
         }
@@ -44,7 +44,7 @@ namespace TheKalista
                     Cast(pred.CastPosition);
                 }
                 //else if( && 
-                else if (pred.Hitchance == HitChance.Collision && pred.UnitPosition.Distance(ObjectManager.Player.ServerPosition, true) - target.BoundingRadius * target.BoundingRadius < RangeSqr  && pred.CollisionObjects.All(obj => IsKillable(obj)))
+                else if (pred.Hitchance == HitChance.Collision && pred.UnitPosition.Distance(ObjectManager.Player.Position, true) - target.BoundingRadius * target.BoundingRadius < RangeSqr  && pred.CollisionObjects.All(obj => IsKillable(obj)))
                     Cast(pred.CastPosition);
             }
         }
@@ -84,7 +84,7 @@ namespace TheKalista
                 {
                     var killcount = 0;
 
-                    foreach (var colminion in GetCollidingMinions(ObjectManager.Player, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, Range)))
+                    foreach (var colminion in GetCollidingMinions(ObjectManager.Player, ObjectManager.Player.Position.Extend(minion.Position, Range)))
                     {
                         if (IsKillable(colminion))
                             killcount++;

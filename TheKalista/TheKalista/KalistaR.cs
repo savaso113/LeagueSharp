@@ -16,6 +16,7 @@ namespace TheKalista
         public int MyHealth;
         public bool SmartPeel;
         public int HitCount;
+        public int BalistaDistance;
 
         public KalistaR(SpellSlot slot, float range, TargetSelector.DamageType damageType)
             : base(slot, range, damageType)
@@ -38,8 +39,25 @@ namespace TheKalista
         {
             if (Kalista.Soulbound != null && !Kalista.Soulbound.IsDead && Kalista.Soulbound.Position.Distance(ObjectManager.Player.Position, true) < RangeSqr)
             {
-                if (AllyHealth > Kalista.Soulbound.HealthPercent || MyHealth > ObjectManager.Player.HealthPercent || GetHitCount(MinComboHitchance) >= HitCount)
+                if (AllyHealth > Kalista.Soulbound.HealthPercent && !Kalista.Soulbound.IsRecalling() || MyHealth > ObjectManager.Player.HealthPercent || GetHitCount(MinComboHitchance) >= HitCount)
                     Cast(Kalista.Soulbound);
+
+                if (Kalista.Soulbound.ChampionName == "Blitzcrank" && Balista)
+                {
+                    var dst = Kalista.Soulbound.Distance(ObjectManager.Player, true);
+                    if (dst < BalistaDistance * BalistaDistance) return;
+
+                    foreach (var enemy in HeroManager.Enemies)
+                    {
+                        var buff = enemy.GetBuff("rocketgrab2");
+                        if (buff != null && buff.IsActive)
+                        {
+                            if (enemy.Distance(ObjectManager.Player, true) > dst)
+                                Cast(Kalista.Soulbound);
+                            return;
+                        }
+                    }
+                }
             }
         }
 

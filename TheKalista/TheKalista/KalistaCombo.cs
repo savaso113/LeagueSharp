@@ -24,7 +24,7 @@ namespace TheKalista
             var target = Orbwalker.GetTarget();
             if (target != null && target.Type == LeagueSharp.GameObjectType.obj_AI_Hero)
                 return (Obj_AI_Hero)target;
-            return base.SelectTarget();
+            return KalistaTargetSelector.GetTarget(TargetRange, (KalistaTargetSelector.DamageType)DamageType);
         }
     }
 }

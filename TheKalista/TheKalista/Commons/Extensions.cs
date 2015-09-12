@@ -20,7 +20,7 @@ namespace TheKalista.Commons
                     return SpellState.NotLearned;
                 case 4:
                     return SpellState.Surpressed;
-                case 5:
+                case 32:
                     return SpellState.Cooldown;
                 case 6:
                     return SpellState.NoMana;
@@ -41,7 +41,7 @@ namespace TheKalista.Commons
             return (T)Enum.Parse(typeof(T), str);
         }
 
-        public static bool HasSpellShield(this Obj_AI_Hero entity)
+        public static bool HasSpellShield(this Obj_AI_Base entity)
         {
             return entity.HasBuff("bansheesveil") || entity.HasBuff("SivirE") || entity.HasBuff("NocturneW");
         }
@@ -69,6 +69,7 @@ namespace TheKalista.Commons
             if (ignitebuff == null) return 0;
             return (float)ObjectManager.Player.CalcDamage(target, Damage.DamageType.True, ((int)(ignitebuff.EndTime - Game.Time) + 1) * GetIgniteDamage(ignitebuff.Caster as Obj_AI_Hero) / 5);
         }
+
 
         public static bool IsFacing(this Obj_AI_Base source, Obj_AI_Base target, float angle = 90)
         {

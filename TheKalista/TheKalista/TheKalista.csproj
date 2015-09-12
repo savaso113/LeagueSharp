@@ -44,6 +44,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <Optimize>true</Optimize>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -79,6 +80,8 @@
     <Compile Include="Commons\ComboSystem\ComboProvider.cs" />
     <Compile Include="Commons\ComboSystem\Skill.cs" />
     <Compile Include="Commons\Debug\Profiler.cs" />
+    <Compile Include="Commons\Items\MercuralScimitar.cs" />
+    <Compile Include="Commons\Items\Qss.cs" />
     <Compile Include="Commons\MenuExtensions.cs" />
     <Compile Include="Commons\DamageIndicator.cs" />
     <Compile Include="Commons\Debug\DevAssistant.cs" />
@@ -90,7 +93,8 @@
     <Compile Include="Commons\Items\RavenousHydra.cs" />
     <Compile Include="Commons\Items\SeraphsEmbrace.cs" />
     <Compile Include="Commons\Items\YoumusBlade.cs" />
-    <Compile Include="Commons\Prediction\Prediction.cs" />
+    <Compile Include="KalistaTargetSelector.cs" />
+    <Compile Include="Prediction.cs" />
     <Compile Include="Commons\SummonerManager.cs" />
     <Compile Include="Commons\SummonerSpells\Cleanse.cs" />
     <Compile Include="Commons\SummonerSpells\Heal.cs" />
@@ -111,6 +115,9 @@
   <ItemGroup>
     <Content Include="Commons\ComboSystem\Combo System thoughts.txt" />
     <Content Include="todo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Commons\Prediction\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

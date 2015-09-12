@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Printing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,12 +15,13 @@ using TheKalista.Commons.Debug;
 
 namespace TheKalista
 {
-    class KalistaE : Skill
+    public class KalistaE : Skill
     {
         public bool FarmAssist;
         public int FarmAssistMana;
         public int MinLaneclear;
         public bool StealJungle;
+        public bool DrawCount;
 
         public KalistaE(SpellSlot slot, float range, TargetSelector.DamageType damageType)
             : base(slot, range, damageType)
@@ -28,6 +32,10 @@ namespace TheKalista
             : base(slot)
         {
         }
+
+        private readonly Dictionary<Obj_AI_Hero, MissileClient> _flyingAttacks = new Dictionary<Obj_AI_Hero, MissileClient>();
+        public int MobilityType;
+        public int Reduction;
 
         public override void Initialize(ComboProvider combo)
         {
@@ -44,7 +52,7 @@ namespace TheKalista
                     dead = HealthPrediction.GetHealthPrediction(targetObj, 500) - ObjectManager.Player.GetAutoAttackDamage(targetObj) <= 0;
                 }
             };
-
+            Console.WriteLine(Delay + " ");
             Orbwalking.OnNonKillableMinion += minion =>
             {
                 if (minion.NetworkId == recentTarget.NetworkId && dead) return;
@@ -56,6 +64,15 @@ namespace TheKalista
                         Cast();
                 }
             };
+
+            GameObject.OnCreate += (obj, args) =>
+            {
+                if (obj.Type != GameObjectType.MissileClient) return;
+                var mc = (MissileClient)obj;
+                if (!mc.SpellCaster.IsMe || mc.Target.Type != GameObjectType.obj_AI_Hero || (mc.SData.MissileSpeed != 2000 && mc.SData.MissileSpeed != 2600)) return;
+                _flyingAttacks[(Obj_AI_Hero)mc.Target] = mc;
+            };
+
             base.Initialize(combo);
         }
 
@@ -67,8 +84,25 @@ namespace TheKalista
             base.Update(mode, combo, target);
         }
 
+        public override void Draw()
+        {
+            foreach (var enemy in HeroManager.Enemies)
+            {
+                if (enemy.IsValid && enemy.IsHPBarRendered)
+                {
+                    var pos = enemy.HPBarPosition;
+
+                    Drawing.DrawText(pos.X + 145, pos.Y + 20, Color.White, "~" + (Instance.GetState() != SpellState.Cooldown && Instance.State != SpellState.NoMana ? Math.Ceiling((enemy.Health - GetDamage(enemy)) / KalistaWalker.GetDamageForOneAuto(enemy, Level)) : Math.Ceiling(enemy.Health / ObjectManager.Player.GetAutoAttackDamage(enemy))) + " AA");
+                }
+            }
+
+        }
+
+
         public override void Execute(Obj_AI_Hero target)
         {
+            KillAnyone();
+
             var enemyWithStacks = false;
             var enemyInAutoRange = false;
             var sumDamage = 0f;
@@ -83,12 +117,12 @@ namespace TheKalista
 
                     if (enemy.IsMelee && enemy.AttackRange + ObjectManager.Player.BoundingRadius > ObjectManager.Player.Position.Distance(enemy.Position))
                     {
-                        enemyWithStacks = false;
+                        //enemyWithStacks = false;
                         SlowWithReset();
-                        break;
+                        return;
                     }
 
-                    if (enemy.HasBuff("Kalistaexpungemarker"))
+                    if (MobilityType != 4 && enemy.HasBuff("Kalistaexpungemarker"))
                     {
                         enemyWithStacks = true;
                         sumDamage += GetDamage(enemy);
@@ -100,13 +134,16 @@ namespace TheKalista
             Profiler.StartEndSection("e_useData");
             if (!enemyInAutoRange && enemyWithStacks)
                 SlowWithReset();
-            else if (sumDamage > KalistaWalker.GetDamageForOneAuto(target, Level))
+            else if (sumDamage > KalistaWalker.GetDamageForOneAuto(target, Level) * Math.Max(1, (MobilityType + 1) * (MobilityType + 1)))
             {
-                Console.WriteLine(sumDamage + " > " + KalistaWalker.GetDamageForOneAuto(target, Level));
+                // Console.WriteLine(sumDamage + " > " + KalistaWalker.GetDamageForOneAuto(target, Level));
                 SlowWithReset();
             }
+        }
 
-            KillAnyone();
+        public override float GetDamage(Obj_AI_Hero enemy)
+        {
+            return base.GetDamage(enemy) - Reduction;
         }
 
         public override void LaneClear()
@@ -127,17 +164,39 @@ namespace TheKalista
             base.Harass(target);
         }
 
+
+
         private void KillAnyone()
         {
-            if (HeroManager.Enemies.Any(enemy => enemy.IsValidTarget(Range) && IsKillable(enemy) && !enemy.HasSpellShield() && !TargetSelector.IsInvulnerable(enemy, TargetSelector.DamageType.Physical)))
-                Cast();
+            foreach (var enemy in HeroManager.Enemies)
+            {
+                if (!enemy.IsValidTarget(Range) || KalistaTargetSelector.IsInvulnerable(enemy, KalistaTargetSelector.DamageType.Physical, false)) continue;
+                var damage = GetDamage(enemy);
+                if (_flyingAttacks.ContainsKey(enemy) && _flyingAttacks[enemy].IsValid)
+                {
+                    var flyingAuto = _flyingAttacks[enemy];
+                    //   if(flyingAuto)
+                    if (flyingAuto.Position.Distance(enemy.Position, true) < 300 * 300)
+                        damage += KalistaWalker.GetDamageForOneAuto(enemy, Level, flyingAuto.SData.MissileSpeed < 2600);
+                }
+                if (damage > enemy.Health && !KalistaTargetSelector.IsInvulnerable(enemy, KalistaTargetSelector.DamageType.Physical, false))
+                {
+                    Cast();
+                }
+            }
+
+
+
+            //if (HeroManager.Enemies.Any(enemy => enemy.IsValidTarget(Range) && IsKillable(enemy) && !enemy.HasSpellShield() && !TargetSelector.IsInvulnerable(enemy, TargetSelector.DamageType.Physical)))
+            //    Cast();
         }
 
         private void SlowWithReset()
         {
             foreach (var objectType in MinionManager.GetMinions(Range, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None))
             {
-                if (objectType.HasBuff("Kalistaexpungemarker") && GetDamage(objectType) > objectType.Health + 10f && HealthPrediction.GetHealthPrediction(objectType, (int)(Delay * 1000f)) > 0)
+                var hPred = HealthPrediction.GetHealthPrediction(objectType, 250);
+                if (objectType.HasBuff("Kalistaexpungemarker") && GetDamage(objectType) > hPred && hPred > 0)
                 {
                     Cast();
                     return;
