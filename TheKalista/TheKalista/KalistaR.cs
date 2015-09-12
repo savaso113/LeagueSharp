@@ -39,7 +39,7 @@ namespace TheKalista
         {
             if (Kalista.Soulbound != null && !Kalista.Soulbound.IsDead && Kalista.Soulbound.Position.Distance(ObjectManager.Player.Position, true) < RangeSqr)
             {
-                if (AllyHealth > Kalista.Soulbound.HealthPercent && !Kalista.Soulbound.IsRecalling() || MyHealth > ObjectManager.Player.HealthPercent || GetHitCount(MinComboHitchance) >= HitCount)
+                if (AllyHealth > Kalista.Soulbound.HealthPercent && !Kalista.Soulbound.IsRecalling() || MyHealth > ObjectManager.Player.HealthPercent) //  || GetHitCount(MinComboHitchance) >= HitCount
                     Cast(Kalista.Soulbound);
 
                 if (Kalista.Soulbound.ChampionName == "Blitzcrank" && Balista)
