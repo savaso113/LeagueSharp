@@ -22,6 +22,19 @@ namespace TheKalista
 
         public override LeagueSharp.AttackableUnit GetTarget()
         {
+            if ((ActiveMode == Orbwalking.OrbwalkingMode.Mixed || ActiveMode == Orbwalking.OrbwalkingMode.LaneClear) && HeroManager.Enemies.Any(enemy => enemy.IsValidTarget(1000) && enemy.HasBuff("Kalistaexpungemarker")))
+            {
+                if (ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
+                    return FindAutoPlusRendMinion(MinionManager.GetMinions(ObjectManager.Player.AttackRange, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None)) ?? base.GetTarget();
+
+                var entity = base.GetTarget();
+                if (entity == null)
+                {
+                    return FindAutoPlusRendMinion(MinionManager.GetMinions(ObjectManager.Player.AttackRange, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None));
+                }
+                return entity;
+            }
+
             if (ActiveMode != Orbwalking.OrbwalkingMode.Combo)
                 return base.GetTarget();
 
@@ -31,21 +44,26 @@ namespace TheKalista
             if (target == null && HeroManager.Enemies.Any(enemy => enemy.IsValidTarget(2000)))
             {
                 var minions = MinionManager.GetMinions(ObjectManager.Player.AttackRange, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None);
-
-                var optimalMinion = minions.FirstOrDefault(minion =>
-                {
-                    var healthAfterAuto = HealthPrediction.GetHealthPrediction(minion, (int)(ObjectManager.Player.AttackDelay * 1000f)) - ObjectManager.Player.GetAutoAttackDamage(minion);
-                    var speercount = minion.GetBuffCount("Kalistaexpungemarker") + 1;
-                    if (healthAfterAuto > 0 && ObjectManager.Player.CalcDamage(minion, Damage.DamageType.Physical, (1 + _e.Level) * 10 + ObjectManager.Player.TotalAttackDamage * 0.6f + speercount * Speerdmg[_e.Level - 1] + speercount * Scaledmg[_e.Level - 1] * ObjectManager.Player.TotalAttackDamage) > healthAfterAuto)
-                        return true;
-                    return false;
-                });
-
-
+                var optimalMinion = FindAutoPlusRendMinion(minions);
                 if (optimalMinion == null && ObjectManager.Player.AttackDelay < 1.10f)
                     return minions.FirstOrDefault();
+                return optimalMinion;
             }
             return target;
+        }
+
+        private Obj_AI_Base FindAutoPlusRendMinion(List<Obj_AI_Base> minions)
+        {
+            var optimalMinion = minions.FirstOrDefault(minion =>
+            {
+                var healthAfterAuto = HealthPrediction.GetHealthPrediction(minion, (int)(ObjectManager.Player.AttackDelay * 1000f)) - ObjectManager.Player.GetAutoAttackDamage(minion);
+                var speercount = minion.GetBuffCount("Kalistaexpungemarker") + 1;
+                if (healthAfterAuto > 0 && ObjectManager.Player.CalcDamage(minion, Damage.DamageType.Physical, (1 + _e.Level) * 10 + ObjectManager.Player.TotalAttackDamage * 0.6f + speercount * Speerdmg[_e.Level - 1] + speercount * Scaledmg[_e.Level - 1] * ObjectManager.Player.TotalAttackDamage) > healthAfterAuto)
+                    return true;
+                return false;
+            });
+
+            return optimalMinion;
         }
 
         public static float GetDamageForOneAuto(Obj_AI_Base target, int eLevel, bool isHurricane = false)

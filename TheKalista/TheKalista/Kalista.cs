@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 using TheKalista.Commons;
 using TheKalista.Commons.Debug;
 using TheKalista.Commons.Items;
 using TheKalista.Commons.SummonerSpells;
+using Color = System.Drawing.Color;
 
 namespace TheKalista
 {
@@ -23,9 +24,9 @@ namespace TheKalista
 
             CustomEvents.Game.OnGameLoad += (eArgs) =>
             {
-               // DevAssistant.Init(); //todo: remove
+                DevAssistant.Init(); //todo: remove
                 if (ObjectManager.Player.ChampionName != "Kalista") return;
-
+                
                 var alwaysStealBaronAndDrake = false;
 
                 var mainMenu = new Menu("The Kalista", "TheKalista", true);
@@ -88,7 +89,7 @@ namespace TheKalista
 
                 laneclearMenu.AddMItem("Min. E kills", new Slider(4, 1, 12), val => e.MinLaneclear = val.Value);
                 laneclearMenu.AddMItem("Min. Q kills", new Slider(3, 1, 12), val => q.MinLaneclear = val.Value);
-                
+
 
 
                 miscMenu.AddMItem("Stuck W Baron", new KeyBind("T"[0], KeyBindType.Press), val =>
@@ -131,6 +132,9 @@ namespace TheKalista
                         var orb = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name.ToLower().Contains("trinketorb"));
                         if (orb != null)
                             ObjectManager.Player.Spellbook.CastSpell(orb.Slot, sender.Position);
+                        var trinket = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name.ToLower().Contains("trinkettotem"));
+                        if(trinket != null)
+                            ObjectManager.Player.Spellbook.CastSpell(trinket.Slot, sender.Position);
                     }
                 };
                 //itemmercurial & Mercurial_Scimitar / / ItemMercurial
@@ -139,6 +143,7 @@ namespace TheKalista
 
                 Drawing.OnDraw += _ =>
                 {
+
                     //Drawing.DrawText(200, 200, Color.Red, e.Instance.GetState().ToString());
                     //Profiler.DrawSections(700, 200);
                 };
@@ -194,6 +199,7 @@ namespace TheKalista
                 //};
             };
         }
+
 
 
 
