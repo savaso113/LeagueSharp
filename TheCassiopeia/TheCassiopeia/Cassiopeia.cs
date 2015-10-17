@@ -18,7 +18,6 @@ namespace TheCassiopeia
         public void Load(EventArgs eArgs)
         {
             if (ObjectManager.Player.ChampionName != "Cassiopeia") return;
-
             //ItemSeraphsEmbrace
             var mainMenu = new Menu("The Cassiopeia", "TheCassiopeia", true);
             var orbwalkerMenu = mainMenu.CreateSubmenu("Orbwalker");
@@ -138,18 +137,19 @@ namespace TheCassiopeia
             lanepressureMenu.AddMItem("Only Q if Mana % > Than", new Slider(60), (sender, args) => provider.GetSkill<CassQ>().FarmIfHigherThan = args.GetNewValue<Slider>().Value);
             lanepressureMenu.AddMItem("Only Q if Min. Minions: ", new Slider(3, maxValue: 6), (sender, args) => provider.GetSkill<CassQ>().FarmIfMoreOrEqual = args.GetNewValue<Slider>().Value);
 
-
             infoMenu.AddMItem("TheCassiopeia - by TheNinow");
             infoMenu.AddMItem("Please give me feedback (on joduska.me) so I can improve this assembly!");
             infoMenu.AddMItem("Also, if you like this assembly, feel free to reward me with an upvote :)");
 
             mainMenu.AddToMainMenu();
             provider.Initialize();
-            provider.GetSkill<CassQ>().GetPrediction(ObjectManager.Player); // Initializing the new prediction settings
-
             //   DevAssistant.Init();
 
-            Game.OnUpdate += (args) => provider.Update();
+            Game.OnUpdate += (args) =>
+            {
+                
+                provider.Update();
+            };
 
             Drawing.OnDraw += (args) =>
             {
