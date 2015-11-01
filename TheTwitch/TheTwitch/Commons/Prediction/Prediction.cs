@@ -657,7 +657,7 @@ namespace TheTwitch.Commons.Prediction
                     new PossibleTarget { Position = mainTargetPrediction.UnitPosition.To2D(), Unit = input.Unit }
                 };
 
-              //  Console.WriteLine(posibleTargets.First().Unit.Name);
+                //  Console.WriteLine(posibleTargets.First().Unit.Name);
 
 
                 if (mainTargetPrediction.Hitchance >= HitChance.Medium)

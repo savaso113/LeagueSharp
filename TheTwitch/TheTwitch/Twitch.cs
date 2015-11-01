@@ -93,7 +93,11 @@ namespace TheTwitch
             combo.Initialize();
             mainMenu.AddToMainMenu();
 
-            Game.OnUpdate += _ => combo.Update();
+            Game.OnUpdate += _ =>
+            {
+                combo.Update();
+
+            };
         }
 
 

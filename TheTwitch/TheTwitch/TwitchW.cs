@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
+using TheTwitch.Commons;
 using TheTwitch.Commons.ComboSystem;
 
 namespace TheTwitch
@@ -22,7 +24,7 @@ namespace TheTwitch
         public TwitchW(SpellSlot slot)
             : base(slot)
         {
-            SetSkillshot(0.25f, 275f, 1400f, false, SkillshotType.SkillshotCircle);
+            SetSkillshot(0.5f, 275f, 1400f, false, SkillshotType.SkillshotCircle);
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             HarassEnabled = false;
         }
@@ -43,14 +45,14 @@ namespace TheTwitch
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if (((target.GetBuffCount("twitchdeadlyvenom") >= ComboAfterStacks || ComboAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
+            if (((target.GetBuffCountFixed("twitchdeadlyvenom") >= ComboAfterStacks || ComboAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
             {
                 Cast(target, aoe: IsAreaOfEffect);
             }
         }
         public override void Harass(Obj_AI_Hero target)
         {
-            if (((target.GetBuffCount("twitchdeadlyvenom") >= HarassAfterStacks || HarassAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
+            if (((target.GetBuffCountFixed("twitchdeadlyvenom") >= HarassAfterStacks || HarassAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
                 Cast(target, aoe: IsAreaOfEffect);
         }
 

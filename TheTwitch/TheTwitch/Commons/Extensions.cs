@@ -106,5 +106,10 @@ namespace TheTwitch.Commons
             }, true, true).Hitchance == Prediction.HitChance.Collision;
         }
 
+        public static int GetBuffCountFixed(this Obj_AI_Base obj, string name)
+        {
+            return obj.GetBuffCount(name) < 2 ? obj.GetBuffCount(name) + 1 : obj.GetBuffCount(name);
+        }
+
     }
 }

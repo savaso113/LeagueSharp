@@ -39,7 +39,7 @@ namespace TheTwitch
         {
             if (!FarmAssist || minion.Position.Distance(ObjectManager.Player.Position) > 1100 || !ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LastHit)) return;
             var target = (Obj_AI_Base)minion;
-            if (GetActivateDamage(target, target.GetBuffCount("twitchdeadlyvenom")) > minion.Health)
+            if (GetActivateDamage(target, target.GetBuffCountFixed("twitchdeadlyvenom")) > minion.Health)
                 Cast();
         }
 
@@ -52,14 +52,14 @@ namespace TheTwitch
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if (CanKill(target) || target.GetBuffCount("twitchdeadlyvenom") == 6 && AlwaysExecuteAtFullStacks)
+            if (CanKill(target) || target.GetBuffCountFixed("twitchdeadlyvenom") == 6 && AlwaysExecuteAtFullStacks)
                 Cast();
         }
 
         public override void Harass(Obj_AI_Hero target)
         {
             base.Harass(target);
-            if (HarassActivateWhenLeaving <= target.GetBuffCount("twitchdeadlyvenom") && target.Distance(ObjectManager.Player) > Orbwalking.GetRealAutoAttackRange(target))
+            if (HarassActivateWhenLeaving <= target.GetBuffCountFixed("twitchdeadlyvenom") && target.Distance(ObjectManager.Player) > Orbwalking.GetRealAutoAttackRange(target))
                 Cast();
         }
 
@@ -98,7 +98,7 @@ namespace TheTwitch
             var minions = MinionManager.GetMinions(1100, MinionTypes.All, MinionTeam.NotAlly);
             foreach (var minion in minions)
             {
-                var buffCount = minion.GetBuffCount("twitchdeadlyvenom");
+                var buffCount = minion.GetBuffCountFixed("twitchdeadlyvenom");
                 if (buffCount == 0) continue;
                 poison++;
                 if (CanKill(minion, false))
@@ -126,7 +126,7 @@ namespace TheTwitch
         {
             if (CustomCalculation)
             {
-                var targetBuffCountKs = target.GetBuffCount("twitchdeadlyvenom");
+                var targetBuffCountKs = target.GetBuffCountFixed("twitchdeadlyvenom");
                 if (targetBuffCountKs == 0) return false;
                 return (includePassiveDamage ? GetPassiveAndActivateDamage(target, targetBuffCountKs) : GetActivateDamage(target, targetBuffCountKs)) > target.Health;
             }
