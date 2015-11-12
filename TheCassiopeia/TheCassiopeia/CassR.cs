@@ -37,9 +37,9 @@ namespace TheCassiopeia
             base.Initialize(combo);
         }
 
-        public Commons.Prediction.PredictionOutput GetPrediction(Obj_AI_Hero target)
+        public LeagueSharp.Common.PredictionOutput GetPrediction(Obj_AI_Hero target)
         {
-            return Commons.Prediction.Prediction.GetPrediction(new Commons.Prediction.PredictionInput() { Aoe = true, Collision = false, Delay = Delay, From = ObjectManager.Player.ServerPosition, Radius = (float)(80 * Math.PI / 180), Range = 825f, Type = Commons.Prediction.SkillshotType.SkillshotCone, Unit = target, RangeCheckFrom = ObjectManager.Player.ServerPosition });
+            return LeagueSharp.Common.Prediction.GetPrediction(new LeagueSharp.Common.PredictionInput() { Aoe = true, Collision = false, Delay = Delay, From = ObjectManager.Player.ServerPosition, Radius = (float)(80 * Math.PI / 180), Range = 825f, Type = SkillshotType.SkillshotCone, Unit = target, RangeCheckFrom = ObjectManager.Player.ServerPosition });
         }
 
         public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
@@ -47,7 +47,7 @@ namespace TheCassiopeia
             if (!MinEnemiesOnlyInCombo && CanBeCast())
             {
                 var pred = GetPrediction(target);
-                if (pred.Hitchance < Commons.Prediction.HitChance.Low) return;
+                if (pred.Hitchance < HitChance.Low) return;
 
                 var targets = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(Range) && WillHit(enemy.Position, pred.CastPosition));
                 var looking = targets.Count(trgt => trgt.IsFacingMe());
@@ -63,7 +63,7 @@ namespace TheCassiopeia
         {
 
             var pred = GetPrediction(target);
-            if (pred.Hitchance < Commons.Prediction.HitChance.Low) return;
+            if (pred.Hitchance < HitChance.Low) return;
 
             var targets = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(Range) && WillHit(enemy.Position, pred.CastPosition));
             var looking = targets.Count(trgt => trgt.IsFacingMe());
@@ -79,7 +79,7 @@ namespace TheCassiopeia
             if (ObjectManager.Player.HealthPercent < GapcloserUltHp && gapcloser.Sender.IsValidTarget(Range))
             {
                 var pred = GetPrediction(gapcloser.Sender);
-                if (pred.Hitchance < Commons.Prediction.HitChance.Low) return;
+                if (pred.Hitchance < HitChance.Low) return;
 
                 Cast(pred.CastPosition);
             }

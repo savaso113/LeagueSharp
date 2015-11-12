@@ -21,7 +21,6 @@ namespace TheCassiopeia
             //ItemSeraphsEmbrace
             var mainMenu = new Menu("The Cassiopeia", "TheCassiopeia", true);
             var orbwalkerMenu = mainMenu.CreateSubmenu("Orbwalker");
-            var targetselectorMenu = mainMenu.CreateSubmenu("Target Selector");
             var comboMenu = mainMenu.CreateSubmenu("Combo");
             var ultMenu = mainMenu.CreateSubmenu("Ultimate Settings");
             var harassMenu = mainMenu.CreateSubmenu("Harass");
@@ -41,14 +40,13 @@ namespace TheCassiopeia
             var infoMenu = mainMenu.CreateSubmenu("Info");
 
             var orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
-            TargetSelector.AddToMenu(targetselectorMenu);
 
             var provider = new CassioCombo(1000, orbwalker, new CassQ(SpellSlot.Q), new CassW(SpellSlot.W), new CassE(SpellSlot.E), new CassR(SpellSlot.R));
 
             provider.CreateBasicMenu(comboMenu, harassMenu, laneclearMenu, gapcloserMenu, null, manamanagerMenu, summonerMenu, itemMenu, drawingMenu, false);
             provider.CreateAutoLevelMenu(autolevelMenu, ComboProvider.SpellOrder.RQEEW, ComboProvider.SpellOrder.REQW);
 
-            ultMenu.AddMItem("NOTE: Uses R if ANY conditions apply.");
+            ultMenu.AddMItem("NOTE: Uses R if ANY conditions apply.").FontColor = new ColorBGRA(0, 255, 255, 255);
 
             if (HeroManager.Enemies.Count >= 3)
             {
@@ -65,7 +63,7 @@ namespace TheCassiopeia
             ultMenu.AddMItem("Do Above Only in Combo", true, (sender, args) => provider.GetSkill<CassR>().MinEnemiesOnlyInCombo = args.GetNewValue<bool>());
             ultMenu.AddMItem("Ult if Target Killable with Combo", true, (sender, args) => provider.GetSkill<CassR>().UltOnKillable = args.GetNewValue<bool>());
             ultMenu.AddMItem("Only R if Target has Health % > Than", new Slider(30), (sender, args) => provider.GetSkill<CassR>().MinHealth = args.GetNewValue<Slider>().Value);
-            ultMenu.AddMItem("Block R that Won't Hit", false, (sender, args) => provider.BlockBadUlts = args.GetNewValue<bool>());
+            ultMenu.AddMItem("Block R that Won't Hit", false, (sender, args) => provider.BlockBadUlts = args.GetNewValue<bool>()).SetTooltip("You need to disable this to ult people hiding in bushes, ...");
             ultMenu.AddMItem("Range", new Slider(700, 400, 825), (sender, args) => provider.GetSkill<CassR>().Range = args.GetNewValue<Slider>().Value);
             provider.AssistedUltMenu = ultMenu.AddMItem("Assisted Ult", new KeyBind(82, KeyBindType.Press));
 
@@ -91,11 +89,10 @@ namespace TheCassiopeia
             comboMenu.AddMItem("Only Kill non-Poisoned with E if No Other Enemies Nearby", false, (sender, args) => provider.GetSkill<CassE>().OnlyKillNonPIn1V1 = args.GetNewValue<bool>());
             comboMenu.AddMItem("Fast Combo (Small Chance to E non-Poisoned)", true, (sender, args) => provider.GetSkill<CassQ>().FastCombo = args.GetNewValue<bool>());
             //comboMenu.AddMItem("Risky mode (uses fast combo often, but more fails)", false, (sender, args) => provider.GetSkill<CassQ>().RiskyCombo = args.GetNewValue<bool>());
-            comboMenu.AddMItem("AA in Combo (Disable for Better Kiting)", true, (sender, args) => provider.AutoInCombo = args.GetNewValue<bool>());
+            comboMenu.AddMItem("AA in Combo", true, (sender, args) => provider.AutoInCombo = args.GetNewValue<bool>()).SetTooltip("Disable for better kiting");
             comboMenu.ProcStoredValueChanged<bool>();
 
-            var stackTearItem = miscMenu.AddMItem("Stack Tear", new KeyBind(77, KeyBindType.Toggle, true));
-            miscMenu.AddMItem("NOTE: Will only stack when no enemies nearby.");
+            var stackTearItem = miscMenu.AddMItem("Stack Tear", new KeyBind(77, KeyBindType.Toggle, true)).SetTooltip("Will only stack when no enemies nearby.");
             provider.GetSkill<CassQ>().StackTear = stackTearItem;
             stackTearItem.Permashow();
             miscMenu.AddMItem("Min Mana % for Tear Stacking", new Slider(90), (sender, args) => provider.GetSkill<CassQ>().MinTearStackMana = args.GetNewValue<Slider>().Value);
@@ -130,14 +127,17 @@ namespace TheCassiopeia
             provider.LanepressureMenu = lanepressureEnabled;
             provider.GetSkill<CassQ>().LanepressureMenu = lanepressureEnabled;
             lanepressureEnabled.Permashow(customdisplayname: "Lane Pressure Mode");
-            lanepressureMenu.AddMItem("NOTE: Overrides Lane Clear when active.");
-            lanepressureMenu.AddMItem("NOTE: Uses Harass & Last Hit while pushing with AA.");
-            lanepressureMenu.AddMItem("NOTE: All Harass & Last Hit settings apply to it.");
+            lanepressureMenu.AddMItem("NOTE: Overrides Lane Clear when active.").FontColor = new ColorBGRA(0, 255, 255, 255);
+            lanepressureMenu.AddMItem("NOTE: Uses Harass & Last Hit while pushing with AA.").FontColor = new ColorBGRA(0, 255, 255, 255);
+            lanepressureMenu.AddMItem("NOTE: All Harass & Last Hit settings apply to it.").FontColor = new ColorBGRA(0, 255, 255, 255);
             lanepressureMenu.AddMItem("Use Q on Minions if E Ready", true, (sender, args) => provider.GetSkill<CassQ>().Farm = args.GetNewValue<bool>());
             lanepressureMenu.AddMItem("Only Q if Mana % > Than", new Slider(60), (sender, args) => provider.GetSkill<CassQ>().FarmIfHigherThan = args.GetNewValue<Slider>().Value);
             lanepressureMenu.AddMItem("Only Q if Min. Minions: ", new Slider(3, maxValue: 6), (sender, args) => provider.GetSkill<CassQ>().FarmIfMoreOrEqual = args.GetNewValue<Slider>().Value);
+            lanepressureMenu.ProcStoredValueChanged<bool>();
+            lanepressureMenu.ProcStoredValueChanged<Slider>();
 
-            infoMenu.AddMItem("TheCassiopeia - by TheNinow");
+
+            infoMenu.AddMItem("TheCassiopeia - by TheNinow").FontColor = new ColorBGRA(218, 165, 32, 255); //Color.Goldenrod
             infoMenu.AddMItem("Please give me feedback (on joduska.me) so I can improve this assembly!");
             infoMenu.AddMItem("Also, if you like this assembly, feel free to reward me with an upvote :)");
 
@@ -147,7 +147,7 @@ namespace TheCassiopeia
 
             Game.OnUpdate += (args) =>
             {
-                
+
                 provider.Update();
             };
 
@@ -159,7 +159,7 @@ namespace TheCassiopeia
                     Render.Circle.DrawCircle(ObjectManager.Player.Position, 700, e.Color);
 
 
-             //   Drawing.DrawText(200, 600, Color.Green, "Valid target: " + HeroManager.Enemies.FirstOrDefault().IsValidTarget().ToString() + " invulnerable: " + TargetSelector.IsInvulnerable(HeroManager.Enemies.FirstOrDefault(), TargetSelector.DamageType.Magical));
+                //   Drawing.DrawText(200, 600, Color.Green, "Valid target: " + HeroManager.Enemies.FirstOrDefault().IsValidTarget().ToString() + " invulnerable: " + TargetSelector.IsInvulnerable(HeroManager.Enemies.FirstOrDefault(), TargetSelector.DamageType.Magical));
             };
         }
 

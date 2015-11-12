@@ -108,7 +108,7 @@ namespace TheCassiopeia
         {
             if (!_r.CanCast(Target)) return;
             var pred = _r.GetPrediction(Target);
-            if (pred.Hitchance >= Commons.Prediction.HitChance.Low)
+            if (pred.Hitchance >= HitChance.Low)
             {
                 _assistedUltTime = Game.Time;
                 _r.Cast(pred.CastPosition);

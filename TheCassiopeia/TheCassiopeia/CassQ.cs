@@ -29,10 +29,17 @@ namespace TheCassiopeia
         public CassQ(SpellSlot slot)
             : base(slot)
         {
-            
+
             Range = 850;
             SetSkillshot(0.75f, Instance.SData.CastRadius, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
+
+        //public override void Draw()
+        //{
+        //    var farmLocation = MinionManager.GetBestCircularFarmLocation(MinionManager.GetMinions(900, MinionTypes.All, MinionTeam.NotAlly).Select(minion => minion.Position.To2D()).ToList(), Instance.SData.CastRadius, 850);
+        //    Drawing.DrawText(200, 200, Color.Red, farmLocation.MinionsHit.ToString() + " / " + FarmIfMoreOrEqual);
+
+        //}
 
         public override void Initialize(ComboProvider combo)
         {
