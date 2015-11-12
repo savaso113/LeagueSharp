@@ -31,8 +31,7 @@ namespace TheBrand
                 Notifications.AddNotification(notification);
 
                 _mainMenu = CreateMenu("The Brand", true);
-                Menu orbwalkerMenu = CreateMenu("Orbwalker", _mainMenu);
-                var targetSelectorMenu = CreateMenu("Target Selector", _mainMenu);
+                var orbwalkerMenu = CreateMenu("Orbwalker", _mainMenu);
                 var comboMenu = CreateMenu("Combo", _mainMenu);
                 var harassMenu = CreateMenu("Harass", _mainMenu);
                 var laneclearMenu = CreateMenu("Laneclear", _mainMenu);
@@ -45,7 +44,6 @@ namespace TheBrand
                 var drawingMenu = CreateMenu("Drawing", _mainMenu);
 
                 _orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
-                TargetSelector.AddToMenu(targetSelectorMenu);
 
                 _comboProvider = new BrandCombo(1050, _orbwalker, new BrandQ(SpellSlot.Q), new BrandW(SpellSlot.W), new BrandE(SpellSlot.E), new BrandR(SpellSlot.R));
 
@@ -54,10 +52,9 @@ namespace TheBrand
                 _comboProvider.CreateAutoLevelMenu(autoLevel, ComboProvider.SpellOrder.RWQE, ComboProvider.SpellOrder.RWQE);
 
                 var rOptions = CreateMenu("Ult Options", comboMenu);
-                rOptions.AddMItem("Bridge R", false, (sender, args) => _comboProvider.GetSkill<BrandR>().UseBridgeUlt = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
+                rOptions.AddMItem("Bridge R", false, (sender, args) => _comboProvider.GetSkill<BrandR>().UseBridgeUlt = args.GetNewValue<bool>());
                 rOptions.AddMItem("", "_");
-                rOptions.AddMItem("Risky R", true, (sender, args) => _comboProvider.GetSkill<BrandR>().RiskyUlt = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
-                rOptions.AddMItem("(R bounces, no 100% success)");
+                rOptions.AddMItem("Risky R", true, (sender, args) => _comboProvider.GetSkill<BrandR>().RiskyUlt = args.GetNewValue<bool>()).SetTooltip("R bounces, may fail");
                 rOptions.AddMItem("", "__");
                 rOptions.AddMItem("Ult non killable", true, (sender, args) => _comboProvider.GetSkill<BrandR>().UltNonKillable = args.GetNewValue<bool>()).ProcStoredValueChanged<bool>();
                 rOptions.AddMItem("when min X targets", new Slider(Math.Min(HeroManager.Enemies.Count, 1), 1, Math.Max(HeroManager.Enemies.Count, 2)), (sender, args) => _comboProvider.GetSkill<BrandR>().MinBounceTargets = args.GetNewValue<Slider>().Value).ProcStoredValueChanged<Slider>();
@@ -78,6 +75,7 @@ namespace TheBrand
                 miscMenu.AddMItem("Force AA in combo", false, (sender, args) => _comboProvider.ForceAutoAttacks = args.GetNewValue<bool>());
                 miscMenu.AddMItem("Targetselector range", new Slider((int)_comboProvider.TargetRange, 900, 1500), (sender, args) => { _comboProvider.TargetRange = args.GetNewValue<Slider>().Value; });
                 miscMenu.ProcStoredValueChanged<bool>();
+                miscMenu.ProcStoredValueChanged<Slider>();
 
                 interrupter.AddMItem("E Usage", true, (sender, args) =>
                 {
