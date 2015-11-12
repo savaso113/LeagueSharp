@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 using TheTwitch.Commons;
 using TheTwitch.Commons.ComboSystem;
 using TheTwitch.Commons.Debug;
+using Color = System.Drawing.Color;
 
 namespace TheTwitch
 {
@@ -28,7 +29,6 @@ namespace TheTwitch
 
             var mainMenu = CreateMenu("The Twitch", true);
             var orbwalkerMenu = CreateMenu("Orbwalker", mainMenu);
-            var targetSelectorMenu = CreateMenu("Targetselector", mainMenu);
             var comboMenu = CreateMenu("Combo", mainMenu);
             var harassMenu = CreateMenu("Harass", mainMenu);
             var laneclearMenu = CreateMenu("Laneclear", mainMenu);
@@ -42,7 +42,6 @@ namespace TheTwitch
 
 
             _orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
-            TargetSelector.AddToMenu(targetSelectorMenu);
 
             var combo = new TwitchCombo(1000, _orbwalker, new TwitchQ(SpellSlot.Q), new TwitchW(SpellSlot.W), new TwitchE(SpellSlot.E), new TwitchR(SpellSlot.R));
 
@@ -50,13 +49,12 @@ namespace TheTwitch
             combo.CreateLaneclearMenu(laneclearMenu, true, SpellSlot.Q);
             combo.CreateAutoLevelMenu(autoLevelSpells, ComboProvider.SpellOrder.REWQ, ComboProvider.SpellOrder.REQW);
 
-            comboMenu.Item("Combo.UseQ").DisplayName += " (for attackspeed)";
+            comboMenu.Item("Combo.UseQ").SetTooltip("(for attackspeed, may cancel autos when stealthing!)");
 
             comboMenu.AddMItem("Min Enemies near for R", new Slider(Math.Min(2, HeroManager.Enemies.Count), 1, Math.Max(2, HeroManager.Enemies.Count)), (sender, args) => combo.GetSkill<TwitchR>().MinEnemies = args.GetNewValue<Slider>().Value);
             comboMenu.AddMItem("E at full stacks", true, (sender, args) => combo.GetSkill<TwitchE>().AlwaysExecuteAtFullStacks = args.GetNewValue<bool>());
             comboMenu.AddMItem("Custom E calculation", true, (sender, args) => combo.GetSkill<TwitchE>().CustomCalculation = args.GetNewValue<bool>());
-            comboMenu.AddMItem("Only W after if >= X stacks", new Slider(0, 0, 6), (sender, args) => combo.GetSkill<TwitchW>().ComboAfterStacks = args.GetNewValue<Slider>().Value);
-            comboMenu.AddMItem("(W dmg scales on stacks)");
+            comboMenu.AddMItem("Only W after if >= X stacks", new Slider(0, 0, 6), (sender, args) => combo.GetSkill<TwitchW>().ComboAfterStacks = args.GetNewValue<Slider>().Value).SetTooltip("W dmg scales on stacks");
             comboMenu.ProcStoredValueChanged<Slider>();
             comboMenu.ProcStoredValueChanged<bool>();
 
@@ -69,12 +67,12 @@ namespace TheTwitch
             laneclearMenu.AddMItem("Min W targets", new Slider(4, 1, 8), (sender, args) => combo.GetSkill<TwitchW>().MinFarmMinions = args.GetNewValue<Slider>().Value);
             laneclearMenu.AddMItem("Min E kills", new Slider(3, 1, 8), (sender, args) => combo.GetSkill<TwitchE>().MinFarmMinions = args.GetNewValue<Slider>().Value);
             laneclearMenu.AddMItem("Min E targets", new Slider(6, 1, 16), (sender, args) => combo.GetSkill<TwitchE>().MinFarmDamageMinions = args.GetNewValue<Slider>().Value);
-            laneclearMenu.AddMItem("(Uses E if kills OR targets are here)");
+            laneclearMenu.AddMItem("(Uses E if kills OR targets are here)").FontColor = new ColorBGRA(0, 255, 255, 255);
             laneclearMenu.ProcStoredValueChanged<Slider>();
 
             miscMenu.AddMItem("E Killsteal", true, (sender, args) => combo.GetSkill<TwitchE>().Killsteal = args.GetNewValue<bool>());
             miscMenu.AddMItem("E farm assist", false, (sender, args) => combo.GetSkill<TwitchE>().FarmAssist = args.GetNewValue<bool>());
-            miscMenu.AddMItem("W AOE prediction", true, (sender, args) => combo.GetSkill<TwitchW>().IsAreaOfEffect = args.GetNewValue<bool>());
+            miscMenu.AddMItem("W AOE prediction", true, (sender, args) => combo.GetSkill<TwitchW>().IsAreaOfEffect = args.GetNewValue<bool>()).SetTooltip("Will try to hit multiple targets, but has worse hitchance");
             combo.GetSkill<TwitchQ>().StealthRecall = miscMenu.AddMItem("Stealh recall", new KeyBind(66, KeyBindType.Press));
             miscMenu.AddMItem("Don't W during R", false, (sender, args) => combo.GetSkill<TwitchW>().NotDuringR = args.GetNewValue<bool>());
             miscMenu.AddMItem("Auto buy blue trinket", true, (sender, args) => combo.AutoBuyBlueTrinket = args.GetNewValue<bool>());
