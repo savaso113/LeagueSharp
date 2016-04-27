@@ -20,6 +20,8 @@ namespace TheTwitch
         public bool NotDuringR;
         public int HarassAfterStacks;
         public int ComboAfterStacks;
+        public bool NoCastWhenLowMana;
+        private TwitchE _twitchE;
 
         public TwitchW(SpellSlot slot)
             : base(slot)
@@ -27,6 +29,12 @@ namespace TheTwitch
             SetSkillshot(0.5f, 275f, 1400f, false, SkillshotType.SkillshotCircle);
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             HarassEnabled = false;
+        }
+
+        public override void Initialize(ComboProvider combo)
+        {
+            base.Initialize(combo);
+            _twitchE = combo.GetSkill<TwitchE>();
         }
 
         private void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
@@ -45,6 +53,8 @@ namespace TheTwitch
 
         public override void Execute(Obj_AI_Hero target)
         {
+            if (NoCastWhenLowMana && ObjectManager.Player.Mana - ManaCost < _twitchE?.ManaCost && ObjectManager.Player.Mana > _twitchE?.ManaCost) return;
+
             if (((target.GetBuffCountFixed("twitchdeadlyvenom") >= ComboAfterStacks || ComboAfterStacks == 0) && _afterAttack || !Orbwalking.InAutoAttackRange(target)) && (!NotDuringR || !ObjectManager.Player.HasBuff("TwitchFullAutomatic")))
             {
                 Cast(target, aoe: IsAreaOfEffect);

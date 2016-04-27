@@ -55,6 +55,7 @@ namespace TheTwitch
             comboMenu.AddMItem("E at full stacks", true, (sender, args) => combo.GetSkill<TwitchE>().AlwaysExecuteAtFullStacks = args.GetNewValue<bool>());
             comboMenu.AddMItem("Custom E calculation", true, (sender, args) => combo.GetSkill<TwitchE>().CustomCalculation = args.GetNewValue<bool>());
             comboMenu.AddMItem("Only W after if >= X stacks", new Slider(0, 0, 6), (sender, args) => combo.GetSkill<TwitchW>().ComboAfterStacks = args.GetNewValue<Slider>().Value).SetTooltip("W dmg scales on stacks");
+            comboMenu.AddMItem("Do not W when low on mana", true, (sender, args) => combo.GetSkill<TwitchW>().NoCastWhenLowMana = args.GetNewValue<bool>());
             comboMenu.ProcStoredValueChanged<Slider>();
             comboMenu.ProcStoredValueChanged<bool>();
 
