@@ -419,8 +419,6 @@ namespace TheCassiopeia.Commons.Prediction
 
             var result = GetPositionOnPath(input, input.Unit.GetWaypoints(), speed);
 
-            if (result.Hitchance >= HitChance.High && input.Unit is Obj_AI_Hero) { }
-
             return result;
         }
 

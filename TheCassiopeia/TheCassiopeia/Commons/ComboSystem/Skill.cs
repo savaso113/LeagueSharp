@@ -145,57 +145,57 @@ namespace TheCassiopeia.Commons.ComboSystem
         }
         #endregion
 
-        #region QueueCast Overloads
-        public bool QueueCast(Action action)
-        {
-            if (!CanBeCast()) return false;
-            Provider.AddQueuedCast(this, action);
-            return true;
-        }
+        //#region QueueCast Overloads
+        //public bool QueueCast(Action action)
+        //{
+        //    if (!CanBeCast()) return false;
+        //    Provider.AddQueuedCast(this, action);
+        //    return true;
+        //}
 
-        public bool QueueCast()
-        {
-            if (!CanBeCast()) return false;
-            Provider.AddQueuedCast(this, () => Cast());
-            return true;
-        }
+        //public bool QueueCast()
+        //{
+        //    if (!CanBeCast()) return false;
+        //    Provider.AddQueuedCast(this, () => Cast());
+        //    return true;
+        //}
 
-        public bool QueueCast(Vector2 target)
-        {
-            if (!CanBeCast()) return false;
-            Provider.AddQueuedCast(this, () => Cast(target));
-            return true;
-        }
+        //public bool QueueCast(Vector2 target)
+        //{
+        //    if (!CanBeCast()) return false;
+        //    Provider.AddQueuedCast(this, () => Cast(target));
+        //    return true;
+        //}
 
-        public bool QueueCast(Vector2 from, Vector2 to)
-        {
-            if (!CanBeCast()) return false;
-            Provider.AddQueuedCast(this, () => Cast(from, to));
-            return true;
-        }
+        //public bool QueueCast(Vector2 from, Vector2 to)
+        //{
+        //    if (!CanBeCast()) return false;
+        //    Provider.AddQueuedCast(this, () => Cast(from, to));
+        //    return true;
+        //}
 
-        public bool QueueCast(Vector3 target)
-        {
-            if (!CanBeCast()) return false;
-            Provider.AddQueuedCast(this, () => Cast(target));
-            return true;
-        }
+        //public bool QueueCast(Vector3 target)
+        //{
+        //    if (!CanBeCast()) return false;
+        //    Provider.AddQueuedCast(this, () => Cast(target));
+        //    return true;
+        //}
 
-        public bool QueueCast(Vector3 from, Vector3 to)
-        {
-            if (!CanBeCast()) return false;
-            Provider.AddQueuedCast(this, () => Cast(from, to));
-            return true;
-        }
+        //public bool QueueCast(Vector3 from, Vector3 to)
+        //{
+        //    if (!CanBeCast()) return false;
+        //    Provider.AddQueuedCast(this, () => Cast(from, to));
+        //    return true;
+        //}
 
 
-        public bool QueueCast(Obj_AI_Base target, bool aoe = false)
-        {
-            if (!CanBeCast()) return false;
-            Provider.AddQueuedCast(this, () => Cast(target, false, aoe));
-            return true;
-        }
-        #endregion
+        //public bool QueueCast(Obj_AI_Base target, bool aoe = false)
+        //{
+        //    if (!CanBeCast()) return false;
+        //    Provider.AddQueuedCast(this, () => Cast(target, false, aoe));
+        //    return true;
+        //}
+        //#endregion
 
         public virtual void SetEnabled(Orbwalking.OrbwalkingMode mode, bool enabled)
         {
@@ -247,7 +247,7 @@ namespace TheCassiopeia.Commons.ComboSystem
 
         public virtual float GetDamage(Obj_AI_Hero enemy)
         {
-            return Instance.GetState() == SpellState.Ready ? (float)ObjectManager.Player.GetSpellDamage(enemy, Slot) : 0f;
+            return Instance.IsReady() ? (float)ObjectManager.Player.GetSpellDamage(enemy, Slot) : 0f;
         }
 
         /// <summary>
@@ -256,7 +256,7 @@ namespace TheCassiopeia.Commons.ComboSystem
         /// <returns></returns>
         public virtual bool CanBeCast(bool checkSpellName = false)
         {
-            return Instance.GetState() == SpellState.Ready && (!checkSpellName || (ForcedSpellName != null && ForcedSpellName == Instance.Name));
+            return Instance.IsReady() && (!checkSpellName || (ForcedSpellName != null && ForcedSpellName == Instance.Name));
         }
 
         /// <summary>
@@ -265,17 +265,17 @@ namespace TheCassiopeia.Commons.ComboSystem
         /// <returns></returns>
         public virtual bool CanBeCast(string name)
         {
-            return Instance.GetState() == SpellState.Ready && Instance.Name == name;
+            return Instance.IsReady() && Instance.Name == name;
         }
 
-        /// <summary>
-        /// If the spell has been cast. Will NOT check if still in safecast time.
-        /// </summary>
-        /// <returns></returns>
-        public bool HasBeenCast()
-        {
-            return (Instance.GetState() == SpellState.Cooldown) || (ForcedSpellName != null && ForcedSpellName != Instance.Name);
-        }
+        ///// <summary>
+        ///// If the spell has been cast. Will NOT check if still in safecast time.
+        ///// </summary>
+        ///// <returns></returns>
+        //public bool HasBeenCast()
+        //{
+        //    return (Instance.GetState() == SpellState.Cooldown) || (ForcedSpellName != null && ForcedSpellName != Instance.Name);
+        //}
 
         public int CompareTo(Skill obj)
         {

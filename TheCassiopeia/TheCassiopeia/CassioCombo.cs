@@ -31,6 +31,7 @@ namespace TheCassiopeia
         public MenuItem BurstMode;
         public bool IgniteInBurstMode;
         public bool OnlyIgniteWhenNoE;
+        public bool AutoInComboAdvanced;
 
         public CassioCombo(float targetSelectorRange, IEnumerable<Skill> skills, Orbwalking.Orbwalker orbwalker)
             : base(targetSelectorRange, skills, orbwalker)
@@ -76,8 +77,10 @@ namespace TheCassiopeia
 
         private void OrbwalkerBeforeAutoAttack(Orbwalking.BeforeAttackEventArgs args)
         {
-            if (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && Target.IsValidTarget() && Target.IsPoisoned())
-                args.Process = AutoInCombo;
+            if (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) // && Target.IsValidTarget() && Target.IsPoisoned())
+            {
+                args.Process = AutoInCombo && (!AutoInComboAdvanced || args.Target.Position.Distance(ObjectManager.Player.Position) < ObjectManager.Player.GetSpell(SpellSlot.E).SData.CastRange);
+            }
         }
 
         private void OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
@@ -120,16 +123,8 @@ namespace TheCassiopeia
             if (AssistedUltMenu != null && AssistedUltMenu.GetValue<KeyBind>().Active)
                 CastAssistedUlt();
 
-            if (Game.Time - _objectTime < 0.5f)
-                foreach (var enemy in HeroManager.Enemies)
-                    if (enemy.IsValidTarget() && enemy.ServerPosition.Distance(_objectPosition) < _q.Instance.SData.CastRadius + enemy.BoundingRadius - (enemy.MoveSpeed * (0.5f - (Game.Time - _objectTime))))
-                        SetMarked(enemy, 0.25f);
-
-
             if (mode == Orbwalking.OrbwalkingMode.LaneClear && LanepressureMenu.IsActive())
                 mode = Orbwalking.OrbwalkingMode.Mixed;
-
-
 
             base.OnUpdate(mode);
 
@@ -149,7 +144,7 @@ namespace TheCassiopeia
 
         public override bool ShouldBeDead(Obj_AI_Base target, float additionalSpellDamage = 0f)
         {
-            return base.ShouldBeDead(target, GetRemainingCassDamage(target));
+            return base.ShouldBeDead(target, GetRemainingCassDamage(target) + additionalSpellDamage);
         }
 
         public float GetRemainingCassDamage(Obj_AI_Base target)
@@ -183,12 +178,13 @@ namespace TheCassiopeia
                     target = newTarget;
             }
 
-            if (EnablePoisonTargetSelection && target.IsValidTarget() && !target.IsPoisoned())
-            {
-                var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall() && enemy.IsPoisoned() && !TargetSelector.IsInvulnerable(enemy, TargetSelector.DamageType.Magical)).MaxOrDefault(TargetSelector.GetPriority);
-                if (newTarget != null && TargetSelector.GetPriority(target) - TargetSelector.GetPriority(newTarget) < 0.5f)
-                    return newTarget;
-            }
+            //if (EnablePoisonTargetSelection && target.IsValidTarget() && !target.IsPoisoned())
+            //{
+            //    var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall() && enemy.IsPoisoned() && !TargetSelector.IsInvulnerable(enemy, TargetSelector.DamageType.Magical)).MaxOrDefault(TargetSelector.GetPriority);
+            //    if (newTarget != null && TargetSelector.GetPriority(target) - TargetSelector.GetPriority(newTarget) < 0.5f)
+            //        return newTarget;
+            //}
+
             return target;
         }
     }

@@ -34,7 +34,7 @@ namespace TheCassiopeia.Commons.Items
         public void Use(Obj_AI_Base target)
         {
             var itemSpell = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "YoumusBlade");
-            if (itemSpell != null && itemSpell.GetState() == SpellState.Ready) ObjectManager.Player.Spellbook.CastSpell(itemSpell.Slot, target);
+            if (itemSpell != null && itemSpell.IsReady()) ObjectManager.Player.Spellbook.CastSpell(itemSpell.Slot, target);
         }
 
         public int GetRange()

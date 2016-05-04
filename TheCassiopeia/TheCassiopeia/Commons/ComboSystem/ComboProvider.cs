@@ -366,38 +366,38 @@ namespace TheCassiopeia.Commons.ComboSystem
             }
 
 
-            for (int i = 0; i < _queuedCasts.Count; i++)
+            //for (int i = 0; i < _queuedCasts.Count; i++)
+            //{
+            //    if (_queuedCasts[i].Item1.HasBeenCast())
+            //        _queuedCasts.RemoveAt(i);
+            //    else
+            //    {
+            //        try
+            //        {
+            //            _queuedCasts[i].Item2();
+            //        }
+            //        catch
+            //        {
+            //            _queuedCasts.RemoveAt(i);
+            //        }
+            //        break;
+            //    }
+            //}
+
+
+            if (mode != Orbwalking.OrbwalkingMode.Combo && ObjectManager.Player.IsWindingUp) return;
+
+            Skills.Sort(); //Checked: this is not expensive
+            foreach (var item in Skills)
             {
-                if (_queuedCasts[i].Item1.HasBeenCast())
-                    _queuedCasts.RemoveAt(i);
-                else
+                item.Update(mode, this, Target);
+                if (_cancelSpellUpdates)
                 {
-                    try
-                    {
-                        _queuedCasts[i].Item2();
-                    }
-                    catch
-                    {
-                        _queuedCasts.RemoveAt(i);
-                    }
+                    _cancelSpellUpdates = false;
                     break;
                 }
             }
 
-
-            if (!ObjectManager.Player.Spellbook.IsCastingSpell)
-            {
-                Skills.Sort(); //Checked: this is not expensive
-                foreach (var item in Skills)
-                {
-                    item.Update(mode, this, Target);
-                    if (_cancelSpellUpdates)
-                    {
-                        _cancelSpellUpdates = false;
-                        break;
-                    }
-                }
-            }
 
         }
         #endregion
@@ -435,16 +435,16 @@ namespace TheCassiopeia.Commons.ComboSystem
             if (_queuedCasts.Count > 0) _queuedCasts.RemoveAt(_queuedCasts.Count - 1);
         }
 
-        /// <summary>
-        /// Adds a cast to the cast-queue. The added castActions will be cast in the same order as they were added
-        /// </summary>
-        /// <param name="skill"></param>
-        /// <param name="castAction"></param>
-        public void AddQueuedCast(Skill skill, Action castAction)
-        {
-            if (_queuedCasts.Any(t => t.Item1 == skill)) return;
-            _queuedCasts.Add(new Tuple<Skill, Action>(skill, castAction));
-        }
+        ///// <summary>
+        ///// Adds a cast to the cast-queue. The added castActions will be cast in the same order as they were added
+        ///// </summary>
+        ///// <param name="skill"></param>
+        ///// <param name="castAction"></param>
+        //public void AddQueuedCast(Skill skill, Action castAction)
+        //{
+        //    if (_queuedCasts.Any(t => t.Item1 == skill)) return;
+        //    _queuedCasts.Add(new Tuple<Skill, Action>(skill, castAction));
+        //}
 
         public void SetEnabled(Skill skill, Orbwalking.OrbwalkingMode mode, bool enabled)
         {

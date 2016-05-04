@@ -27,7 +27,7 @@ namespace TheCassiopeia.Commons.Items
             {
                 if (ObjectManager.Player.ChampionName == "Garen")
                 {
-                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).GetState() == SpellState.Ready)
+                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).IsReady())
                         return;
                 }
                 Use(target);
@@ -38,7 +38,7 @@ namespace TheCassiopeia.Commons.Items
         public void Use(Obj_AI_Base target)
         {
             var itemSpell = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => spell.Name == "ItemTiamatCleave");
-            if (itemSpell != null && itemSpell.GetState() == SpellState.Ready) ObjectManager.Player.Spellbook.CastSpell(itemSpell.Slot, target);
+            if (itemSpell != null && itemSpell.IsReady()) ObjectManager.Player.Spellbook.CastSpell(itemSpell.Slot, target);
         }
 
         public int GetRange()

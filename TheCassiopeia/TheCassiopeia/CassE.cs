@@ -13,46 +13,40 @@ namespace TheCassiopeia
     class CassE : Skill
     {
         public bool Farm;
-        public int FarmNonPoisonedPercent;
-        private int _recentAttacked;
-        public bool OnlyKillNonPIn1V1;
+        //private int _recentAttacked;
 
         public CassE(SpellSlot slot)
             : base(slot)
         {
-            Range = 700;
+            Range = Instance.SData.CastRange + 50;
             SetTargetted(0.2f, float.MaxValue);
-            Orbwalking.AfterAttack += AfterAutoAttack;
+            //Orbwalking.AfterAttack += AfterAutoAttack;
             UseManaManager = false;
-
-
         }
 
-        private void AfterAutoAttack(AttackableUnit unit, AttackableUnit target)
-        {
-            if (unit.IsMe)
-                _recentAttacked = target.NetworkId;
-        }
+        //private void AfterAutoAttack(AttackableUnit unit, AttackableUnit target)
+        //{
+        //    if (unit.IsMe)
+        //        _recentAttacked = target.NetworkId;
+        //}
 
         public override void Lasthit()
         {
-            var killableMinion = MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).Where(minion => minion.IsPoisoned()).FirstOrDefault(minion => IsKillable(minion) || minion.Team == GameObjectTeam.Neutral);
-            if (killableMinion == null && FarmNonPoisonedPercent > ObjectManager.Player.ManaPercent)
-                killableMinion = MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion => IsKillable(minion));
+            var killableMinion = MinionManager.GetMinions(Range, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion =>
+            {
+                var hpred = HealthPrediction.GetHealthPrediction(minion, 300);
+                if (hpred <= 0) return false;
+                return IsKillable(minion) || minion.Team == GameObjectTeam.Neutral;
+            });
 
             if (killableMinion == null) return;
 
-            var hPred = HealthPrediction.GetHealthPrediction(killableMinion, (int)(Delay * 2000), 0);
-            if ((killableMinion.NetworkId != _recentAttacked || hPred - ObjectManager.Player.GetAutoAttackDamage(killableMinion) > 0) && hPred > 0)
-                Cast(killableMinion);
+            Cast(killableMinion);
         }
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if ((Provider.IsMarked(target) || target.IsPoisoned() && target.GetPoisonedTime() > Delay || (IsKillable(target) && (!OnlyKillNonPIn1V1 || ObjectManager.Player.CountEnemiesInRange(1500) == 1))) && !target.HasSpellShield() && !target.IsBehindWindWall())
-            {
-                Cast(target);
-            }
+            Cast(target);
         }
 
         public override void Harass(Obj_AI_Hero target)
@@ -65,7 +59,7 @@ namespace TheCassiopeia
         {
             if (!ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LaneClear)) return;
 
-            var clearMinion = MinionManager.GetMinions(700, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion => minion.IsPoisoned());
+            var clearMinion = MinionManager.GetMinions(Range, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault();
 
             if (clearMinion != null)
                 Cast(clearMinion);
@@ -73,12 +67,12 @@ namespace TheCassiopeia
 
         public override float GetDamage(Obj_AI_Hero enemy)
         {
-            return base.GetDamage(enemy) * 4;
+            return base.GetDamage(enemy) * 2;
         }
 
         public override int GetPriority()
         {
-            return 3;
+            return 1;
         }
     }
 }

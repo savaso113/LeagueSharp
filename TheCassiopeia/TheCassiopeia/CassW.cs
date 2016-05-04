@@ -5,22 +5,26 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 using TheCassiopeia.Commons;
 using TheCassiopeia.Commons.ComboSystem;
+using Prediction = TheCassiopeia.Commons.Prediction.Prediction;
 
 namespace TheCassiopeia
 {
-    class CassW: Skill
+    class CassW : Skill
     {
         private CassQ _q;
         private CassR _r;
         public bool UseOnGapcloser;
+        public const float MinRange = 550f;
+        public const float MaxRange = 800f;
 
         public CassW(SpellSlot slot)
             : base(slot)
         {
-            SetSkillshot(0.5f, Instance.SData.CastRadius, Instance.SData.MissileSpeed, false, SkillshotType.SkillshotCircle);
-            Range = 850;
+            SetSkillshot(0.85f, Instance.SData.CastRadius, Instance.SData.MissileSpeed, false, SkillshotType.SkillshotCircle);
+            Range = MaxRange;
             HarassEnabled = false;
         }
 
@@ -33,10 +37,86 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if (_q.OnCooldown() && (!target.IsPoisoned() && !Provider.IsMarked(target)))
+            var bestPosition = GetBestPosition(HeroManager.Enemies);
+            if (bestPosition.X != 0)
             {
-                Cast(target);
+                Cast(bestPosition);
             }
+        }
+
+        private List<Vector2> Grouped(Vector3[] pos)
+        {
+            var posReal = pos.Select(item => item.To2D()).ToArray();
+            var items = new List<Vector2>();
+            var player2D = ObjectManager.Player.Position.To2D();
+            var biggestItems = items;
+            for (var i = 0; i < posReal.Length; i++)
+            {
+                items = new List<Vector2>();
+                var current = posReal[i];
+                var currentP = current - player2D;
+                items.Add(current);
+
+                var angle = 0f;
+                for (var j = 0; j < posReal.Length; j++)
+                {
+                    if (i == j) continue;
+
+                    var cAngle = currentP.AngleBetweenEx(posReal[j] - player2D);
+                    if (cAngle > 0 && cAngle < 72)
+                    {
+                        items.Add(posReal[j]);
+                        if (cAngle > angle)
+                        {
+                            angle = cAngle;
+                        }
+                    }
+                }
+
+                if (items.Count > biggestItems.Count)
+                {
+                    biggestItems = items;
+                }
+            }
+
+            return biggestItems;
+        }
+
+        public Vector3 GetBestPosition(IEnumerable<Obj_AI_Base> targets)
+        {
+            var preds = Grouped(targets.Where(enemy => enemy.IsValidTarget(MaxRange + enemy.MoveSpeed * Delay)).Select(item => GetMovementPrediction(item, Delay)).Where(pred =>
+              {
+                  var dst = pred.Distance(ObjectManager.Player.Position, true);
+                  if (dst < MinRange * MinRange) return false;
+                  return dst < MaxRange * MaxRange;
+              }).ToArray());
+
+            if (preds.Count > 0)
+            {
+                var final = new Vector3();
+                for (var i = 0; i < preds.Count; i++)
+                {
+                    final.X += preds[i].X;
+                    final.Y += preds[i].Y;
+                }
+                final.X /= preds.Count;
+                final.Y /= preds.Count;
+                return final;
+            }
+            return Vector3.Zero;
+        }
+
+        public static Vector3 GetMovementPrediction(Obj_AI_Base target, float time = 1f)
+        {
+            var input = new TheCassiopeia.Commons.Prediction.PredictionInput() { Unit = target, Delay = time };
+            if (input.Unit.IsDashing())
+            {
+                return Prediction.GetDashingPrediction(input).UnitPosition;
+            }
+
+            //Unit is immobile.
+            var remainingImmobileT = Prediction.UnitIsImmobileUntil(input.Unit);
+            return remainingImmobileT >= 0d ? Prediction.GetImmobilePrediction(input, remainingImmobileT).UnitPosition : Prediction.GetStandardPrediction(input).UnitPosition;
         }
 
         public override void Gapcloser(ComboProvider combo, ActiveGapcloser gapcloser)
@@ -54,13 +134,22 @@ namespace TheCassiopeia
 
         public override void LaneClear()
         {
-            var minions = MinionManager.GetMinions(900, MinionTypes.All, MinionTeam.NotAlly);
-            if(!_q.OnCooldown() || minions.Any(minion => minion.IsPoisoned())) return;
-            var farmLocation = MinionManager.GetBestCircularFarmLocation(minions.Select(minion => minion.Position.To2D()).ToList(), Instance.SData.CastRadius, 850);
+            var minions = Grouped(MinionManager.GetMinions(800, MinionTypes.All, MinionTeam.NotAlly).Where(min => min.Distance(ObjectManager.Player.Position, true) > MinRange * MinRange).Select(item => item.Position).ToArray());
 
-            if (farmLocation.MinionsHit > 0)
+
+            if (minions.Count > 0)
             {
-                Cast(farmLocation.Position);
+                var final = new Vector3();
+                for (var i = 0; i < minions.Count; i++)
+                {
+                    final.X += minions[i].X;
+                    final.Y += minions[i].Y;
+                }
+                final.X /= minions.Count;
+                final.Y /= minions.Count;
+
+
+                Cast(final);
             }
             base.LaneClear();
         }

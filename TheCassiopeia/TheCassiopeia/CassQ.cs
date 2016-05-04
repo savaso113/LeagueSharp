@@ -30,7 +30,7 @@ namespace TheCassiopeia
             : base(slot)
         {
 
-            Range = 850;
+            Range = Instance.SData.CastRange;
             SetSkillshot(0.75f, Instance.SData.CastRadius, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
 

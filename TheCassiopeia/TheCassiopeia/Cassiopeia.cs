@@ -86,17 +86,17 @@ namespace TheCassiopeia
             burstmodeMenu.ProcStoredValueChanged<Slider>();
             burstmodeMenu.ProcStoredValueChanged<bool>();
 
-            comboMenu.AddMItem("Only Kill non-Poisoned with E if No Other Enemies Nearby", false, (sender, args) => provider.GetSkill<CassE>().OnlyKillNonPIn1V1 = args.GetNewValue<bool>());
-            comboMenu.AddMItem("Fast Combo (Small Chance to E non-Poisoned)", true, (sender, args) => provider.GetSkill<CassQ>().FastCombo = args.GetNewValue<bool>());
             //comboMenu.AddMItem("Risky mode (uses fast combo often, but more fails)", false, (sender, args) => provider.GetSkill<CassQ>().RiskyCombo = args.GetNewValue<bool>());
             comboMenu.AddMItem("AA in Combo", true, (sender, args) => provider.AutoInCombo = args.GetNewValue<bool>()).SetTooltip("Disable for better kiting");
+            comboMenu.AddMItem("Only AA if in E Range already", true, (sender, args) => provider.AutoInComboAdvanced = args.GetNewValue<bool>());
             comboMenu.ProcStoredValueChanged<bool>();
 
             var stackTearItem = miscMenu.AddMItem("Stack Tear", new KeyBind(77, KeyBindType.Toggle, true)).SetTooltip("Will only stack when no enemies nearby.");
             provider.GetSkill<CassQ>().StackTear = stackTearItem;
             stackTearItem.Permashow();
             miscMenu.AddMItem("Min Mana % for Tear Stacking", new Slider(90), (sender, args) => provider.GetSkill<CassQ>().MinTearStackMana = args.GetNewValue<Slider>().Value);
-            miscMenu.AddMItem("Make Poison Influence Target Selection", true, (sender, args) => provider.EnablePoisonTargetSelection = args.GetNewValue<bool>());
+
+            //miscMenu.AddMItem("Make Poison Influence Target Selection", true, (sender, args) => provider.EnablePoisonTargetSelection = args.GetNewValue<bool>());
             miscMenu.ProcStoredValueChanged<Slider>();
             miscMenu.ProcStoredValueChanged<bool>();
 
@@ -107,8 +107,10 @@ namespace TheCassiopeia
             });
 
             Circle q = new Circle(true, Color.GreenYellow), e = new Circle(false, Color.Red);
+            var wzone = false;
 
             drawingMenu.AddMItem("Q Range", q, (sender, args) => q = args.GetNewValue<Circle>());
+            drawingMenu.AddMItem("W Zone", false, (sender, args) => wzone = args.GetNewValue<bool>());
             drawingMenu.AddMItem("E Range", e, (sender, args) => e = args.GetNewValue<Circle>());
             drawingMenu.ProcStoredValueChanged<Circle>();
             drawingMenu.ProcStoredValueChanged<bool>();
@@ -116,9 +118,8 @@ namespace TheCassiopeia
             gapcloserMenu.AddMItem("Use R if My Health % < Than", new Slider(40), (sender, args) => provider.GetSkill<CassR>().GapcloserUltHp = args.GetNewValue<Slider>().Value);
             gapcloserMenu.AddMItem("Otherwise Use W Instead", true, (sender, args) => provider.GetSkill<CassW>().UseOnGapcloser = args.GetNewValue<bool>());
 
-            lasthitMenu.AddMItem("Use E on Poisoned", true, (sender, args) => provider.GetSkill<CassE>().Farm = args.GetNewValue<bool>());
+            lasthitMenu.AddMItem("Use E", true, (sender, args) => provider.GetSkill<CassE>().Farm = args.GetNewValue<bool>());
             //lasthitMenu.AddMItem("Lasthit assist", true, (sender, args) => provider.GetSkill<CassE>().FarmAssist = args.GetNewValue<bool>());
-            lasthitMenu.AddMItem("Use E on non-Poisoned if Mana % < Than", new Slider(50), (sender, args) => provider.GetSkill<CassE>().FarmNonPoisonedPercent = args.GetNewValue<Slider>().Value);
             lasthitMenu.ProcStoredValueChanged<bool>();
             lasthitMenu.ProcStoredValueChanged<Slider>();
 
@@ -151,15 +152,29 @@ namespace TheCassiopeia
                 provider.Update();
             };
 
+            var eRange = provider.GetSkill<CassE>().Range;
+            var qRange = provider.GetSkill<CassQ>().Range;
+
             Drawing.OnDraw += (args) =>
             {
                 if (q.Active)
-                    Render.Circle.DrawCircle(ObjectManager.Player.Position, 850, q.Color);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, qRange, q.Color);
                 if (e.Active)
-                    Render.Circle.DrawCircle(ObjectManager.Player.Position, 700, e.Color);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, eRange, e.Color);
 
+                if (wzone)
+                {
+                    var c = Color.FromArgb(100, Color.BlueViolet.R, Color.BlueViolet.G, Color.BlueViolet.B);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, (550 + 800) / 2f, c, 300);
+                }
 
-                //   Drawing.DrawText(200, 600, Color.Green, "Valid target: " + HeroManager.Enemies.FirstOrDefault().IsValidTarget().ToString() + " invulnerable: " + TargetSelector.IsInvulnerable(HeroManager.Enemies.FirstOrDefault(), TargetSelector.DamageType.Magical));
+                //var cassw = provider.GetSkill<CassW>();
+                //Render.Circle.DrawCircle(cassw.GetBestPosition(HeroManager.Enemies), 100, Color.Red);
+
+                //foreach (var objAiHero in HeroManager.Enemies)
+                //{
+                //    Render.Circle.DrawCircle(CassW.GetMovementPrediction(objAiHero), 100, Color.Yellow);
+                //}
             };
         }
 
