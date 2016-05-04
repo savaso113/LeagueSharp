@@ -31,7 +31,7 @@ namespace TheCassiopeia
         {
 
             Range = Instance.SData.CastRange;
-            SetSkillshot(0.75f, Instance.SData.CastRadius, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            SetSkillshot(0.75f, Instance.SData.CastRadius - 50, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
 
         //public override void Draw()

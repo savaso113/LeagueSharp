@@ -110,7 +110,7 @@ namespace TheCassiopeia
             var wzone = false;
 
             drawingMenu.AddMItem("Q Range", q, (sender, args) => q = args.GetNewValue<Circle>());
-            drawingMenu.AddMItem("W Zone", false, (sender, args) => wzone = args.GetNewValue<bool>());
+            drawingMenu.AddMItem("W Zone", true, (sender, args) => wzone = args.GetNewValue<bool>());
             drawingMenu.AddMItem("E Range", e, (sender, args) => e = args.GetNewValue<Circle>());
             drawingMenu.ProcStoredValueChanged<Circle>();
             drawingMenu.ProcStoredValueChanged<bool>();
