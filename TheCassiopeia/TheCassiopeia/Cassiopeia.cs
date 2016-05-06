@@ -75,7 +75,6 @@ namespace TheCassiopeia
             harassMenu.ProcStoredValueChanged<bool>();
             harassMenu.ProcStoredValueChanged<Slider>();
 
-
             burstmodeMenu.AddMItem("[Burst Mode = Full DPS mode, replaces Combo when Enabled]");
             var burstMode = provider.BurstMode = burstmodeMenu.AddMItem("Burst Mode Enabled", new KeyBind(78, KeyBindType.Toggle));
             provider.GetSkill<CassR>().BurstMode = burstMode;
@@ -89,7 +88,8 @@ namespace TheCassiopeia
             //comboMenu.AddMItem("Risky mode (uses fast combo often, but more fails)", false, (sender, args) => provider.GetSkill<CassQ>().RiskyCombo = args.GetNewValue<bool>());
             comboMenu.AddMItem("AA in Combo", true, (sender, args) => provider.AutoInCombo = args.GetNewValue<bool>()).SetTooltip("Disable for better kiting");
             comboMenu.AddMItem("Only AA if in E Range already", true, (sender, args) => provider.AutoInComboAdvanced = args.GetNewValue<bool>());
-            comboMenu.AddMItem("E Delay (milliseconds)", new Slider(50, 0, 250), (sender, args) => provider.GetSkill<CassE>().SkillDelay = args.GetNewValue<Slider>().Value);
+            comboMenu.AddMItem("Static E Delay (milliseconds)", new Slider(50, 0, 250), (sender, args) => provider.GetSkill<CassE>().SkillDelay = args.GetNewValue<Slider>().Value);
+            comboMenu.AddMItem("Max Random E Delay (milliseconds)", new Slider(0, 0, 250), (sender, args) => provider.GetSkill<CassE>().SkillDelayRnd = args.GetNewValue<Slider>().Value);
             comboMenu.ProcStoredValueChanged<bool>();
             comboMenu.ProcStoredValueChanged<Slider>();
 

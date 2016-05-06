@@ -24,6 +24,7 @@ namespace TheCassiopeia.Commons.ComboSystem
         private bool _autoLevelSpells;
         private string _autoLevelSpellsSkillOrder;
         private string _autoLevelSpellsMaxOrder;
+        private Random _random = new Random();
 
         // ReSharper disable InconsistentNaming
         public enum SpellOrder { RQWE, RQEW, RQEEW, RWQE, RWEQ, REQW, REWQ }
@@ -33,6 +34,7 @@ namespace TheCassiopeia.Commons.ComboSystem
         private Circle _targetDrawing;
         private Circle _deadDrawing;
         private bool _autoLevelNotOne;
+        private bool _autoLevelRndDelay;
 
         public class InterruptableSpell
         {
@@ -228,6 +230,7 @@ namespace TheCassiopeia.Commons.ComboSystem
             var possibleItems = Enum.GetValues(typeof(SpellOrder)).Cast<SpellOrder>().Select(item => String.Join<char>("-", item.ToString())).ToArray();
 
             autoLevelMenu.AddMItem("Don't level at level 1", false, (sender, args) => _autoLevelNotOne = args.GetNewValue<bool>());
+            autoLevelMenu.AddMItem("Random delay", true, (sender, args) => _autoLevelRndDelay = args.GetNewValue<bool>());
             autoLevelMenu.AddMItem("Skill (start) order", new StringList(possibleItems, Array.FindIndex(possibleItems, item => item == (String.Join<char>("-", skillOrder.ToString())))), (sender, args) => _autoLevelSpellsSkillOrder = args.GetNewValue<StringList>().SelectedValue);
             autoLevelMenu.AddMItem("Skill max order", new StringList(possibleItems, Array.FindIndex(possibleItems, item => item == (String.Join<char>("-", maxOrder.ToString())))), (sender, args) => _autoLevelSpellsMaxOrder = args.GetNewValue<StringList>().SelectedValue);
             autoLevelMenu.ProcStoredValueChanged<bool>();
@@ -240,7 +243,14 @@ namespace TheCassiopeia.Commons.ComboSystem
         private void OnLevelUp(Obj_AI_Base sender, EventArgs args)
         {
             if (!sender.IsMe || _autoLevelNotOne && ObjectManager.Player.Level == 1 || !_autoLevelSpells) return;
+            if (_autoLevelRndDelay)
+                Utility.DelayAction.Add(_random.Next(100, 500), CallbackLevelUp);
+            else
+                CallbackLevelUp();
+        }
 
+        private void CallbackLevelUp()
+        {
             var skillOrder = _autoLevelSpellsSkillOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
             var maxOrder = _autoLevelSpellsMaxOrder.Split('-').Select(item => item.ToEnum<SpellSlot>());
 
@@ -251,7 +261,6 @@ namespace TheCassiopeia.Commons.ComboSystem
             foreach (var spellSlot in maxOrder)
                 ObjectManager.Player.Spellbook.LevelSpell(spellSlot);
         }
-
 
 
         public void AddGapclosersToMenu(Menu menu)

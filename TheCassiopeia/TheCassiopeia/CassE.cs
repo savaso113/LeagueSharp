@@ -16,6 +16,9 @@ namespace TheCassiopeia
         public int SkillDelay;
         private int _recentAttacked;
         public bool FilterFarmAA;
+        public int SkillDelayRnd;
+        private int _currentRandomDelay;
+        private Random _random = new Random();
 
         public CassE(SpellSlot slot)
             : base(slot)
@@ -24,6 +27,13 @@ namespace TheCassiopeia
             SetTargetted(0.2f, float.MaxValue);
             Orbwalking.AfterAttack += AfterAutoAttack;
             UseManaManager = false;
+
+        }
+
+        public override void Initialize(ComboProvider combo)
+        {
+            _currentRandomDelay = _random.Next(0, SkillDelayRnd);
+            base.Initialize(combo);
         }
 
         private void AfterAutoAttack(AttackableUnit unit, AttackableUnit target)
@@ -49,9 +59,10 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
-            if (SkillDelay == 0 || Instance.CooldownExpires + SkillDelay / 1000f < Game.Time)
+            if (SkillDelay == 0 && SkillDelayRnd <= 1 || Instance.CooldownExpires + SkillDelay / 1000f + _currentRandomDelay / 1000f < Game.Time)
             {
-                Cast(target);
+                if (Cast(target) == CastStates.SuccessfullyCasted)
+                    _currentRandomDelay = _random.Next(0, SkillDelayRnd);
             }
         }
 
