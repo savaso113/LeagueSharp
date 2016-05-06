@@ -89,7 +89,9 @@ namespace TheCassiopeia
             //comboMenu.AddMItem("Risky mode (uses fast combo often, but more fails)", false, (sender, args) => provider.GetSkill<CassQ>().RiskyCombo = args.GetNewValue<bool>());
             comboMenu.AddMItem("AA in Combo", true, (sender, args) => provider.AutoInCombo = args.GetNewValue<bool>()).SetTooltip("Disable for better kiting");
             comboMenu.AddMItem("Only AA if in E Range already", true, (sender, args) => provider.AutoInComboAdvanced = args.GetNewValue<bool>());
+            comboMenu.AddMItem("E Delay (milliseconds)", new Slider(50, 0, 250), (sender, args) => provider.GetSkill<CassE>().SkillDelay = args.GetNewValue<Slider>().Value);
             comboMenu.ProcStoredValueChanged<bool>();
+            comboMenu.ProcStoredValueChanged<Slider>();
 
             var stackTearItem = miscMenu.AddMItem("Stack Tear", new KeyBind(77, KeyBindType.Toggle, true)).SetTooltip("Will only stack when no enemies nearby.");
             provider.GetSkill<CassQ>().StackTear = stackTearItem;
@@ -119,7 +121,7 @@ namespace TheCassiopeia
             gapcloserMenu.AddMItem("Otherwise Use W Instead", true, (sender, args) => provider.GetSkill<CassW>().UseOnGapcloser = args.GetNewValue<bool>());
 
             lasthitMenu.AddMItem("Use E", true, (sender, args) => provider.GetSkill<CassE>().Farm = args.GetNewValue<bool>());
-            //lasthitMenu.AddMItem("Lasthit assist", true, (sender, args) => provider.GetSkill<CassE>().FarmAssist = args.GetNewValue<bool>());
+            lasthitMenu.AddMItem("Do not E if AA flying", true, (sender, args) => provider.GetSkill<CassE>().FilterFarmAA = args.GetNewValue<bool>());
             lasthitMenu.ProcStoredValueChanged<bool>();
             lasthitMenu.ProcStoredValueChanged<Slider>();
 
@@ -168,6 +170,7 @@ namespace TheCassiopeia
                     Render.Circle.DrawCircle(ObjectManager.Player.Position, (550 + 800) / 2f, c, 300);
                 }
 
+                // Drawing.DrawText(200, 200, Color.Red, provider.GetSkill<CassE>().Instance.CooldownExpires.ToString());
                 //var cassw = provider.GetSkill<CassW>();
                 //Render.Circle.DrawCircle(cassw.GetBestPosition(HeroManager.Enemies), 100, Color.Red);
 

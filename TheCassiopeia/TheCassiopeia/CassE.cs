@@ -13,27 +13,30 @@ namespace TheCassiopeia
     class CassE : Skill
     {
         public bool Farm;
-        //private int _recentAttacked;
+        public int SkillDelay;
+        private int _recentAttacked;
+        public bool FilterFarmAA;
 
         public CassE(SpellSlot slot)
             : base(slot)
         {
             Range = Instance.SData.CastRange + 50;
             SetTargetted(0.2f, float.MaxValue);
-            //Orbwalking.AfterAttack += AfterAutoAttack;
+            Orbwalking.AfterAttack += AfterAutoAttack;
             UseManaManager = false;
         }
 
-        //private void AfterAutoAttack(AttackableUnit unit, AttackableUnit target)
-        //{
-        //    if (unit.IsMe)
-        //        _recentAttacked = target.NetworkId;
-        //}
+        private void AfterAutoAttack(AttackableUnit unit, AttackableUnit target)
+        {
+            if (unit.IsMe)
+                _recentAttacked = target.NetworkId;
+        }
 
         public override void Lasthit()
         {
             var killableMinion = MinionManager.GetMinions(Range, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion =>
             {
+                if (minion.NetworkId == _recentAttacked && FilterFarmAA) return false;
                 var hpred = HealthPrediction.GetHealthPrediction(minion, 300);
                 if (hpred <= 0) return false;
                 return IsKillable(minion) || minion.Team == GameObjectTeam.Neutral;
@@ -46,7 +49,10 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
-            Cast(target);
+            if (SkillDelay == 0 || Instance.CooldownExpires + SkillDelay / 1000f < Game.Time)
+            {
+                Cast(target);
+            }
         }
 
         public override void Harass(Obj_AI_Hero target)
