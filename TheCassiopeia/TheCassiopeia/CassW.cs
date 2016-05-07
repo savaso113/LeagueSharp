@@ -17,12 +17,17 @@ namespace TheCassiopeia
         private CassQ _q;
         private CassR _r;
         public bool UseOnGapcloser;
-        public const float MinRange = 550f;
-        public const float MaxRange = 800f;
+        public float MinRange = 550f;
+        public float MaxRange = 800f;
+        public float MinRangeHigh = 550f;
+        public float MaxRangeHigh = 800f;
+        public int ClearMinHit;
 
         public CassW(SpellSlot slot)
             : base(slot)
         {
+            MinRange -= Instance.SData.CastRadius;
+            MaxRange += Instance.SData.CastRadius;
             SetSkillshot(0.85f, Instance.SData.CastRadius, Instance.SData.MissileSpeed, false, SkillshotType.SkillshotCircle);
             Range = MaxRange;
             HarassEnabled = false;
@@ -38,9 +43,9 @@ namespace TheCassiopeia
         public override void Execute(Obj_AI_Hero target)
         {
             var bestPosition = GetBestPosition(HeroManager.Enemies);
-            if (bestPosition.X != 0)
+            if (bestPosition.Item1.X != 0)
             {
-                Cast(bestPosition);
+                Cast(bestPosition.Item1);
             }
         }
 
@@ -82,11 +87,16 @@ namespace TheCassiopeia
             return biggestItems;
         }
 
-        public Vector3 GetBestPosition(IEnumerable<Obj_AI_Base> targets)
+        public Tuple<Vector3, int> GetBestPosition(IEnumerable<Obj_AI_Base> targets)
         {
             var preds = Grouped(targets.Where(enemy => enemy.IsValidTarget(MaxRange + enemy.MoveSpeed * Delay)).Select(item => GetMovementPrediction(item, Delay)).Where(pred =>
               {
                   var dst = pred.Distance(ObjectManager.Player.Position, true);
+                  if (MinComboHitchance > HitChance.Low)
+                  {
+                      if (dst < MinRangeHigh * MinRangeHigh) return false;
+                      return dst < MaxRangeHigh * MaxRangeHigh;
+                  }
                   if (dst < MinRange * MinRange) return false;
                   return dst < MaxRange * MaxRange;
               }).ToArray());
@@ -101,9 +111,9 @@ namespace TheCassiopeia
                 }
                 final.X /= preds.Count;
                 final.Y /= preds.Count;
-                return final;
+                return new Tuple<Vector3, int>(final, preds.Count);
             }
-            return Vector3.Zero;
+            return new Tuple<Vector3, int>(Vector3.Zero, 0);
         }
 
         public static Vector3 GetMovementPrediction(Obj_AI_Base target, float time = 1f)
@@ -134,24 +144,14 @@ namespace TheCassiopeia
 
         public override void LaneClear()
         {
-            var minions = Grouped(MinionManager.GetMinions(800, MinionTypes.All, MinionTeam.NotAlly).Where(min => min.Distance(ObjectManager.Player.Position, true) > MinRange * MinRange).Select(item => item.Position).ToArray());
+            var minions = GetBestPosition(MinionManager.GetMinions(800, MinionTypes.All, MinionTeam.NotAlly));
+            // var minions = Grouped(MinionManager.GetMinions(800, MinionTypes.All, MinionTeam.NotAlly).Where(min => min.Distance(ObjectManager.Player.Position, true) > MinRange * MinRange).Select(item => item.Position).ToArray());
+         //   Console.WriteLine(minions.Item2);
 
-
-            if (minions.Count > 0)
+            if (minions.Item2 > ClearMinHit)
             {
-                var final = new Vector3();
-                for (var i = 0; i < minions.Count; i++)
-                {
-                    final.X += minions[i].X;
-                    final.Y += minions[i].Y;
-                }
-                final.X /= minions.Count;
-                final.Y /= minions.Count;
-
-
-                Cast(final);
+                Cast(minions.Item1);
             }
-            base.LaneClear();
         }
 
         public override int GetPriority()

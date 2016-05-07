@@ -32,14 +32,8 @@ namespace TheCassiopeia
 
         public override void Initialize(ComboProvider combo)
         {
-
-            SetSkillshot(0.3f, (float)(80 * Math.PI / 180), float.MaxValue, false, SkillshotType.SkillshotCone);
+            SetSkillshot(0.4f, (float)(80 * Math.PI / 180), float.MaxValue, false, SkillshotType.SkillshotCone);
             base.Initialize(combo);
-        }
-
-        public LeagueSharp.Common.PredictionOutput GetPrediction(Obj_AI_Hero target)
-        {
-            return LeagueSharp.Common.Prediction.GetPrediction(new LeagueSharp.Common.PredictionInput() { Aoe = true, Collision = false, Delay = Delay, From = ObjectManager.Player.ServerPosition, Radius = (float)(80 * Math.PI / 180), Range = 825f, Type = SkillshotType.SkillshotCone, Unit = target, RangeCheckFrom = ObjectManager.Player.ServerPosition });
         }
 
         public override void Update(Orbwalking.OrbwalkingMode mode, ComboProvider combo, Obj_AI_Hero target)
@@ -122,6 +116,7 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
+            //Console.WriteLine(Delay);
             var bestPosFacing = GetBestPosition(HeroManager.Enemies.Where(item => item.IsFacingMe()));
 
             if (MinTargetsFacing <= bestPosFacing?.Item2)
@@ -137,9 +132,14 @@ namespace TheCassiopeia
                 return;
             }
 
-            if (UltOnKillable && Provider.GetComboDamage(target) > target.Health && target.IsFacingMe() && target.HealthPercent > MinHealth && target.IsValidTarget(Range) || PanicModeHealth > ObjectManager.Player.HealthPercent || BurstMode.IsActive())
+
+            if (UltOnKillable && Provider.GetComboDamage(target) > target.Health && target.IsFacingMe() && target.HealthPercent > MinHealth && target.IsValidTarget() || PanicModeHealth > ObjectManager.Player.HealthPercent || BurstMode.IsActive())
             {
-                Cast(target.Position);
+                var targetPos = CassW.GetMovementPrediction(target);
+                if (targetPos.Distance(ObjectManager.Player.Position, true) < Range * Range)
+                {
+                    Cast(targetPos);
+                }
             }
         }
 

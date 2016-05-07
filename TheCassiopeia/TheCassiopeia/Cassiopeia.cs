@@ -17,6 +17,8 @@ namespace TheCassiopeia
     {
         public void Load(EventArgs eArgs)
         {
+
+
             if (ObjectManager.Player.ChampionName != "Cassiopeia") return;
             //ItemSeraphsEmbrace
             var mainMenu = new Menu("The Cassiopeia", "TheCassiopeia", true);
@@ -65,7 +67,7 @@ namespace TheCassiopeia
             ultMenu.AddMItem("Only R if Target has Health % > Than", new Slider(30), (sender, args) => provider.GetSkill<CassR>().MinHealth = args.GetNewValue<Slider>().Value);
             ultMenu.AddMItem("Block R that Won't Hit", false, (sender, args) => provider.BlockBadUlts = args.GetNewValue<bool>()).SetTooltip("You need to disable this to ult people hiding in bushes, ...");
             ultMenu.AddMItem("Range", new Slider(700, 400, 825), (sender, args) => provider.GetSkill<CassR>().Range = args.GetNewValue<Slider>().Value);
-            provider.AssistedUltMenu = ultMenu.AddMItem("Assisted Ult", new KeyBind(82, KeyBindType.Press));
+            provider.AssistedUltMenu = ultMenu.AddMItem("Assisted Ult", new KeyBind('G', KeyBindType.Press));
 
             ultMenu.ProcStoredValueChanged<Slider>();
             ultMenu.ProcStoredValueChanged<bool>();
@@ -98,6 +100,9 @@ namespace TheCassiopeia
             stackTearItem.Permashow();
             miscMenu.AddMItem("Min Mana % for Tear Stacking", new Slider(90), (sender, args) => provider.GetSkill<CassQ>().MinTearStackMana = args.GetNewValue<Slider>().Value);
 
+
+            laneclearMenu.AddMItem("Min W targets", new Slider(4, 1, 10), (sender, args) => provider.GetSkill<CassW>().ClearMinHit = args.GetNewValue<Slider>().Value);
+            laneclearMenu.ProcStoredValueChanged<Slider>();
             //miscMenu.AddMItem("Make Poison Influence Target Selection", true, (sender, args) => provider.EnablePoisonTargetSelection = args.GetNewValue<bool>());
             miscMenu.ProcStoredValueChanged<Slider>();
             miscMenu.ProcStoredValueChanged<bool>();
@@ -167,9 +172,11 @@ namespace TheCassiopeia
                 if (wzone)
                 {
                     var c = Color.FromArgb(100, Color.BlueViolet.R, Color.BlueViolet.G, Color.BlueViolet.B);
-                    Render.Circle.DrawCircle(ObjectManager.Player.Position, (550 + 800) / 2f, c, 300);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, (550 + 800) / 2f, c, 450);
                 }
 
+                //  Render.Circle.DrawCircle(provider.GetSkill<CassR>().GetBestPosition(ObjectManager.Get<Obj_AI_Base>()).Item1, 100, Color.Red);
+                //Render.Circle.DrawCircle(Game.CursorPos, 180, Color.Red);
                 // Drawing.DrawText(200, 200, Color.Red, provider.GetSkill<CassE>().Instance.CooldownExpires.ToString());
                 //var cassw = provider.GetSkill<CassW>();
                 //Render.Circle.DrawCircle(cassw.GetBestPosition(HeroManager.Enemies), 100, Color.Red);

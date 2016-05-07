@@ -25,9 +25,6 @@ namespace TheCassiopeia
         private float _assistedUltTime;
         public MenuItem LanepressureMenu;
         private bool _gaveAutoWarning;
-        private Vector3 _castPosition;
-        private Vector3 _objectPosition;
-        private float _objectTime;
         public MenuItem BurstMode;
         public bool IgniteInBurstMode;
         public bool OnlyIgniteWhenNoE;
@@ -49,31 +46,10 @@ namespace TheCassiopeia
             _q = GetSkill<CassQ>();
             _e = GetSkill<CassE>();
             Spellbook.OnCastSpell += OnCastSpell;
-            Obj_AI_Base.OnProcessSpellCast += OnSpellCast;
             Orbwalking.BeforeAttack += OrbwalkerBeforeAutoAttack;
-            GameObject.OnCreate += OnCreateGameObject;
             base.Initialize();
         }
 
-        private void OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-            if (sender.IsMe && args.SData.Name == "CassiopeiaNoxiousBlast")
-                _castPosition = args.End;
-        }
-
-        private void OnCreateGameObject(GameObject sender, EventArgs args)
-        {
-            if (sender.Name == "CassNoxious_tar.troy")
-            {
-                _objectTime = 0f;
-            }
-
-            if (sender.Name == "Cassiopeia_Base_Q_Hit_Green.troy" && sender.Position.Distance(_castPosition) < 10 && _q.FastCombo)
-            {
-                _objectPosition = sender.Position;
-                _objectTime = Game.Time;
-            }
-        }
 
         private void OrbwalkerBeforeAutoAttack(Orbwalking.BeforeAttackEventArgs args)
         {
@@ -85,15 +61,15 @@ namespace TheCassiopeia
 
         private void OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
         {
+            if (!sender.Owner.IsMe || args.Slot != SpellSlot.R) return;
 
-
-            if (Game.Time - _assistedUltTime < _r.Delay)
+            if (Math.Abs(Game.Time - _assistedUltTime) < _r.Delay)
             {
                 _assistedUltTime = 0f;
                 return;
             }
 
-            if (AssistedUltMenu.IsActive())
+            if (AssistedUltMenu.GetValue<KeyBind>().Key == 'R' && AssistedUltMenu.IsActive())
             {
                 args.Process = false;
                 return;
@@ -101,7 +77,7 @@ namespace TheCassiopeia
 
             if (!BlockBadUlts) return;
 
-            if (sender.Owner.IsMe && args.Slot == SpellSlot.R && HeroManager.Enemies.All(enemy => !enemy.IsValidTarget(_r.Range) || !_r.WillHit(enemy, args.StartPosition)))
+            if (HeroManager.Enemies.All(enemy => !enemy.IsValidTarget(_r.Range) || !_r.WillHit(enemy, args.StartPosition)))
             {
                 args.Process = false;
             }
@@ -109,12 +85,11 @@ namespace TheCassiopeia
 
         private void CastAssistedUlt()
         {
-            if (!_r.CanCast(Target)) return;
-            var pred = _r.GetPrediction(Target);
-            if (pred.Hitchance >= HitChance.Low)
+            var bestPosition = _r.GetBestPosition(HeroManager.Enemies);
+            if (bestPosition.Item2 > 0)
             {
+                _r.Cast(bestPosition.Item1);
                 _assistedUltTime = Game.Time;
-                _r.Cast(pred.CastPosition);
             }
         }
 
