@@ -6,7 +6,7 @@ namespace TheCassiopeia.Commons.Summoners
 {
     class Cleanse : ISummonerSpell
     {
-        private bool _blind, _stun, _fear, _snare, _polymorph, _silence, _charm, _exhaust, _ignite, _sleep, _taunt, _noAliW;
+        private bool _blind, _stun, _fear, _snare, _polymorph, _silence, _charm, _exhaust, _ignite, _taunt, _noAliW;
         private Slider _minDuration;
 
         public void Initialize(Menu menu)
@@ -22,7 +22,7 @@ namespace TheCassiopeia.Commons.Summoners
             typeMenu.AddMItem("Snare", true, (sender, args) => _snare = args.GetNewValue<bool>());
             typeMenu.AddMItem("Polymorph", true, (sender, args) => _polymorph = args.GetNewValue<bool>());
             typeMenu.AddMItem("Charm", true, (sender, args) => _charm = args.GetNewValue<bool>());
-            typeMenu.AddMItem("Sleep", true, (sender, args) => _sleep = args.GetNewValue<bool>());
+            //typeMenu.AddMItem("Sleep", true, (sender, args) => _sleep = args.GetNewValue<bool>());
             typeMenu.AddMItem("Taunt", true, (sender, args) => _taunt = args.GetNewValue<bool>());
             var miscMenu = menu.CreateSubmenu("Misc");
             miscMenu.AddMItem("Don't use on Alistar W (is a stun)", true, (sender, args) => _noAliW = args.GetNewValue<bool>());
@@ -40,8 +40,7 @@ namespace TheCassiopeia.Commons.Summoners
         {
             foreach (var buff in ObjectManager.Player.Buffs)
             {
-                if (buff.Type == BuffType.Blind && _blind || buff.Type == BuffType.Stun && _stun || buff.Type == BuffType.Fear && _fear || buff.Type == BuffType.Snare && _snare || buff.Type == BuffType.Polymorph && _polymorph || buff.Type == BuffType.Silence && _silence || buff.Type == BuffType.Charm && _charm ||
-                    buff.Type == BuffType.Sleep && _sleep || buff.Type == BuffType.Taunt && _taunt)
+                if (buff.Type == BuffType.Blind && _blind || buff.Type == BuffType.Stun && _stun || buff.Type == BuffType.Fear && _fear || buff.Type == BuffType.Snare && _snare || buff.Type == BuffType.Polymorph && _polymorph || buff.Type == BuffType.Silence && _silence || buff.Type == BuffType.Charm && _charm || buff.Type == BuffType.Taunt && _taunt)
                 {
                     //Console.WriteLine((buff.EndTime - Game.Time) + "buff.EndTime - Game.Time > _minDuration.Value / 1000f" + _minDuration.Value / 1000f + " spell:" + buff.Type + " caster: " + buff.Caster.Name);
 

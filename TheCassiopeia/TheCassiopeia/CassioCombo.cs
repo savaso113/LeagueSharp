@@ -21,7 +21,6 @@ namespace TheCassiopeia
         private CassQ _q;
         private CassE _e;
         public bool BlockBadUlts;
-        public bool EnablePoisonTargetSelection;
         private float _assistedUltTime;
         public MenuItem LanepressureMenu;
         private bool _gaveAutoWarning;

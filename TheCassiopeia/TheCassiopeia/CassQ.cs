@@ -15,7 +15,6 @@ namespace TheCassiopeia
 {
     class CassQ : Skill
     {
-        public bool FastCombo;
         public MenuItem StackTear;
         public int MinTearStackMana;
         public int FarmIfHigherThan;
