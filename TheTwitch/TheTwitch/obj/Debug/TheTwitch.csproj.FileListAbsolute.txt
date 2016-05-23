@@ -1,0 +1,17 @@
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\TheTwitch.exe.config
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\obj\Debug\TheTwitch.csprojResolveAssemblyReference.cache
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\TheTwitch.exe
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\TheTwitch.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\LeagueSharp.Common.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\LeagueSharp.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\SharpDX.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\LeagueSharp.Data.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\clipper_library.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\LeagueSharp.Sandbox.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\Newtonsoft.Json.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\LeagueSharp.xml
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\LeagueSharp.Common.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\bin\Release\LeagueSharp.Data.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\obj\Debug\TheTwitch.exe
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\obj\Debug\TheTwitch.pdb
