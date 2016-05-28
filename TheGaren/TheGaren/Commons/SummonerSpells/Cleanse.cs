@@ -36,7 +36,7 @@ namespace TheKalista.Commons.SummonerSpells
             foreach (var buff in ObjectManager.Player.Buffs)
             {
                 if (buff.Type == BuffType.Blind && _blind || buff.Type == BuffType.Stun && _stun || buff.Type == BuffType.Fear && _fear || buff.Type == BuffType.Snare && _snare || buff.Type == BuffType.Polymorph && _polymorph || buff.Type == BuffType.Silence && _silence || buff.Type == BuffType.Charm && _charm ||
-                    buff.Type == BuffType.Sleep && _sleep || buff.Type == BuffType.Taunt && _taunt)
+                     buff.Type == BuffType.Taunt && _taunt)
                 {
                     //Console.WriteLine((buff.EndTime - Game.Time) + "buff.EndTime - Game.Time > _minDuration.Value / 1000f" + _minDuration.Value / 1000f + " spell:" + buff.Type + " caster: " + buff.Caster.Name);
 

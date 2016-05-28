@@ -11,3 +11,20 @@ c:\users\nino\documents\visual studio 2012\Projects\TheInfo\TheInfo\bin\Debug\Le
 c:\users\nino\documents\visual studio 2012\Projects\TheInfo\TheInfo\bin\Debug\LeagueSharp.xml
 c:\users\nino\documents\visual studio 2012\Projects\TheInfo\TheInfo\obj\Debug\TheInfo.exe
 c:\users\nino\documents\visual studio 2012\Projects\TheInfo\TheInfo\obj\Debug\TheInfo.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\TheInfo.exe.config
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\TheInfo.exe
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\TheInfo.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\LeagueSharp.Common.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\LeagueSharp.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\SharpDX.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\SharpDX.Direct3D9.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\LeagueSharp.Data.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\clipper_library.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\LeagueSharp.Sandbox.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\LeagueSharp.xml
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\LeagueSharp.Common.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\bin\Debug\LeagueSharp.Data.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\obj\Debug\TheInfo.csprojResolveAssemblyReference.cache
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\obj\Debug\TheInfo.exe
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheInfo\TheInfo\obj\Debug\TheInfo.pdb

@@ -1,0 +1,17 @@
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\TheDamage.exe.config
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\TheDamage.exe
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\TheDamage.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\LeagueSharp.Common.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\LeagueSharp.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\SharpDX.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\LeagueSharp.Data.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\clipper_library.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\LeagueSharp.Sandbox.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\Newtonsoft.Json.dll
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\LeagueSharp.xml
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\LeagueSharp.Common.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\bin\Release\LeagueSharp.Data.pdb
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\obj\Release\TheDamage.csprojResolveAssemblyReference.cache
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\obj\Release\TheDamage.exe
+C:\Users\Nino\Documents\GitHub\LeagueSharp\TheDamage\TheDamage\obj\Release\TheDamage.pdb

@@ -1,1 +1,0 @@
-C:\Users\Nino\Documents\GitHub\LeagueSharp\TheTwitch\TheTwitch\obj\x86\Debug\TheTwitch.csprojResolveAssemblyReference.cache
