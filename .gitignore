@@ -5,9 +5,10 @@ ehthumbs.db
 # Folder config file
 Desktop.ini
 Update.cmd
+Check.cmd
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
-
+Shared/
 # Windows Installer files
 *.cab
 *.msi
