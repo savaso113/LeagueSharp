@@ -141,7 +141,7 @@ namespace TheCassiopeia
             lanepressureMenu.AddMItem("NOTE: Overrides Lane Clear when active.").FontColor = new ColorBGRA(0, 255, 255, 255);
             lanepressureMenu.AddMItem("NOTE: Uses Harass & Last Hit while pushing with AA.").FontColor = new ColorBGRA(0, 255, 255, 255);
             lanepressureMenu.AddMItem("NOTE: All Harass & Last Hit settings apply to it.").FontColor = new ColorBGRA(0, 255, 255, 255);
-           lanepressureMenu.ProcStoredValueChanged<bool>();
+            lanepressureMenu.ProcStoredValueChanged<bool>();
             lanepressureMenu.ProcStoredValueChanged<Slider>();
 
 
