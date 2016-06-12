@@ -92,6 +92,7 @@ namespace TheCassiopeia
             comboMenu.AddMItem("Only AA if in E Range already", true, (sender, args) => provider.AutoInComboAdvanced = args.GetNewValue<bool>());
             comboMenu.AddMItem("Static E Delay (milliseconds)", new Slider(50, 0, 250), (sender, args) => provider.GetSkill<CassE>().SkillDelay = args.GetNewValue<Slider>().Value);
             comboMenu.AddMItem("Max Random E Delay (milliseconds)", new Slider(0, 0, 250), (sender, args) => provider.GetSkill<CassE>().SkillDelayRnd = args.GetNewValue<Slider>().Value);
+            comboMenu.AddMItem("Only Q if NOT poisoned", false, (sender, args) => provider.GetSkill<CassQ>().OnlyQWhenNotPoisoned = args.GetNewValue<bool>());
             comboMenu.ProcStoredValueChanged<bool>();
             comboMenu.ProcStoredValueChanged<Slider>();
 
@@ -126,7 +127,9 @@ namespace TheCassiopeia
             gapcloserMenu.AddMItem("Otherwise Use W Instead", true, (sender, args) => provider.GetSkill<CassW>().UseOnGapcloser = args.GetNewValue<bool>());
 
             lasthitMenu.AddMItem("Use E", true, (sender, args) => provider.GetSkill<CassE>().Farm = args.GetNewValue<bool>());
-            lasthitMenu.AddMItem("Do not E if AA flying", true, (sender, args) => provider.GetSkill<CassE>().FilterFarmAA = args.GetNewValue<bool>());
+            lasthitMenu.AddMItem("Use Q", true, (sender, args) => provider.GetSkill<CassQ>().Farm = args.GetNewValue<bool>());
+            lasthitMenu.AddMItem("Only Q if Mana % > Than", new Slider(60), (sender, args) => provider.GetSkill<CassQ>().FarmIfHigherThan = args.GetNewValue<Slider>().Value);
+            lasthitMenu.AddMItem("Only Q if Min. Minions: ", new Slider(3, maxValue: 6), (sender, args) => provider.GetSkill<CassQ>().FarmIfMoreOrEqual = args.GetNewValue<Slider>().Value);
             lasthitMenu.ProcStoredValueChanged<bool>();
             lasthitMenu.ProcStoredValueChanged<Slider>();
 
@@ -138,10 +141,7 @@ namespace TheCassiopeia
             lanepressureMenu.AddMItem("NOTE: Overrides Lane Clear when active.").FontColor = new ColorBGRA(0, 255, 255, 255);
             lanepressureMenu.AddMItem("NOTE: Uses Harass & Last Hit while pushing with AA.").FontColor = new ColorBGRA(0, 255, 255, 255);
             lanepressureMenu.AddMItem("NOTE: All Harass & Last Hit settings apply to it.").FontColor = new ColorBGRA(0, 255, 255, 255);
-            lanepressureMenu.AddMItem("Use Q on Minions if E Ready", true, (sender, args) => provider.GetSkill<CassQ>().Farm = args.GetNewValue<bool>());
-            lanepressureMenu.AddMItem("Only Q if Mana % > Than", new Slider(60), (sender, args) => provider.GetSkill<CassQ>().FarmIfHigherThan = args.GetNewValue<Slider>().Value);
-            lanepressureMenu.AddMItem("Only Q if Min. Minions: ", new Slider(3, maxValue: 6), (sender, args) => provider.GetSkill<CassQ>().FarmIfMoreOrEqual = args.GetNewValue<Slider>().Value);
-            lanepressureMenu.ProcStoredValueChanged<bool>();
+           lanepressureMenu.ProcStoredValueChanged<bool>();
             lanepressureMenu.ProcStoredValueChanged<Slider>();
 
 

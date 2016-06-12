@@ -24,6 +24,7 @@ namespace TheCassiopeia
         public MenuItem LanepressureMenu;
         public bool AutoHarass;
         public int AutoHarassMana;
+        public bool OnlyQWhenNotPoisoned;
 
         public CassQ(SpellSlot slot)
             : base(slot)
@@ -114,7 +115,8 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
-            Cast(target);
+            if (!OnlyQWhenNotPoisoned || !target.IsPoisoned())
+                Cast(target);
         }
 
         public override int GetPriority()

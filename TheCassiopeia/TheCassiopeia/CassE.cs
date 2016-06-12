@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,8 +15,7 @@ namespace TheCassiopeia
     {
         public bool Farm;
         public int SkillDelay;
-        private int _recentAttacked;
-        public bool FilterFarmAA;
+        private int _killedWithE;
         public int SkillDelayRnd;
         private int _currentRandomDelay;
         private Random _random = new Random();
@@ -25,36 +25,38 @@ namespace TheCassiopeia
         {
             Range = Instance.SData.CastRange + 50;
             SetTargetted(0.2f, float.MaxValue);
-            Orbwalking.AfterAttack += AfterAutoAttack;
-            UseManaManager = false;
+            UseManaManager = true;
 
         }
 
         public override void Initialize(ComboProvider combo)
         {
             _currentRandomDelay = _random.Next(0, SkillDelayRnd);
+            Orbwalking.BeforeAttack += args =>
+            {
+                if (combo.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit || combo.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
+                {
+                    if (this.IsReady() && ManaManager.CanUseMana(Orbwalking.OrbwalkingMode.LastHit) || _killedWithE == args.Target.NetworkId)
+                        args.Process = false;
+                }
+            };
             base.Initialize(combo);
         }
 
-        private void AfterAutoAttack(AttackableUnit unit, AttackableUnit target)
-        {
-            if (unit.IsMe)
-                _recentAttacked = target.NetworkId;
-        }
 
         public override void Lasthit()
         {
             var killableMinion = MinionManager.GetMinions(Range, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion =>
             {
-                if (minion.NetworkId == _recentAttacked && FilterFarmAA) return false;
-                var hpred = HealthPrediction.GetHealthPrediction(minion, 300);
+                var hpred = HealthPrediction.GetHealthPrediction(minion, (int)(Delay * 1000f));
                 if (hpred <= 0) return false;
-                return IsKillable(minion) || minion.Team == GameObjectTeam.Neutral;
+                return GetDamage(minion) > hpred || minion.Team == GameObjectTeam.Neutral;
             });
 
             if (killableMinion == null) return;
 
             Cast(killableMinion);
+            _killedWithE = killableMinion.NetworkId;
         }
 
         public override void Execute(Obj_AI_Hero target)
@@ -90,6 +92,20 @@ namespace TheCassiopeia
         public override int GetPriority()
         {
             return 1;
+        }
+
+        public override void Draw()
+        {
+            if (Provider.Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LastHit) return;
+            var killableMinion = MinionManager.GetMinions(Range, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion =>
+            {
+                var hpred = HealthPrediction.GetHealthPrediction(minion, (int)(Delay * 1000f));
+                if (hpred <= 0) return false;
+                return GetDamage(minion) > hpred || minion.Team == GameObjectTeam.Neutral;
+            });
+            if (killableMinion != null)
+                Render.Circle.DrawCircle(killableMinion.Position, 75, Color.Aquamarine);
+            base.Draw();
         }
     }
 }
