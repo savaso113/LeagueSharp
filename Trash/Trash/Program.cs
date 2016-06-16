@@ -14,7 +14,7 @@ namespace Trash
         {
             CustomEvents.Game.OnGameLoad += eventArgs =>
             {
-                var trash = new[] { "Trash", "Just Trash", "trash" };
+                var trash = new[] { "Trash", "Just Trash", "trash", "Trash", "Just Trash", "trash", "Trash", "Just Trash", "trash", "Trash", "Just Trash", "trash", "Trash", "Just Trash", "trash", "Trash", "Just Trash", "trash", "I am a muslim", "hi im from turkey :)", "Ben bir Türk tanrısı değilim" };
 
                 var menu = new Menu("Trash", "Trash", true);
                 var item = new MenuItem("tk", "Trash Key");
