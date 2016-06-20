@@ -46,6 +46,7 @@ namespace TheCassiopeia
 
         public override void Lasthit()
         {
+            if (!Farm) return;
             var killableMinion = MinionManager.GetMinions(Range, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(minion =>
             {
                 var hpred = HealthPrediction.GetHealthPrediction(minion, (int)(Delay * 1000f));
