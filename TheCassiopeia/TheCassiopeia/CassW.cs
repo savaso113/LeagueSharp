@@ -18,9 +18,9 @@ namespace TheCassiopeia
         private CassR _r;
         public bool UseOnGapcloser;
         public float MinRange = 500f;
-        public float MaxRange = 900f;
+        public float MaxRange = 800f;
         public float MinRangeHigh = 500f;
-        public float MaxRangeHigh = 900f;
+        public float MaxRangeHigh = 800f;
         public int ClearMinHit;
 
         public CassW(SpellSlot slot)
