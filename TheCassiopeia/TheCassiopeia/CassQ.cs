@@ -115,6 +115,9 @@ namespace TheCassiopeia
 
         public override void Execute(Obj_AI_Hero target)
         {
+            if (_e.CanBeCast() && _e.IsKillable(target))
+                return;
+
             if (!OnlyQWhenNotPoisoned || !target.IsPoisoned())
                 Cast(target);
         }
