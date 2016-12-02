@@ -105,6 +105,7 @@ namespace TheCassiopeia
             laneclearMenu.AddMItem("Min W targets", new Slider(4, 1, 10), (sender, args) => provider.GetSkill<CassW>().ClearMinHit = args.GetNewValue<Slider>().Value);
             laneclearMenu.ProcStoredValueChanged<Slider>();
             miscMenu.AddMItem("Poison Influences Target Selection", false, (sender, args) => provider.EnablePoisonTargetSelection = args.GetNewValue<bool>());
+            miscMenu.AddMItem("Lasthit > Harass with E in mixed mode", false, (sender, args) => provider.GetSkill<CassE>().LasthitOverHarass = args.GetNewValue<bool>());
             miscMenu.ProcStoredValueChanged<Slider>();
             miscMenu.ProcStoredValueChanged<bool>();
 

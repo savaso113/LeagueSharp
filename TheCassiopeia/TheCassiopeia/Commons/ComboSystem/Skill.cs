@@ -17,6 +17,7 @@ namespace TheCassiopeia.Commons.ComboSystem
         protected bool UseManaManager;
         public bool SwitchClearToHarassOnTarget = true;
         protected bool OnlyUpdateIfTargetValid = true, OnlyUpdateIfCastable = true;
+        public bool LasthitOverHarass;
 
         protected Skill(SpellSlot slot, float range, TargetSelector.DamageType damageType)
             : base(slot, range, damageType)
@@ -64,9 +65,14 @@ namespace TheCassiopeia.Commons.ComboSystem
                 case Orbwalking.OrbwalkingMode.Mixed:
                     if (HarassEnabled)
                     {
+                        if (LasthitOverHarass)
+                            Lasthit();
+
                         if (targetIsValid || !OnlyUpdateIfTargetValid)
                             Harass(target);
-                        Lasthit();
+
+                        if (!LasthitOverHarass)
+                            Lasthit();
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
