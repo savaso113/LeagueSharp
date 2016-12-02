@@ -104,7 +104,7 @@ namespace TheCassiopeia
 
             laneclearMenu.AddMItem("Min W targets", new Slider(4, 1, 10), (sender, args) => provider.GetSkill<CassW>().ClearMinHit = args.GetNewValue<Slider>().Value);
             laneclearMenu.ProcStoredValueChanged<Slider>();
-            //miscMenu.AddMItem("Make Poison Influence Target Selection", true, (sender, args) => provider.EnablePoisonTargetSelection = args.GetNewValue<bool>());
+            miscMenu.AddMItem("Poison Influences Target Selection", false, (sender, args) => provider.EnablePoisonTargetSelection = args.GetNewValue<bool>());
             miscMenu.ProcStoredValueChanged<Slider>();
             miscMenu.ProcStoredValueChanged<bool>();
 

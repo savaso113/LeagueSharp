@@ -28,6 +28,7 @@ namespace TheCassiopeia
         public bool IgniteInBurstMode;
         public bool OnlyIgniteWhenNoE;
         public bool AutoInComboAdvanced;
+        public bool EnablePoisonTargetSelection;
 
         public CassioCombo(float targetSelectorRange, IEnumerable<Skill> skills, Orbwalking.Orbwalker orbwalker)
             : base(targetSelectorRange, skills, orbwalker)
@@ -152,12 +153,12 @@ namespace TheCassiopeia
                     target = newTarget;
             }
 
-            //if (EnablePoisonTargetSelection && target.IsValidTarget() && !target.IsPoisoned())
-            //{
-            //    var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall() && enemy.IsPoisoned() && !TargetSelector.IsInvulnerable(enemy, TargetSelector.DamageType.Magical)).MaxOrDefault(TargetSelector.GetPriority);
-            //    if (newTarget != null && TargetSelector.GetPriority(target) - TargetSelector.GetPriority(newTarget) < 0.5f)
-            //        return newTarget;
-            //}
+            if (EnablePoisonTargetSelection && target.IsValidTarget() && !target.IsPoisoned())
+            {
+                var newTarget = HeroManager.Enemies.Where(enemy => enemy.IsValidTarget(TargetRange) && !enemy.IsBehindWindWall() && enemy.IsPoisoned() && !TargetSelector.IsInvulnerable(enemy, TargetSelector.DamageType.Magical)).MaxOrDefault(TargetSelector.GetPriority);
+                if (newTarget != null && TargetSelector.GetPriority(target) - TargetSelector.GetPriority(newTarget) < 0.5f)
+                    return newTarget;
+            }
 
             return target;
         }
